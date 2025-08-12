@@ -46,7 +46,7 @@ export class ListeNouveauteComponent implements OnInit {
   }
 
   onAjouter(): void {
-    this.router.navigate(['/nouveaute/ajouter']);
+    this.router.navigate(['/bibliothecaire/nouveaute/ajouter']);
   }
 
   getSpeedDialItems(id: string) {

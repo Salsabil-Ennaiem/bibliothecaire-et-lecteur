@@ -10,20 +10,22 @@ namespace api.Features.Livre;
 public class LivresHandler
 {
     private readonly ILivresRepository _livresRepository;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    public LivresHandler(ILivresRepository livresRepository, IHttpContextAccessor httpContextAccessor)
+   // private readonly IHttpContextAccessor _httpContextAccessor;
+    public LivresHandler(ILivresRepository livresRepository)
+      // public LivresHandler(ILivresRepository livresRepository, IHttpContextAccessor httpContextAccessor)
+
     {
         _livresRepository = livresRepository;
-        _httpContextAccessor = httpContextAccessor;
+       // _httpContextAccessor = httpContextAccessor;
     }
-    private string GetCurrentUserId()
+   /* private string GetCurrentUserId()
     {
         var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
             throw new UnauthorizedAccessException("User is not authenticated.");
         return userId;
-    }
-
+    }*/
+/*
     //specifique
     public async Task<IEnumerable<LivreDTO>> GetAllLivresAsync()
     {
@@ -32,7 +34,7 @@ public class LivresHandler
         var filtered = entity.Where(e => e.Item2.id_biblio == userId);
         return entity.Select(e => e.Item1.Adapt<LivreDTO>());
 
-    }
+    }*/
     public async Task<IEnumerable<LivreDTO>> SearchAsync(string searchTerm)
     {
         try
@@ -68,17 +70,17 @@ public class LivresHandler
     }
     public async Task<LivreDTO> CreateAsync(CreateLivreRequest livredto)
     {
-        var userId = GetCurrentUserId();
+        //var userId = GetCurrentUserId();
         var livre = livredto.Adapt<Livres>();
         var inventaire = livredto.Adapt<Inventaire>();
-        inventaire.id_biblio = userId;
+        //inventaire.id_biblio = userId;
         var createdLivre = await _livresRepository.CreateAsync(livre, inventaire);
         return createdLivre.Adapt<LivreDTO>();
     }
-    public async Task<LivreDTO> UpdateAsync(UpdateLivreDTO livre, string id)
+    public async Task<LivreDTO> UpdateAsync(string id , UpdateLivreDTO UpdateLivreDTO)
     {
-        var entity = livre.Adapt<(Livres, Inventaire)>();
-        var update = await _livresRepository.UpdateAsync(entity.Item1, entity.Item2, id);
+        var entity = UpdateLivreDTO.Adapt<(Livres, Inventaire)>();
+        var update = await _livresRepository.UpdateAsync(id , entity.Item1, entity.Item2);
         return update.Adapt<LivreDTO>();
     }
     public async Task DeleteAsync(string id)
@@ -117,7 +119,7 @@ public class LivresHandler
                 var inventaire = new Inventaire
                 {
                     id_inv = Guid.NewGuid().ToString(),
-                    id_biblio = GetCurrentUserId(),
+                 //   id_biblio = GetCurrentUserId(),
                     id_liv = livre.id_livre,
                     cote_liv = row.GetCell(12)?.StringCellValue ?? string.Empty,
                     etat = etat,

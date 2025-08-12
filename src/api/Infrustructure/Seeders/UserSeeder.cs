@@ -14,12 +14,12 @@ public class UserSeeder
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
             // Check if roles exist
-            var roleExists = await roleManager.RoleExistsAsync("ADMIN") && await roleManager.RoleExistsAsync("Bibliothecaire");
+            var roleExists = await roleManager.RoleExistsAsync("Membre") && await roleManager.RoleExistsAsync("Bibliothecaire");
             if (!roleExists)
             {
                 await roleManager.CreateAsync(new IdentityRole("Bibliothecaire"));
-                await roleManager.CreateAsync(new IdentityRole("ADMIN"));
-                Console.WriteLine("✅ Created 'Bibliothecaire , ADMIN' roles");
+                await roleManager.CreateAsync(new IdentityRole("Membre"));
+                Console.WriteLine("✅ Created 'Bibliothecaire , Membre' roles");
             }
             else
             {
@@ -28,7 +28,7 @@ public class UserSeeder
 
             var existingUsersCount = await userManager.Users.CountAsync();
             Console.WriteLine($"📊 Nombre d'utilisateurs existants: {existingUsersCount}");
-            if (existingUsersCount >= 2)
+            if (existingUsersCount >= 3)
             {
                 Console.WriteLine("ℹ️ Users already exist in database");
                 return;
@@ -37,8 +37,10 @@ public class UserSeeder
             var users = new List<(string email, string password, string nom, string prenom)>
             {
 
-                ("ennaiemsalsabil@gmail.com", "Admin@123", "Admin", "User"),
-                ("salsabinaim15@gmail.com", "Biblio@123", "Salsabil", "Naim")
+                ("ennaiemsalsabil@gmail.com", "Membre@123", "Membre", "User"),
+                ("salsabinaim15@gmail.com", "Biblio@123", "Salsabil", "Naim"),
+                                ("salsabinaim15@gmail.com", "Biblio@123", "Salsabil", "Naim")
+
 
             };
 
@@ -53,7 +55,7 @@ public class UserSeeder
                     {
                         UserName = email,
                         Email = email,
-                        EmailConfirmed = true,
+                       // EmailConfirmed = true,
                         nom = nom,
                         prenom = prenom
                     };
@@ -74,9 +76,9 @@ public class UserSeeder
                 }
             }
 
-            if (createdUserIds.Count >= 2)
+            if (createdUserIds.Count >= 3)
             {
-                await DataSeeder.SeedAllDataAsync(serviceProvider, createdUserIds[0], createdUserIds[1]);
+                await DataSeeder.SeedAllDataAsync(serviceProvider);
             }
         }
         catch (Exception ex)

@@ -31,38 +31,37 @@
 
 
 
-<!--
 <div class="container mt-4">
     <div class="row g-4">
-        <div class="col-md-4" *ngFor="let emprunt of filteredEmprunts">
-            <div class="flip-card" (click)="toggleFlip(emprunt.id)">
-                <div class="flip-card-inner" [class.flipped]="emprunt.isFlipped">
-                     Front of the card -->
-                   <!-- <div class="flip-card-front">
+        <div class="col-md-4" *ngFor="let emprunt of emprunts">
+            <div class="flip-card" (click)="toggleFlip(emprunt.id_emp)">
+                <div class="flip-card-inner" [class.flipped]="isFlipped">
+                    <!-- Front of the card -->
+                   <div class="flip-card-front">
                         <p-card styleClass="shadow-2 h-100">
                             <div class="p-4 text-center position-relative">
-                                <h3 class="mb-3">Emprunt #{{ emprunt.id }}</h3>
-                                <p><strong>Id Emprunteur  :</strong> {{ emprunt.id_Emprunteur }} TDN </p>
-                                <p><strong>Cote livre :</strong> {{ emprunt.Cote_Liv  }}</p>
+                                <h3 class="mb-3">Emprunt #{{ emprunt.id_emp }}</h3>
+                                <p><strong>Id Emprunteur  :</strong> {{ emprunt.id_emp }} TDN </p>
+                                <p><strong>Cote livre :</strong> {{ emprunt.id_emp }}</p>
                                 <p><strong>Statut :</strong> {{ emprunt.statut }}</p>
-                                <p><strong>date retoure prevu  :</strong> {{ emprunt.DateRetourePrevu | date:'dd/MM/yyyy' }}</p>
-                                 Speed Dial -->
-                               <!-- <p-speedDial class="position-absolute top-0 start-0 m-2"
-                                    (click)="toggleSpeedDial($event, emprunt.id)" [model]="emprunt.speedDialItems"
+                                <p><strong>date retoure prevu  :</strong> {{ emprunt.date_retour_prevu | date:'dd/MM/yyyy' }}</p>
+                                   <!-- Speed Dial -->
+                             <!--<p-speedDial class="position-absolute top-0 start-0 m-2"
+                                    (click)="toggleSpeedDial($event, emprunt.id_emp)" [model]="emprunt.speedDialItems"
                                     [visible]="emprunt.showSpeedDial" direction="down" showIcon="pi pi-ellipsis-v"
                                     buttonClass="p-button-sm p-button-text">
-                                </p-speedDial>
+                                </p-speedDial>-->
                             </div>
                         </p-card>
                     </div>
-                    Back of the card -->
-                    <!-- <div class="flip-card-back">
+                     <!--Back of the card -->
+                    <div class="flip-card-back">
                         <p-card styleClass="shadow-2 h-100">
                             <div class="p-4 text-center">
-                                <h3 class="mb-3">Détails Emprunt #{{ emprunt.id }}</h3>
-                                <p><strong>date emprunt :</strong> {{ emprunt.Date_Emprunt | date:'dd/MM/yyyy' }} mois</p>
-                                <p><strong>date Effectif :</strong> {{ emprunt.Date_Effectif| date:'dd/MM/yyyy' }} TDN </p>
-                                <p><strong>Note :</strong> {{ emprunt.Note }}</p>
+                                <h3 class="mb-3">Détails Emprunt #{{ emprunt.id_emp }}</h3>
+                                <p><strong>date emprunt :</strong> {{ emprunt.date_emp | date:'dd/MM/yyyy' }} mois</p>
+                                <p><strong>date Effectif :</strong> {{ emprunt.date_effectif| date:'dd/MM/yyyy' }} TDN </p>
+                                <p><strong>Note :</strong> {{ emprunt.note }}</p>
                             </div>
                         </p-card>
                     </div>
@@ -70,4 +69,4 @@
             </div>
         </div>
     </div>
-</div>-->
+</div>

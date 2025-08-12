@@ -6,14 +6,13 @@ namespace Infrastructure.Seeders;
 
 public class InventaireSeeder
 {
-    public static async Task<List<Inventaire>> SeedInventairesAsync(BiblioDbContext dbContext, List<Livres> livres, string biblio1Id, string biblio2Id)
+    public static async Task<List<Inventaire>> SeedInventairesAsync(BiblioDbContext dbContext, List<Livres> livres)
     {
         var inventaires = new List<Inventaire>
         {
             new Inventaire
             {
                 id_inv = Guid.NewGuid().ToString(),
-                id_biblio = biblio1Id,
                 id_liv = livres[0].id_livre,
                 cote_liv = "PROG-001",
                 etat = etat_liv.neuf,
@@ -23,8 +22,6 @@ public class InventaireSeeder
             new Inventaire
             {
                 id_inv = Guid.NewGuid().ToString(),
-                                id_biblio = biblio2Id,
-
                 id_liv = livres[1].id_livre,
                 cote_liv = "DATA-001",
                 etat = etat_liv.moyen,
@@ -34,8 +31,6 @@ public class InventaireSeeder
             new Inventaire
             {
                 id_inv = Guid.NewGuid().ToString(),
-                                id_biblio = biblio1Id,
-
                 id_liv = livres[2].id_livre,
                 cote_liv = "ARCH-001",
                 etat = etat_liv.moyen,
@@ -45,8 +40,6 @@ public class InventaireSeeder
             new Inventaire
             {
                 id_inv = Guid.NewGuid().ToString(),
-                                id_biblio = biblio2Id,
-
                 id_liv = livres[3].id_livre,
                 cote_liv = "JS-001",
                 etat = etat_liv.mauvais,

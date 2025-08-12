@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Data;
 using domain.Entity;
 
@@ -5,9 +6,10 @@ namespace Infrastructure.Seeders;
 
 public class LivreSeeder
 {
-    
+
     public static async Task<List<Livres>> SeedLivresAsync(BiblioDbContext dbContext)
     {
+
         var livres = new List<Livres>
         {
             new Livres
@@ -52,7 +54,7 @@ public class LivreSeeder
                 isbn = "978-2-3333-4444-5",
                 editeur = "Editions JS",
                 Description = "JavaScript pour experts",
-                Langue = "Français" 
+                Langue = "Français"
             }
         };
 

@@ -1,7 +1,3 @@
-
-using domain.Entity;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Features.Livre;
@@ -23,30 +19,27 @@ public class LivresController : ControllerBase
         var results = await _livresHandler.SearchAsync(term);
         return Ok(results);
     }
-
-    [HttpGet("Getall")]
+/*
+    [HttpGet("Getalluser")]
     public async Task<IActionResult> GetAlllivre()
     {
         var livres = await _livresHandler.GetAllLivresAsync();
         return Ok(livres);
-    }
+    }*/
 
-[Authorize]
 
-    [HttpGet("GetallUser")]
+    [HttpGet("Getall")]
     public async Task<IActionResult> GetAll()
     {
         var livres = await _livresHandler.GetAllAsync();
         return Ok(livres);
     }
-[Authorize]
     [HttpGet("Get{id}")]
     public async Task<IActionResult> GetById(string id)
     {
         var livre = await _livresHandler.GetByIdAsync(id);
         return Ok(livre);
     }
-[Authorize]
 
 
     [HttpPost("Create")]
@@ -55,16 +48,14 @@ public class LivresController : ControllerBase
         var createdLivre = await _livresHandler.CreateAsync(livre);
         return Ok(createdLivre);
     }
-    [Authorize]
 
 
     [HttpPut("Update{id}")]
     public async Task<IActionResult> Update(string id, [FromBody] UpdateLivreDTO livre)
     {
-        var updated = await _livresHandler.UpdateAsync(livre, id);
+        var updated = await _livresHandler.UpdateAsync(id , livre);
         return Ok(updated);
     }
-[Authorize]
 
     [HttpDelete("Delete{id}")]
     public async Task<IActionResult> Delete(string id)
@@ -72,7 +63,6 @@ public class LivresController : ControllerBase
         await _livresHandler.DeleteAsync(id);
         return NoContent();
     }
-[Authorize]
 
 
     [HttpPost("import")]
@@ -85,7 +75,6 @@ public class LivresController : ControllerBase
         await _livresHandler.ImportAsync(stream);
         return Ok("Import successful");
     }
-    [Authorize]
 
 
     [HttpGet("export")]

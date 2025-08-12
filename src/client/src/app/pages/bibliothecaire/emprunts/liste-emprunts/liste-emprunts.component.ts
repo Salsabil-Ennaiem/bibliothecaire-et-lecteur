@@ -120,10 +120,10 @@ export class ListeEmpruntsComponent implements OnInit {
     /*this.searchResults = this.emprunts.filter(e =>
       e.cin_ou_passeport.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
       e.date_emp.toString().includes(this.searchQuery.toLowerCase())*/
-      this.EmpService.search(this.searchQuery).subscribe(
+    this.EmpService.search(this.searchQuery).subscribe(
       data => this.searchResults = data,
       error => console.error('Error searching livres:', error)
-    
+
     );
   }
   @HostListener('document:click', ['$event'])

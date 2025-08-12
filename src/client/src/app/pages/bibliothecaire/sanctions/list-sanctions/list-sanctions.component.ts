@@ -5,7 +5,7 @@ import { SelectModule } from 'primeng/select';
 import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -33,7 +33,7 @@ interface FilterOption {
 @Component({
   selector: 'app-list-sanctions',
   imports: [ InputIconModule , IconFieldModule, InputTextModule,RouterOutlet,
-    ButtonModule, CardModule, SelectModule, CommonModule, FormsModule, RouterLink],
+    ButtonModule, CardModule, SelectModule, CommonModule, FormsModule],
       templateUrl: './list-sanctions.component.html',
   styleUrl: './list-sanctions.component.css'
 })

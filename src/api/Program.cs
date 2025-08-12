@@ -55,7 +55,6 @@ builder.Services.AddIdentity<Bibliothecaire, IdentityRole>(options =>
 }).AddEntityFrameworkStores<BiblioDbContext>().AddDefaultTokenProviders();
 
 
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -77,9 +76,6 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddHttpContextAccessor();
-
-
-
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -124,9 +120,8 @@ builder.Services.AddScoped<LoginHandler>();
 builder.Services.AddScoped<NouveauteHandler>();
 builder.Services.AddScoped<ForgotPasswordHandler>();
 builder.Services.AddScoped<ProfileHandler>();
-
-
  
+
 builder.Services.AddBiruniServices(builder.Configuration);
 builder.Services.AddHttpClient<BiruniHtmlExtractor>(client =>
 {
@@ -139,6 +134,9 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new() { Title = "Biruni Scraper", Version = "v1" });
 });
 
+
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularDevClient", policy =>
@@ -149,11 +147,6 @@ builder.Services.AddCors(options =>
               .AllowCredentials(); //  l’authentification par cookie
     });
 });
-
-// Masquer les metadata
-/*builder.Services.Configure<ServerOptions>(options => {
-    options.AddServerHeader = false;
-});*/
 
 
 var app = builder.Build();
@@ -169,18 +162,19 @@ if (app.Environment.IsDevelopment())
 // Appel du seeding au démarrage de l'application
 using (var scope = app.Services.CreateScope())
 {
+        var dbContext = scope.ServiceProvider.GetRequiredService<BiblioDbContext>();
     var services = scope.ServiceProvider;
+    using var transaction = await dbContext.Database.BeginTransactionAsync();
     try
-    {
-        Console.WriteLine("🚀 Starting application seeding process...");
-
-        
-        await UserSeeder.SeedUsersAsync(services);
+    {     await DataSeeder.SeedAllDataAsync(services);
+        await transaction.CommitAsync();
+        //  await UserSeeder.SeedUsersAsync(services);
 
         Console.WriteLine("✅ Seeding process completed successfully!");
     }
     catch (Exception ex)
     {
+        await transaction.RollbackAsync();
         Console.WriteLine($"❌ Error during seeding: {ex.Message}");
         Console.WriteLine($"Stack trace: {ex.StackTrace}");
     }

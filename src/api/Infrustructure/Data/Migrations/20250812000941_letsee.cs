@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -8,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace api.Migrations
 {
     /// <inheritdoc />
-    public partial class createbd : Migration
+    public partial class letsee : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -25,33 +24,6 @@ namespace api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetRoles", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Bibliothecaires",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    nom = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    prenom = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    PasswordHash = table.Column<string>(type: "text", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Bibliothecaires", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -88,12 +60,6 @@ namespace api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserClaims_Bibliothecaires_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Bibliothecaires",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -108,12 +74,6 @@ namespace api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserLogins_Bibliothecaires_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Bibliothecaires",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -132,12 +92,6 @@ namespace api.Migrations
                         principalTable: "AspNetRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_Bibliothecaires_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Bibliothecaires",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -152,38 +106,36 @@ namespace api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserTokens_Bibliothecaires_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Bibliothecaires",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Livres",
+                name: "Bibliothecaires",
                 columns: table => new
                 {
-                    id_livre = table.Column<string>(type: "text", nullable: false),
-                    id_biblio = table.Column<string>(type: "text", nullable: true),
-                    date_edition = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                    titre = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    auteur = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    isbn = table.Column<string>(type: "character varying(18)", maxLength: 18, nullable: true),
-                    editeur = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    nom = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
+                    prenom = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
+                    adresse = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
-                    Langue = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: true),
-                    couverture = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true)
+                    Photo = table.Column<string>(type: "text", nullable: true),
+                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Livres", x => x.id_livre);
-                    table.ForeignKey(
-                        name: "FK_Livres_Bibliothecaires_id_biblio",
-                        column: x => x.id_biblio,
-                        principalTable: "Bibliothecaires",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                    table.PrimaryKey("PK_Bibliothecaires", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -208,31 +160,7 @@ namespace api.Migrations
                         name: "FK_Membre_Bibliothecaires_id_biblio",
                         column: x => x.id_biblio,
                         principalTable: "Bibliothecaires",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Nouveaute",
-                columns: table => new
-                {
-                    id_nouv = table.Column<string>(type: "text", nullable: false),
-                    id_biblio = table.Column<string>(type: "text", nullable: true),
-                    titre = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    fichier = table.Column<Dictionary<string, object>>(type: "jsonb", nullable: true),
-                    description = table.Column<string>(type: "text", nullable: true),
-                    date_publication = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    couverture = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true, defaultValue: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Favf.asso.fr%2Famboise%2Fwp-content%2Fuploads%2Fsites%2F171%2F2021%2F03%2FLogo-Nouveau.jpg&f=1&nofb=1&ipt=fdbaaa07e45eb9aa0e1f8802a963c3259485319662623816e07adf250d84f1f9")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Nouveaute", x => x.id_nouv);
-                    table.ForeignKey(
-                        name: "FK_Nouveaute_Bibliothecaires_id_biblio",
-                        column: x => x.id_biblio,
-                        principalTable: "Bibliothecaires",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -254,30 +182,7 @@ namespace api.Migrations
                         name: "FK_Parametres_Bibliothecaires_IdBiblio",
                         column: x => x.IdBiblio,
                         principalTable: "Bibliothecaires",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Inventaire",
-                columns: table => new
-                {
-                    id_inv = table.Column<string>(type: "text", nullable: false),
-                    id_liv = table.Column<string>(type: "text", nullable: false),
-                    cote_liv = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                    etat = table.Column<string>(type: "text", nullable: false, defaultValue: "moyen"),
-                    statut = table.Column<string>(type: "text", nullable: false, defaultValue: "disponible"),
-                    inventaire = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Inventaire", x => x.id_inv);
-                    table.ForeignKey(
-                        name: "FK_Inventaire_Livres_id_liv",
-                        column: x => x.id_liv,
-                        principalTable: "Livres",
-                        principalColumn: "id_livre",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -301,8 +206,7 @@ namespace api.Migrations
                         name: "FK_Statistiques_Parametres_id_param",
                         column: x => x.id_param,
                         principalTable: "Parametres",
-                        principalColumn: "id_param",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "id_param");
                 });
 
             migrationBuilder.CreateTable(
@@ -313,7 +217,7 @@ namespace api.Migrations
                     id_membre = table.Column<string>(type: "text", nullable: false),
                     id_biblio = table.Column<string>(type: "text", nullable: true),
                     Id_inv = table.Column<string>(type: "text", nullable: false),
-                    date_emp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2025, 5, 26, 12, 47, 30, 213, DateTimeKind.Utc).AddTicks(8473)),
+                    date_emp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2025, 8, 12, 0, 9, 39, 603, DateTimeKind.Utc).AddTicks(8494)),
                     date_retour_prevu = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     date_effectif = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Statut_emp = table.Column<string>(type: "text", nullable: false, defaultValue: "en_cours"),
@@ -326,20 +230,13 @@ namespace api.Migrations
                         name: "FK_Emprunts_Bibliothecaires_id_biblio",
                         column: x => x.id_biblio,
                         principalTable: "Bibliothecaires",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Emprunts_Inventaire_Id_inv",
-                        column: x => x.Id_inv,
-                        principalTable: "Inventaire",
-                        principalColumn: "id_inv",
-                        onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_Emprunts_Membre_id_emp",
-                        column: x => x.id_emp,
+                        name: "FK_Emprunts_Membre_id_membre",
+                        column: x => x.id_membre,
                         principalTable: "Membre",
                         principalColumn: "id_membre",
-                        onDelete: ReferentialAction.SetNull);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -352,7 +249,7 @@ namespace api.Migrations
                     id_emp = table.Column<string>(type: "text", nullable: true),
                     raison = table.Column<string>(type: "text", nullable: false),
                     date_sanction = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    date_fin_sanction = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    date_fin_sanction = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     montant = table.Column<decimal>(type: "numeric(100,3)", nullable: true),
                     payement = table.Column<bool>(type: "boolean", nullable: true),
                     active = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
@@ -365,20 +262,116 @@ namespace api.Migrations
                         name: "FK_Sanction_Bibliothecaires_id_biblio",
                         column: x => x.id_biblio,
                         principalTable: "Bibliothecaires",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Sanction_Emprunts_id_emp",
                         column: x => x.id_emp,
                         principalTable: "Emprunts",
-                        principalColumn: "id_emp",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "id_emp");
                     table.ForeignKey(
                         name: "FK_Sanction_Membre_id_membre",
                         column: x => x.id_membre,
                         principalTable: "Membre",
                         principalColumn: "id_membre",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Fichier",
+                columns: table => new
+                {
+                    IdFichier = table.Column<string>(type: "text", nullable: false),
+                    NomFichier = table.Column<string>(type: "text", nullable: true),
+                    CheminFichier = table.Column<string>(type: "text", nullable: true),
+                    TypeFichier = table.Column<string>(type: "text", nullable: true),
+                    ContenuFichier = table.Column<byte[]>(type: "bytea", nullable: false),
+                    TailleFichier = table.Column<long>(type: "bigint", nullable: false),
+                    DateCreation = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    NouveauteId = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Fichier", x => x.IdFichier);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Livres",
+                columns: table => new
+                {
+                    id_livre = table.Column<string>(type: "text", nullable: false),
+                    date_edition = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    titre = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    auteur = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    isbn = table.Column<string>(type: "character varying(18)", maxLength: 18, nullable: true),
+                    editeur = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    Langue = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: true),
+                    couverture = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Livres", x => x.id_livre);
+                    table.ForeignKey(
+                        name: "FK_Livres_Fichier_couverture",
+                        column: x => x.couverture,
+                        principalTable: "Fichier",
+                        principalColumn: "IdFichier");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Nouveaute",
+                columns: table => new
+                {
+                    id_nouv = table.Column<string>(type: "text", nullable: false),
+                    id_biblio = table.Column<string>(type: "text", nullable: true),
+                    titre = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    fichier = table.Column<string>(type: "jsonb", nullable: true),
+                    description = table.Column<string>(type: "text", nullable: true),
+                    date_publication = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    couverture = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true, defaultValue: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Favf.asso.fr%2Famboise%2Fwp-content%2Fuploads%2Fsites%2F171%2F2021%2F03%2FLogo-Nouveau.jpg&f=1&nofb=1&ipt=fdbaaa07e45eb9aa0e1f8802a963c3259485319662623816e07adf250d84f1f9")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Nouveaute", x => x.id_nouv);
+                    table.ForeignKey(
+                        name: "FK_Nouveaute_Bibliothecaires_id_biblio",
+                        column: x => x.id_biblio,
+                        principalTable: "Bibliothecaires",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Nouveaute_Fichier_couverture",
+                        column: x => x.couverture,
+                        principalTable: "Fichier",
+                        principalColumn: "IdFichier");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Inventaire",
+                columns: table => new
+                {
+                    id_inv = table.Column<string>(type: "text", nullable: false),
+                    id_biblio = table.Column<string>(type: "text", nullable: true),
+                    id_liv = table.Column<string>(type: "text", nullable: false),
+                    cote_liv = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    etat = table.Column<string>(type: "text", nullable: false, defaultValue: "moyen"),
+                    statut = table.Column<string>(type: "text", nullable: false, defaultValue: "disponible"),
+                    inventaire = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Inventaire", x => x.id_inv);
+                    table.ForeignKey(
+                        name: "FK_Inventaire_Bibliothecaires_id_biblio",
+                        column: x => x.id_biblio,
+                        principalTable: "Bibliothecaires",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_Inventaire_Livres_id_liv",
+                        column: x => x.id_liv,
+                        principalTable: "Livres",
+                        principalColumn: "id_livre",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -413,6 +406,12 @@ namespace api.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Bibliothecaires_Photo",
+                table: "Bibliothecaires",
+                column: "Photo",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "Bibliothecaires",
                 column: "NormalizedUserName",
@@ -429,14 +428,30 @@ namespace api.Migrations
                 column: "Id_inv");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Emprunts_id_membre",
+                table: "Emprunts",
+                column: "id_membre");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Fichier_NouveauteId",
+                table: "Fichier",
+                column: "NouveauteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Inventaire_id_biblio",
+                table: "Inventaire",
+                column: "id_biblio");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Inventaire_id_liv",
                 table: "Inventaire",
                 column: "id_liv");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Livres_id_biblio",
+                name: "IX_Livres_couverture",
                 table: "Livres",
-                column: "id_biblio");
+                column: "couverture",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Livres_isbn",
@@ -460,6 +475,12 @@ namespace api.Migrations
                 name: "IX_Membre_id_biblio",
                 table: "Membre",
                 column: "id_biblio");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Nouveaute_couverture",
+                table: "Nouveaute",
+                column: "couverture",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Nouveaute_id_biblio",
@@ -491,11 +512,73 @@ namespace api.Migrations
                 table: "Statistiques",
                 column: "id_param",
                 unique: true);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AspNetUserClaims_Bibliothecaires_UserId",
+                table: "AspNetUserClaims",
+                column: "UserId",
+                principalTable: "Bibliothecaires",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AspNetUserLogins_Bibliothecaires_UserId",
+                table: "AspNetUserLogins",
+                column: "UserId",
+                principalTable: "Bibliothecaires",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AspNetUserRoles_Bibliothecaires_UserId",
+                table: "AspNetUserRoles",
+                column: "UserId",
+                principalTable: "Bibliothecaires",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_AspNetUserTokens_Bibliothecaires_UserId",
+                table: "AspNetUserTokens",
+                column: "UserId",
+                principalTable: "Bibliothecaires",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Bibliothecaires_Fichier_Photo",
+                table: "Bibliothecaires",
+                column: "Photo",
+                principalTable: "Fichier",
+                principalColumn: "IdFichier");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Emprunts_Inventaire_Id_inv",
+                table: "Emprunts",
+                column: "Id_inv",
+                principalTable: "Inventaire",
+                principalColumn: "id_inv",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Fichier_Nouveaute_NouveauteId",
+                table: "Fichier",
+                column: "NouveauteId",
+                principalTable: "Nouveaute",
+                principalColumn: "id_nouv");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Nouveaute_Bibliothecaires_id_biblio",
+                table: "Nouveaute");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Nouveaute_Fichier_couverture",
+                table: "Nouveaute");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -510,9 +593,6 @@ namespace api.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
-
-            migrationBuilder.DropTable(
-                name: "Nouveaute");
 
             migrationBuilder.DropTable(
                 name: "Sanction");
@@ -540,6 +620,12 @@ namespace api.Migrations
 
             migrationBuilder.DropTable(
                 name: "Bibliothecaires");
+
+            migrationBuilder.DropTable(
+                name: "Fichier");
+
+            migrationBuilder.DropTable(
+                name: "Nouveaute");
         }
     }
 }

@@ -1,9 +1,7 @@
 using Data;
 using domain.Entity;
 using domain.Interfaces;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging.Console;
 
 namespace Infrastructure.Repositories
 {
@@ -11,7 +9,7 @@ namespace Infrastructure.Repositories
     {
         private readonly BiblioDbContext _dbContext;
 
-        public LivresRepository(BiblioDbContext dbContext, IHttpContextAccessor httpContextAccessor)
+        public LivresRepository(BiblioDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -35,7 +33,7 @@ namespace Infrastructure.Repositories
                 var query = from l in _dbContext.Livres
                             join i in _dbContext.Inventaires
                                 on l.id_livre equals i.id_liv
-                            where l.id_livre == id
+                            where i.id_inv == id
                             // && l.id_biblio == userId
                             select new { Livre = l, Inventaire = i };
 
@@ -78,15 +76,15 @@ namespace Infrastructure.Repositories
                 throw;
             }
         }
-        public async Task<(Livres, Inventaire)> UpdateAsync(Livres livre, Inventaire inventaire, string id)
+        public async Task<(Livres, Inventaire)> UpdateAsync( string id ,Livres livre, Inventaire inventaire)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
 
-                var Livre = await GetByIdAsync(id);
-                _dbContext.Entry(Livre.Item1).CurrentValues.SetValues(livre);
-                _dbContext.Entry(Livre.Item2).CurrentValues.SetValues(inventaire);
+                var UpdateLivreDTO = await GetByIdAsync(id);
+                _dbContext.Entry(UpdateLivreDTO.Item1).CurrentValues.SetValues(livre);
+                _dbContext.Entry(UpdateLivreDTO.Item2).CurrentValues.SetValues(inventaire);
                 await _dbContext.SaveChangesAsync();
 
                 await transaction.CommitAsync();

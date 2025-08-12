@@ -38,7 +38,7 @@ export const routes: Routes = [
         {path:'sanctions' , component:SanctionsComponent ,
           children:[
              {path:'',component:ListSanctionsComponent },
-            {path:'ajouter/:id',component:AjoutSanctionComponent }
+            {path:'ajouter',component:AjoutSanctionComponent }
           ]
         } ,
         {path:'nouveaute', component :NouveauteComponent ,

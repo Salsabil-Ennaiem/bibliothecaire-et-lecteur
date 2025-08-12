@@ -3,9 +3,6 @@
       <p-select [options]="filterOptions" [(ngModel)]="selectedFilter" optionLabel="label" optionValue="value"
                 placeholder="Filtrer par statut" styleClass="w-auto" (onChange)="applyFilter()">
       </p-select>
-      <button pButton icon="pi pi-plus" routerLink="ajouter" class="btn btn-primary">
-        <span class="d-none d-md-inline">Ajouter</span>
-      </button>
 
       <div id="search-container" class="position-relative w-100 d-md-inline " style="max-width: 20rem;">
         <div *ngIf="isInputVisible; else buttonTemplate">
