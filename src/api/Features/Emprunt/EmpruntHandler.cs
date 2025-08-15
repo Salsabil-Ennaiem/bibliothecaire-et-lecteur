@@ -14,53 +14,54 @@ public class EmpruntHandler
 {
     private readonly IEmpruntsRepository _empruntsRepository;
     private readonly IRepository<Membre> _membreRepository;
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IParametreRepository _parametreRepository;
     private readonly UserManager<Bibliothecaire> _userManager;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IConfiguration _configuration;
 
-    public EmpruntHandler(UserManager<Bibliothecaire> userManager, IEmpruntsRepository empruntsRepository, IHttpContextAccessor httpContextAccessor, IParametreRepository parametreRepository, IConfiguration configuration)
+    public EmpruntHandler(IHttpContextAccessor httpContextAccessor ,UserManager<Bibliothecaire> userManager, IEmpruntsRepository empruntsRepository, IParametreRepository parametreRepository, IConfiguration configuration )
     {
         _empruntsRepository = empruntsRepository;
-        _httpContextAccessor = httpContextAccessor;
         _parametreRepository = parametreRepository;
         _userManager = userManager;
+        _httpContextAccessor = httpContextAccessor ;
         _configuration = configuration;
     }
 
+       public async Task<IEnumerable<EmppruntDTO>> GetAllAsync()
+    {
+     var entities = await _empruntsRepository.GetAllAsync();
+        return entities.Adapt<IEnumerable<EmppruntDTO>>();
+    }
+    public async Task<EmppruntDTO> GetByIdAsync(string id)
+    {
+        var entity = await _empruntsRepository.GetByIdAsync(id);
+        /*if (entity.id_biblio != userId)
+            throw new UnauthorizedAccessException("Access denied.");
+            */
+        return entity.Adapt<EmppruntDTO>();
+    }
     private string GetCurrentUserId()
     {
-        var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
             throw new UnauthorizedAccessException("User is not authenticated.");
         return userId;
     }
-    public async Task<IEnumerable<EmppruntDTO>> GetAllAsync()
-    {
-        var userId = GetCurrentUserId();
-        var entities = await _empruntsRepository.GetAllAsync();
-        var filtered = entities.Where(e => e.id_biblio == userId);
-        return filtered.Adapt<IEnumerable<EmppruntDTO>>();
-    }
-    public async Task<EmppruntDTO> GetByIdAsync(string id)
-    {
-        var userId = GetCurrentUserId();
-        var entity = await _empruntsRepository.GetByIdAsync(id);
-        if (entity.id_biblio != userId)
-            throw new UnauthorizedAccessException("Access denied.");
-        return entity.Adapt<EmppruntDTO>();
-    }
     public async Task<IEnumerable<Emprunts>> SearchAsync(string searchTerm)
     {
-        var entities = await _empruntsRepository.SearchAsync(searchTerm);
-        var id = GetCurrentUserId();
-        var filtered = entities.Where(e => e.id_biblio == id);
-        return filtered;
+        var list = await _empruntsRepository.GetAllAsync();
+        var query = list.Where(e => e.date_emp.ToString().Contains(searchTerm)
+                           || (e.Id_inv != null && e.Id_inv.Contains(searchTerm))
+                           || e.Statut_emp.ToString().Contains(searchTerm)
+                           || (e.note != null && e.note.Contains(searchTerm))
+                           || (e.id_membre != null && e.id_membre.Contains(searchTerm)));
+
+
+            return query;
     }
     public async Task<EmppruntDTO> CreateAsync(CreateEmpRequest empdto)
     {
-        var userId = GetCurrentUserId();
-
         // 1. Recherche du membre existant via le repository générique
         var allMembres = await _membreRepository.GetAllAsync(); 
         var membreExistant = allMembres.FirstOrDefault(m =>
@@ -73,19 +74,20 @@ public class EmpruntHandler
         {
             var nouveauMembre = empdto.Adapt<Membre>(); 
             nouveauMembre.id_membre = Guid.NewGuid().ToString();
-            nouveauMembre.id_biblio = userId;
-
             membreExistant = await _membreRepository.CreateAsync(nouveauMembre);
         }
 
         // 3. Récupération des paramètres pour le délai d'emprunt
+      /*  var userId = GetCurrentUserId();
         var parametre = await _parametreRepository.GetParam(userId);
+        if (parametre == null)
+            throw new Exception("Parametre not found for the user.");*/
+             var parametre = await _parametreRepository.GetParam();
         if (parametre == null)
             throw new Exception("Parametre not found for the user.");
 
         // 4. Création de l'entité Emprunt
         var empruntEntity = empdto.Adapt<Emprunts>();
-        empruntEntity.id_biblio = userId;
         empruntEntity.id_membre = membreExistant.id_membre;
         empruntEntity.date_emp = DateTime.UtcNow;
 
@@ -118,7 +120,7 @@ public class EmpruntHandler
         var userId = GetCurrentUserId();
         var today = DateTime.UtcNow;
 
-        var parametre = await _parametreRepository.GetParam(userId);
+        var parametre = await _parametreRepository.GetParam();
         if (parametre == null)
             throw new Exception("Parametre not found for the user.");
 
@@ -189,7 +191,7 @@ public class EmpruntHandler
     }
     public async Task<MemoryStream> ExportAsync()
     {
-        var data = await _empruntsRepository.SearchAsync(""); // Get all data
+        var data = await SearchAsync(""); // Get all data
 
         var workbook = new XSSFWorkbook();
         var sheet = workbook.CreateSheet("Emprunts");

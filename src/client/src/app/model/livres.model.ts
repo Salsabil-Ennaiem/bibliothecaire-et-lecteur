@@ -45,17 +45,17 @@ export interface UpdateLivreDTO {
 
 
 export interface CreateLivreRequest {
-  cote_liv?: string;
-  auteur?: string;
+  cote_liv: string;
+  auteur: string;
   editeur: string;
-  langue?: string;
+  langue: string;
   titre: string;
-  isbn?: string;
-  inventaire?: string;
+  isbn: string;
+  inventaire: string;
   date_edition: string;
-  etat?: EtatLiv;
-  description?: string;
-  couverture?: string;
+  etat: EtatLiv;
+  description: string;
+  couverture: string;
 }
 
 

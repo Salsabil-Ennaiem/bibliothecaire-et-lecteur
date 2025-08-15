@@ -8,21 +8,18 @@ namespace Infrastructure.Seeders;
 public class EmpruntsSeeder
 {
     
-public static async Task<List<Emprunts>> SeedEmpruntsAsync(BiblioDbContext dbContext, List<Membre> membres, List<Inventaire> inventaires, string biblio1Id, string biblio2Id)
+public static async Task<List<Emprunts>> SeedEmpruntsAsync(BiblioDbContext dbContext, List<Membre> membres, List<Inventaire> inventaires)
 {
     // Verify that all referenced entities exist in the database
     var existingMembres = await dbContext.Membres.Select(m => m.id_membre).ToListAsync();
     var existingInventaires = await dbContext.Inventaires.Select(i => i.id_inv).ToListAsync();
-    var existingBiblios = await dbContext.Users.Select(u => u.Id).ToListAsync();
 
     Console.WriteLine($"🔍 Debug - Membres in DB: {existingMembres.Count}");
     Console.WriteLine($"🔍 Debug - Inventaires in DB: {existingInventaires.Count}");
-    Console.WriteLine($"🔍 Debug - Biblios in DB: {existingBiblios.Count}");
 
     // Print actual IDs for debugging
     Console.WriteLine($"🔍 Debug - Membre IDs: {string.Join(", ", existingMembres)}");
     Console.WriteLine($"🔍 Debug - Inventaire IDs: {string.Join(", ", existingInventaires)}");
-    Console.WriteLine($"🔍 Debug - Biblio IDs: {string.Join(", ", existingBiblios)}");
 
     var emprunts = new List<Emprunts>
     {
@@ -31,7 +28,6 @@ public static async Task<List<Emprunts>> SeedEmpruntsAsync(BiblioDbContext dbCon
         {
             id_emp = Guid.NewGuid().ToString(),
             id_membre = membres[0].id_membre,
-            id_biblio = biblio1Id,
             Id_inv = inventaires[1].id_inv, // Make sure this matches exactly
             date_emp = DateTime.UtcNow.AddDays(-25),
             date_retour_prevu = DateTime.UtcNow.AddDays(-18),
@@ -44,7 +40,6 @@ public static async Task<List<Emprunts>> SeedEmpruntsAsync(BiblioDbContext dbCon
         {
             id_emp = Guid.NewGuid().ToString(),
             id_membre = membres[1].id_membre,
-            id_biblio = biblio2Id,
             Id_inv = inventaires[2].id_inv,
             date_emp = DateTime.UtcNow.AddDays(-35),
             date_retour_prevu = DateTime.UtcNow.AddDays(-25),
@@ -57,7 +52,6 @@ public static async Task<List<Emprunts>> SeedEmpruntsAsync(BiblioDbContext dbCon
         {
             id_emp = Guid.NewGuid().ToString(),
             id_membre = membres[2].id_membre,
-            id_biblio = biblio1Id,
             Id_inv = inventaires[3].id_inv,
             date_emp = DateTime.UtcNow.AddDays(-400),
             date_retour_prevu = DateTime.UtcNow.AddDays(-385),
@@ -70,7 +64,6 @@ public static async Task<List<Emprunts>> SeedEmpruntsAsync(BiblioDbContext dbCon
         {
             id_emp = Guid.NewGuid().ToString(),
             id_membre = membres[0].id_membre,
-            id_biblio = biblio1Id,
             Id_inv = inventaires[0].id_inv,
             date_emp = DateTime.UtcNow.AddDays(-15),
             date_retour_prevu = DateTime.UtcNow.AddDays(-1),
@@ -94,10 +87,7 @@ public static async Task<List<Emprunts>> SeedEmpruntsAsync(BiblioDbContext dbCon
         {
             throw new InvalidOperationException($"Inventaire {emp.Id_inv} not found in database. Available: {string.Join(", ", existingInventaires)}");
         }
-        if (!existingBiblios.Contains(emp.id_biblio))
-        {
-            throw new InvalidOperationException($"Bibliothecaire {emp.id_biblio} not found in database. Available: {string.Join(", ", existingBiblios)}");
-        }
+       
     }
 
     await dbContext.Emprunts.AddRangeAsync(emprunts);

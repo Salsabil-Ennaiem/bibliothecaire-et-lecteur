@@ -22,7 +22,7 @@ namespace Infrastructure.Repositries
                          && (e.date_effectif == null || e.Statut_emp != Statut_emp.retourne)) // not returned
                 .ToListAsync();
         }
-        public async Task<IEnumerable<Emprunts>> SearchAsync(string searchTerm)
+      /*  public async Task<IEnumerable<Emprunts>> SearchAsync(string searchTerm)
         {
             var query = from e in _dbContext.Emprunts
                         where e.date_emp.ToString().Contains(searchTerm)
@@ -35,6 +35,6 @@ namespace Infrastructure.Repositries
 
             var results = await query.ToListAsync();
             return results.Select(x => x.Emprunts);
-        }
+        }*/
     }
 }

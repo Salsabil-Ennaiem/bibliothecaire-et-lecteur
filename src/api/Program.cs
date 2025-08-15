@@ -168,8 +168,6 @@ using (var scope = app.Services.CreateScope())
     try
     {     await DataSeeder.SeedAllDataAsync(services);
         await transaction.CommitAsync();
-        //  await UserSeeder.SeedUsersAsync(services);
-
         Console.WriteLine("✅ Seeding process completed successfully!");
     }
     catch (Exception ex)

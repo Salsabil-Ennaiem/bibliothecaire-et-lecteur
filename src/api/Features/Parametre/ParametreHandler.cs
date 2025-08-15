@@ -25,7 +25,7 @@ public class ParametreHandler
     public async Task<ParametreDTO> GetByIdAsync()
     {
         var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var entity = await _parametreRepository.GetParam(userId);
+        var entity = await _parametreRepository.GetParam();
         return entity.Adapt<ParametreDTO>();
     }
 

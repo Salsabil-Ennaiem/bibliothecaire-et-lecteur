@@ -26,12 +26,13 @@ export class AjoutLivresComponent {
   
   constructor(private livreService: LivreService) { }
 
-  Ajouter( livre: CreateLivreRequest) {
-      this.livreService.create( livre).subscribe(
-        () => console.log('Livre updated successfully'),
-        error => console.error('Error updating livre:', error)
-      );
+  Ajouter( livre: CreateLivreRequest):void {
+      this.livreService.create( livre).subscribe({
+        next :(data) => {
+          this.livre=data;
+          console.log('Livre added successfully',data);},
+        error:(err) => {console.error('Error added livre:', err)}
+  });
     }
-  
   
 }

@@ -13,7 +13,7 @@ namespace Infrastructure.Repositries
         {
             _context = context;
         }
-        public async Task<Parametre> GetParam(string userId)
+      /*  public async Task<Parametre> GetParam(string userId)
         {
             try
             {
@@ -27,6 +27,20 @@ namespace Infrastructure.Repositries
             {
                 throw new Exception($"Error retrieving Parametre for User ID {userId}: {ex.Message}", ex);
             }
+        }*/
+        public async Task<Parametre> GetParam()
+        {
+            try
+            {
+                var parametre = await _context.Parametres
+                    .OrderByDescending(p => p.date_modification)
+                    .FirstOrDefaultAsync();
+                return parametre;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error retrieving Parametre : {ex.Message}", ex);
+            }
         }
         public async Task<Parametre> Updatepram(Parametre entity)
         {
@@ -34,7 +48,7 @@ namespace Infrastructure.Repositries
 
             try
             {
-                var existingParam = await GetParam(entity.IdBiblio);
+                var existingParam = await GetParam();
 
                 _context.Entry(existingParam).CurrentValues.SetValues(entity);
                 await _context.SaveChangesAsync();

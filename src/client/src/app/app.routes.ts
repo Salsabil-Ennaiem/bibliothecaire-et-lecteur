@@ -22,6 +22,7 @@ import { SanctionsComponent } from './pages/bibliothecaire/sanctions/sanctions.c
 import { AjoutSanctionComponent } from './pages/bibliothecaire/sanctions/ajout-sanction/ajout-sanction.component';
 import { ListSanctionsComponent } from './pages/bibliothecaire/sanctions/list-sanctions/list-sanctions.component';
 import { AccueilComponent } from './pages/accueil/accueil.component';
+import { MembreComponent } from './pages/bibliothecaire/membre/membre.component';
 
 
 export const routes: Routes = [
@@ -35,6 +36,7 @@ export const routes: Routes = [
     {path:'bibliothecaire' , component:BibliothecaireComponent ,
       children:[
         {path:'',component:TableauxDeBordComponent},
+        {path:'membres',component:MembreComponent},
         {path:'sanctions' , component:SanctionsComponent ,
           children:[
              {path:'',component:ListSanctionsComponent },

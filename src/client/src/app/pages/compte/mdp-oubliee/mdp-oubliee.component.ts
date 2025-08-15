@@ -16,14 +16,21 @@ import { RouterLink } from '@angular/router';
 })
 export class MdpOublieeComponent implements OnInit {
     email: any;
-    password: any;
     formGroup: FormGroup | any;
   
   
     ngOnInit() {
       this.formGroup = new FormGroup({
         email: new FormControl(''),
-        password: new FormControl(''),
       });
-}
   }
+      
+    errorMessage: string | null = null;
+mdp(): void {
+    this.errorMessage = null;
+    if (!this.email) {
+      this.errorMessage = 'Veuillez saisir votre email et mot de passe.';
+      return;
+    }
+
+}}

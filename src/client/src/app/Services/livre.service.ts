@@ -22,9 +22,9 @@ export class LivreService {
     return this.http.get<LivreDTO[]>(`${this.apiUrl}/search${term}`);
   }
 
-  getAll(): Observable<LivreDTO[]> {
+/*  getAll(): Observable<LivreDTO[]> {
     return this.http.get<LivreDTO[]>(`${this.apiUrl}/GetallUser`);
-  }
+  }*/
 
   getAllLiv(): Observable<LivreDTO[]> {
     return this.http.get<LivreDTO[]>(`${this.apiUrl}/Getall`);
@@ -36,8 +36,11 @@ export class LivreService {
   create(livre: CreateLivreRequest): Observable<LivreDTO> {
     return this.http.post<LivreDTO>(`${this.apiUrl}/Create`, livre);
   }
-
+/*
   update(id: string, livre: UpdateLivreDTO): Observable<LivreDTO> {
+    return this.http.put<LivreDTO>(`${this.apiUrl}/Update${id}`, livre);
+  }*/
+    update(id: string, livre: UpdateLivreDTO): Observable<LivreDTO> {
     return this.http.put<LivreDTO>(`${this.apiUrl}/Update${id}`, livre);
   }
 

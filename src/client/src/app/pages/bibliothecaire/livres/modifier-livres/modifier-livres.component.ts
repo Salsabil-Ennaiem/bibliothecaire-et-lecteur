@@ -9,26 +9,25 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { Textarea } from 'primeng/textarea';
 import { RouterLink } from '@angular/router';
-import { EtatLiv, UpdateLivreDTO } from '../../../../model/Livres.model';
+import { EtatLiv, LivreDTO, UpdateLivreDTO } from '../../../../model/Livres.model';
 import { LivreService } from '../../../../Services/livre.service';
 
 @Component({
   selector: 'app-modifier-livres',
-  imports: [ RouterLink,IconFieldModule, InputIconModule, InputTextModule, FormsModule, IftaLabelModule, CommonModule, ButtonModule, SelectModule , Textarea ],
+  imports: [RouterLink, IconFieldModule, InputIconModule, InputTextModule, FormsModule, IftaLabelModule, CommonModule, ButtonModule, SelectModule, Textarea],
   templateUrl: './modifier-livres.component.html',
   styleUrl: './modifier-livres.component.css'
 })
 export class ModifierLivresComponent {
-      livre: UpdateLivreDTO |any ;
-      livreId: string |any;
-    selectEtat_Livre: EtatLiv[] = [];
-    constructor(private livreService: LivreService) { }
- 
-    editLivre(livreId: string, LivreDTO: UpdateLivreDTO) {
+  livre: UpdateLivreDTO | any;
+  livreId: string | any;
+  selectEtat_Livre: EtatLiv[] = [];
+  constructor(private livreService: LivreService) { }
+
+  editLivre(livreId: string, updatedLivreDTO: UpdateLivreDTO): void {
     console.log(`Edit livre ID: ${livreId}`);
-    this.livreService.update(livreId, LivreDTO).subscribe(
-      () => console.log('Livre updated successfully'),
-      error => console.error('Error updating livre:', error)
-    );
-  }
+    this.livreService.update(livreId, updatedLivreDTO).subscribe({
+      next: (LivreDTO: LivreDTO) => { console.log('Livre updated successfully', LivreDTO); },
+      error: (err) => { console.error('Error updating livre:', err); }
+    });}
 }

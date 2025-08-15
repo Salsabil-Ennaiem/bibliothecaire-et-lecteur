@@ -6,7 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { SpeedDialModule } from 'primeng/speeddial';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Router, RouterLink, RouterLinkWithHref } from '@angular/router';
 import { LivreService } from '../../../../Services/livre.service';
 import { LivreDTO } from '../../../../model/Livres.model';
@@ -17,7 +17,6 @@ import { LivreDTO } from '../../../../model/Livres.model';
   selector: 'app-liste-livres',
   standalone: true,
   imports: [
-    // SelectModule,
     RouterLink,
     CommonModule,
     FormsModule,
@@ -38,12 +37,20 @@ export class ListeLivresComponent {
   searchQuery = '';
   livres: LivreDTO[] = [];
 
-  constructor(private livreService: LivreService ,private router: Router) { };
-  ngOnInit(): void {
-    this.livreService.getAll().subscribe(
-      data => this.livres = data,
-      error => console.error('Error fetching livres:', error)
-    );
+  constructor(private livreService: LivreService, private router: Router ) { };
+  ngOnInit() {
+    this.getBooks()
+  }
+  
+  getBooks(): void {
+    this.livreService.getAllLiv().subscribe({
+     next: (data) => {
+      this.livres = data;
+    },
+      error:(error) => {
+        console.error('Error fetching livres:', error);
+      }
+  });
   }
 
   /*
@@ -212,16 +219,6 @@ editeur : 'Gallimard',
     this.isInputVisible = true;
   }
 
-  getBooks(): void {
-    this.livreService.getAllLiv().subscribe(
-      (livres: LivreDTO[]) => {
-        this.livres = livres;
-      },
-      (error) => {
-        console.error('Error fetching livres:', error);
-      }
-    );
-  }
 
   handleSearch(event: Event) {
     const value = (event.target as HTMLInputElement).value;
@@ -261,14 +258,16 @@ editeur : 'Gallimard',
         label: 'Supprimer',
         icon: 'pi pi-trash',
         command: () => this.deleteLivre(livreId)
+      },
+      {
+        label: 'Emprunte',
+        icon: 'pi pi-id-card',
+        command: () => this.Emprunter(livreId)
       }
     ];
   }
 
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-  importer() {
-    this.fileInput.nativeElement.click();
-  }
+
 
   handleFileUpload(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -304,20 +303,34 @@ editeur : 'Gallimard',
     );
   }
 
-   
 
- editLivre(livreId: string) {
-  console.log(`Navigating to edit livre ID: ${livreId}`);
-  this.router.navigate([`/bibliothecaire/livres/modifier/${livreId}`]);}
 
-  deleteLivre(livreId: string) {
-    console.log(`Delete livre ID: ${livreId}`);
-    this.livreService.delete(livreId).subscribe(
-      () => console.log('Livre deleted successfully'),
-      error => console.error('Error deleting livre:', error)
-    );
+  editLivre(livreId: string) {
+    console.log(`Navigating to edit livre ID: ${livreId}`);
+    this.router.navigate([`/bibliothecaire/livres/modifier/${livreId}`]);
+  }
+    Emprunter(livreId: string) {
+    console.log(`Navigating to emprunte livre ID: ${livreId}`);
+    this.router.navigate([`/bibliothecaire/emprunts/ajouter`]);
   }
 
+  
+
+  deleteLivre(livreId: string) {
+  if(confirm('Voulez-vous vraiment supprimer ce livre ?')) {
+    this.livreService.delete(livreId).subscribe({
+      next: () => {
+        this.getBooks();
+       // this.messageService.add({ severity: 'success', summary: 'Supprimé', detail: 'Livre supprimé avec succès' });
+      },
+      error: (err) => {
+      //  this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Suppression échouée' });
+        console.error(err);
+      }
+    
+    });
+  }
+  }
   @HostListener('document:click', ['$event'])
   handleOutsideClick(event: MouseEvent) {
     const clickedInside = this.isClickInside(event);
@@ -330,6 +343,8 @@ editeur : 'Gallimard',
     const searchContainer = document.getElementById('search-container');
     return searchContainer ? searchContainer.contains(event.target as Node) : false;
   }
-
-
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  importer() {
+    this.fileInput.nativeElement.click();
+  }
 }

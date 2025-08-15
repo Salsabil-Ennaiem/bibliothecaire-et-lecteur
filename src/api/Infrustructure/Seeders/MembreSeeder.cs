@@ -6,14 +6,13 @@ namespace Infrastructure.Seeders;
 public class MembreSeeder
 {
     
-    public static async Task<List<Membre>> SeedMembresAsync(BiblioDbContext dbContext, string biblio1Id, string biblio2Id)
+    public static async Task<List<Membre>> SeedMembresAsync(BiblioDbContext dbContext)
     {
         var membres = new List<Membre>
         {
             new Membre
             {
                 id_membre = Guid.NewGuid().ToString(),
-                id_biblio = biblio1Id,
                 TypeMembre = TypeMemb.Etudiant,
                 nom = "Benali",
                 prenom = "Ahmed",
@@ -26,7 +25,6 @@ public class MembreSeeder
             new Membre
             {
                 id_membre = Guid.NewGuid().ToString(),
-                id_biblio = biblio2Id,
                 TypeMembre = TypeMemb.Enseignant,
                 nom = "Trabelsi",
                 prenom = "Fatma",
@@ -39,7 +37,6 @@ public class MembreSeeder
             new Membre
             {
                 id_membre = Guid.NewGuid().ToString(),
-                id_biblio = biblio1Id,
                 TypeMembre = TypeMemb.Autre,
                 nom = "Khelifi",
                 prenom = "Mohamed",

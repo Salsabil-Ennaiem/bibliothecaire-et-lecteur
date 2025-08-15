@@ -5,12 +5,10 @@ namespace api.Features.Emprunt;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+
 public class EmpruntController : ControllerBase
 {
-        private readonly EmpruntHandler _empruntHundler;
-
-
+    private readonly EmpruntHandler _empruntHundler;
     public EmpruntController(EmpruntHandler empruntHundler)
     {
         _empruntHundler = empruntHundler;
@@ -19,7 +17,7 @@ public class EmpruntController : ControllerBase
     [HttpGet("Notification")]
     public async Task<IActionResult> GetNotifications()
     {
-       await _empruntHundler.NotifyOverdueEmpruntsAsync();
+        await _empruntHundler.NotifyOverdueEmpruntsAsync();
         return Ok("Notifications sent successfully.");
     }
 

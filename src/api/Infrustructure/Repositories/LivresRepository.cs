@@ -86,7 +86,6 @@ namespace Infrastructure.Repositories
                 _dbContext.Entry(UpdateLivreDTO.Item1).CurrentValues.SetValues(livre);
                 _dbContext.Entry(UpdateLivreDTO.Item2).CurrentValues.SetValues(inventaire);
                 await _dbContext.SaveChangesAsync();
-
                 await transaction.CommitAsync();
                 return (livre, inventaire);
             }
