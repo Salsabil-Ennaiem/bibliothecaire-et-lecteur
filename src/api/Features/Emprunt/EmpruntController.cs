@@ -42,6 +42,14 @@ public class EmpruntController : ControllerBase
         return Ok(livre);
     }
 
+
+    [HttpDelete("Delete{id}")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        await _empruntHundler.DeleteAsync(id);
+        return NoContent();
+    } 
+    /*
     [HttpPost("Create")]
     public async Task<IActionResult> Create([FromBody] CreateEmpRequest emp)
     {
@@ -54,13 +62,6 @@ public class EmpruntController : ControllerBase
     {
         var updated = await _empruntHundler.UpdateAsync(emp, id);
         return Ok(updated);
-    }
-
-    [HttpDelete("Delete{id}")]
-    public async Task<IActionResult> Delete(string id)
-    {
-        await _empruntHundler.DeleteAsync(id);
-        return NoContent();
     }
 
 
@@ -81,4 +82,5 @@ public class EmpruntController : ControllerBase
         var stream = await _empruntHundler.ExportAsync();
         return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Emprunts.xlsx");
     }
+    */
 }

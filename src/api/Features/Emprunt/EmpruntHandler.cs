@@ -30,15 +30,12 @@ public class EmpruntHandler
 
        public async Task<IEnumerable<EmppruntDTO>> GetAllAsync()
     {
-     var entities = await _empruntsRepository.GetAllAsync();
+     var entities = await _empruntsRepository.GetAllEmpAsync();
         return entities.Adapt<IEnumerable<EmppruntDTO>>();
     }
     public async Task<EmppruntDTO> GetByIdAsync(string id)
     {
         var entity = await _empruntsRepository.GetByIdAsync(id);
-        /*if (entity.id_biblio != userId)
-            throw new UnauthorizedAccessException("Access denied.");
-            */
         return entity.Adapt<EmppruntDTO>();
     }
     private string GetCurrentUserId()
@@ -47,69 +44,6 @@ public class EmpruntHandler
         if (string.IsNullOrEmpty(userId))
             throw new UnauthorizedAccessException("User is not authenticated.");
         return userId;
-    }
-    public async Task<IEnumerable<Emprunts>> SearchAsync(string searchTerm)
-    {
-        var list = await _empruntsRepository.GetAllAsync();
-        var query = list.Where(e => e.date_emp.ToString().Contains(searchTerm)
-                           || (e.Id_inv != null && e.Id_inv.Contains(searchTerm))
-                           || e.Statut_emp.ToString().Contains(searchTerm)
-                           || (e.note != null && e.note.Contains(searchTerm))
-                           || (e.id_membre != null && e.id_membre.Contains(searchTerm)));
-
-
-            return query;
-    }
-    public async Task<EmppruntDTO> CreateAsync(CreateEmpRequest empdto)
-    {
-        // 1. Recherche du membre existant via le repository générique
-        var allMembres = await _membreRepository.GetAllAsync(); 
-        var membreExistant = allMembres.FirstOrDefault(m =>
-            (!string.IsNullOrEmpty(empdto.cin_ou_passeport) && m.cin_ou_passeport == empdto.cin_ou_passeport) ||
-            (!string.IsNullOrEmpty(empdto.email) && m.email == empdto.email)
-        );
-
-        // 2. Création du membre si inexistant
-        if (membreExistant == null)
-        {
-            var nouveauMembre = empdto.Adapt<Membre>(); 
-            nouveauMembre.id_membre = Guid.NewGuid().ToString();
-            membreExistant = await _membreRepository.CreateAsync(nouveauMembre);
-        }
-
-        // 3. Récupération des paramètres pour le délai d'emprunt
-      /*  var userId = GetCurrentUserId();
-        var parametre = await _parametreRepository.GetParam(userId);
-        if (parametre == null)
-            throw new Exception("Parametre not found for the user.");*/
-             var parametre = await _parametreRepository.GetParam();
-        if (parametre == null)
-            throw new Exception("Parametre not found for the user.");
-
-        // 4. Création de l'entité Emprunt
-        var empruntEntity = empdto.Adapt<Emprunts>();
-        empruntEntity.id_membre = membreExistant.id_membre;
-        empruntEntity.date_emp = DateTime.UtcNow;
-
-        int delayDays = empdto.TypeMembre switch
-        {
-            TypeMemb.Etudiant => parametre.Delais_Emprunt_Etudiant,
-            TypeMemb.Enseignant => parametre.Delais_Emprunt_Enseignant,
-            _ => parametre.Delais_Emprunt_Autre
-        };
-
-        empruntEntity.date_retour_prevu = empruntEntity.date_emp.AddDays(delayDays);
-
-        // 5. Enregistrement de l'emprunt
-        var createdEmprunt = await _empruntsRepository.CreateAsync(empruntEntity);
-
-        return createdEmprunt.Adapt<EmppruntDTO>();
-    }
-    public async Task<EmppruntDTO> UpdateAsync(UpdateEmppruntDTO emp, string id)
-    {
-        var entity = emp.Adapt<Emprunts>();
-        var created = await _empruntsRepository.UpdateAsync(entity, id);
-        return created.Adapt<EmppruntDTO>();
     }
     public async Task DeleteAsync(string id)
     {
@@ -162,6 +96,70 @@ public class EmpruntHandler
         await client.AuthenticateAsync(_configuration["MailSettings:Username"], _configuration["MailSettings:Password"]);
         await client.SendAsync(emailMessage);
         await client.DisconnectAsync(true);
+    }
+    public async Task<IEnumerable<EmppruntDTO>> SearchAsync(string searchTerm)
+    {
+        var list = await _empruntsRepository.GetAllEmpAsync();
+        var query = list.Where(e => e.date_emp.ToString().Contains(searchTerm)
+                           || (e.id_inv != null && e.id_inv.Contains(searchTerm))
+                           || e.Statut_emp.ToString().Contains(searchTerm)
+                           || (e.note != null && e.note.Contains(searchTerm))
+                           || (e.cin_ou_passeport != null && e.cin_ou_passeport.Contains(searchTerm)));
+
+
+            return query;
+    }
+/*    public async Task<EmppruntDTO> CreateAsync(CreateEmpRequest empdto)
+    {
+        // 1. Recherche du membre existant via le repository générique
+        var allMembres = await _membreRepository.GetAllAsync(); 
+        var membreExistant = allMembres.FirstOrDefault(m =>
+            (!string.IsNullOrEmpty(empdto.cin_ou_passeport) && m.cin_ou_passeport == empdto.cin_ou_passeport) ||
+            (!string.IsNullOrEmpty(empdto.email) && m.email == empdto.email)
+        );
+
+        // 2. Création du membre si inexistant
+        if (membreExistant == null)
+        {
+            var nouveauMembre = empdto.Adapt<Membre>(); 
+            nouveauMembre.id_membre = Guid.NewGuid().ToString();
+            membreExistant = await _membreRepository.CreateAsync(nouveauMembre);
+        }
+
+        // 3. Récupération des paramètres pour le délai d'emprunt
+      /*  var userId = GetCurrentUserId();
+        var parametre = await _parametreRepository.GetParam(userId);
+        if (parametre == null)
+            throw new Exception("Parametre not found for the user.");*/
+
+/*             var parametre = await _parametreRepository.GetParam();
+        if (parametre == null)
+            throw new Exception("Parametre not found for the user.");
+
+        // 4. Création de l'entité Emprunt
+        var empruntEntity = empdto.Adapt<Emprunts>();
+        empruntEntity.id_membre = membreExistant.id_membre;
+        empruntEntity.date_emp = DateTime.UtcNow;
+
+        int delayDays = empdto.TypeMembre switch
+        {
+            TypeMemb.Etudiant => parametre.Delais_Emprunt_Etudiant,
+            TypeMemb.Enseignant => parametre.Delais_Emprunt_Enseignant,
+            _ => parametre.Delais_Emprunt_Autre
+        };
+
+        empruntEntity.date_retour_prevu = empruntEntity.date_emp.AddDays(delayDays);
+
+        // 5. Enregistrement de l'emprunt
+        var createdEmprunt = await _empruntsRepository.CreateAsync(empruntEntity);
+
+        return createdEmprunt.Adapt<EmppruntDTO>();
+    }
+    public async Task<EmppruntDTO> UpdateAsync(UpdateEmppruntDTO emp, string id)
+    {
+        var entity = emp.Adapt<Emprunts>();
+        var created = await _empruntsRepository.UpdateAsync(entity, id);
+        return created.Adapt<EmppruntDTO>();
     }
     public async Task ImportAsync(Stream excelStream)
     {
@@ -225,5 +223,6 @@ public class EmpruntHandler
         stream.Position = 0;
         return stream;
     }
+*/
 }
 

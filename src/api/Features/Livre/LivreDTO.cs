@@ -5,12 +5,12 @@ namespace api.Features.Livre
 {
     public class LivreDTO
     {
-        public string?  id_livre { get; set; }
-        public required string date_edition { get; set; }
-        public required string titre { get; set; }
+        public string?  id_inv { get; set; }
+        public  string date_edition { get; set; }
+        public  string titre { get; set; }
         public string? auteur { get; set; }
         public string? isbn { get; set; }
-        public required string editeur { get; set; }
+        public  string editeur { get; set; }
         public string? Description { get; set; }
         public string? Langue { get; set; }
         public string? couverture { get; set; }
@@ -23,8 +23,8 @@ namespace api.Features.Livre
 public class UpdateLivreDTO
     {
         
-        public required string date_edition { get; set; }
-        public required string titre { get; set; }
+        public  string date_edition { get; set; }
+        public  string titre { get; set; }
         public string? auteur { get; set; }
         public string? isbn { get; set; }
         public required string editeur { get; set; }

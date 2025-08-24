@@ -5,6 +5,10 @@ namespace api.Features.Emprunt;
 public class EmppruntDTO
 {
     public string? id_emp { get; set; }
+    public string editeur { get; set; }
+    public string? id_inv { get; set; }
+    public string date_edition { get; set; }
+    public string titre { get; set; }
     public DateTime date_emp { get; set; }
     public DateTime? date_retour_prevu { get; set; }
     public DateTime? date_effectif { get; set; }

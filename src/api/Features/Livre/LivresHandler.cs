@@ -1,6 +1,3 @@
-using domain.Entity;
-using domain.Entity.Enum;
-using NPOI.XSSF.UserModel;
 using domain.Interfaces;
 using Mapster;
 
@@ -9,43 +6,24 @@ namespace api.Features.Livre;
 public class LivresHandler
 {
     private readonly ILivresRepository _livresRepository;
-   // private readonly IHttpContextAccessor _httpContextAccessor;
     public LivresHandler(ILivresRepository livresRepository)
-      // public LivresHandler(ILivresRepository livresRepository, IHttpContextAccessor httpContextAccessor)
 
     {
         _livresRepository = livresRepository;
-       // _httpContextAccessor = httpContextAccessor;
     }
-   /* private string GetCurrentUserId()
-    {
-        var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
-            throw new UnauthorizedAccessException("User is not authenticated.");
-        return userId;
-    }*/
-/*
-    //specifique
-    public async Task<IEnumerable<LivreDTO>> GetAllLivresAsync()
-    {
-        var userId = GetCurrentUserId();
-        var entity = await _livresRepository.GetAllLivresAsync();
-        var filtered = entity.Where(e => e.Item2.id_biblio == userId);
-        return entity.Select(e => e.Item1.Adapt<LivreDTO>());
-
-    }*/
+  
     public async Task<IEnumerable<LivreDTO>> SearchAsync(string searchTerm)
     {
         try
         {
             var list = await _livresRepository.GetAllLivresAsync();
             var query = list.Where(l =>
-              (l.Item1.titre != null && l.Item1.titre.Contains(searchTerm)) ||
-              (l.Item1.auteur != null && l.Item1.auteur.Contains(searchTerm)) ||
-              (l.Item1.isbn != null && l.Item1.isbn.Contains(searchTerm)) ||
-              (l.Item1.date_edition != null && l.Item1.date_edition.Contains(searchTerm)) ||
-              (l.Item1.Description != null && l.Item1.Description.Contains(searchTerm)) ||
-              (l.Item2.cote_liv != null && l.Item2.cote_liv.Contains(searchTerm))
+              (l.titre != null && l.titre.Contains(searchTerm)) ||
+              (l.auteur != null && l.auteur.Contains(searchTerm)) ||
+              (l.isbn != null && l.isbn.Contains(searchTerm)) ||
+              (l.date_edition != null && l.date_edition.Contains(searchTerm)) ||
+              (l.Description != null && l.Description.Contains(searchTerm)) ||
+              (l.cote_liv != null && l.cote_liv.Contains(searchTerm))
             );
             return query.Select(x => x.Adapt<LivreDTO>());
 
@@ -55,7 +33,6 @@ public class LivresHandler
             throw new Exception($"Error searching Livres: {ex.Message}", ex);
         }
     }
-    //genrale
     public async Task<IEnumerable<LivreDTO>> GetAllAsync()
     {
         var entities = await _livresRepository.GetAllLivresAsync();
@@ -69,23 +46,20 @@ public class LivresHandler
     }
     public async Task<LivreDTO> CreateAsync(CreateLivreRequest livredto)
     {
-        //var userId = GetCurrentUserId();
-        var livre = livredto.Adapt<Livres>();
-        var inventaire = livredto.Adapt<Inventaire>();
-        //inventaire.id_biblio = userId;
-        var createdLivre = await _livresRepository.CreateAsync(livre, inventaire);
+        var createdLivre = await _livresRepository.CreateAsync(livredto);
         return createdLivre.Adapt<LivreDTO>();
     }
     public async Task<LivreDTO> UpdateAsync(string id , UpdateLivreDTO UpdateLivreDTO)
     {
-        var entity = UpdateLivreDTO.Adapt<(Livres, Inventaire)>();
-        var update = await _livresRepository.UpdateAsync(id , entity.Item1, entity.Item2);
+        var update = await _livresRepository.UpdateAsync(id , UpdateLivreDTO);
         return update.Adapt<LivreDTO>();
     }
     public async Task DeleteAsync(string id)
     {
         await _livresRepository.DeleteAsync(id);
     }
+  
+   /*
     public async Task ImportAsync(Stream excelStream)
     {
         var workbook = new XSSFWorkbook(excelStream);
@@ -188,6 +162,6 @@ public class LivresHandler
 
         return stream;
     }
-
+*/
 
 }

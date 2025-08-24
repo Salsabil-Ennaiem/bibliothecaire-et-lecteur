@@ -1,6 +1,9 @@
+using api.Features.Livre;
 using Data;
 using domain.Entity;
+using domain.Entity.Enum;
 using domain.Interfaces;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
@@ -13,87 +16,226 @@ namespace Infrastructure.Repositories
         {
             _dbContext = dbContext;
         }
-        public async Task<IEnumerable<(Livres, Inventaire)>> GetAllLivresAsync()
+
+        /* public async Task<IEnumerable<(Livres, Inventaire)>> GetAllLivresAsync()
+         {
+             query manually joins Livres and Inventaire and selects new anonymous objects.
+             Using .Include means: EF will automatically load the related entity */
+        /*var query = from i in _dbContext.Inventaires
+                    join l in _dbContext.Livres
+                        on i.id_liv equals l.id_livre
+                    select new { Livre = l, Inventaire = i };
+                    foreach (var row in query)
+{
+Console.WriteLine($"Inventaire {row.i.id_inv} - Livre: {row.l.titre}");
+}
+        var results = await query.ToListAsync();
+        return results.Select(x => (x.Livre, x.Inventaire));*/
+        /*var results = await _dbContext.Inventaires
+            .Include(i => i.Livre)
+            .ToListAsync();
+            //var test = _dbContext.Inventaires.FromSqlRaw("SELECT * FROM Inventaires").ToList();
+foreach (var inv in results)
+Console.WriteLine($"{inv.id_inv} {inv.id_liv} {inv.cote_liv}");
+        return results.Select(i => (i.Livre, i));*/
+        public async Task<IEnumerable<LivreDTO>> GetAllLivresAsync()
         {
-            var query = from l in _dbContext.Livres
-                        join i in _dbContext.Inventaires
-                            on l.id_livre equals i.id_liv
-                        select new { Livre = l, Inventaire = i };
-
-            var results = await query.ToListAsync();
-
-            return results.Select(x => (x.Livre, x.Inventaire));
+            return await (from i in _dbContext.Inventaires
+                          join l in _dbContext.Livres on i.id_liv equals l.id_livre
+                          select new LivreDTO
+                          {
+                              id_inv = i.id_inv,
+                              date_edition = l.date_edition,
+                              titre = l.titre,
+                              auteur = l.auteur,
+                              isbn = l.isbn,
+                              editeur = l.editeur,
+                              Description = l.Description,
+                              Langue = l.Langue,
+                              couverture = l.couverture,
+                              cote_liv = i.cote_liv,
+                              etat = i.etat,
+                              statut = i.statut,
+                              inventaire = i.inventaire
+                          }).ToListAsync();
         }
-        public async Task<(Livres, Inventaire)> GetByIdAsync(string id)
+        public async Task<LivreDTO> GetByIdAsync(string id)
         {
             try
             {
-                // var userId = GetCurrentUserId();
-
                 var query = from l in _dbContext.Livres
                             join i in _dbContext.Inventaires
                                 on l.id_livre equals i.id_liv
                             where i.id_inv == id
-                            // && l.id_biblio == userId
-                            select new { Livre = l, Inventaire = i };
+                            select new LivreDTO
+                            {
+                                id_inv = i.id_inv,
+                                date_edition = l.date_edition,
+                                titre = l.titre,
+                                auteur = l.auteur,
+                                isbn = l.isbn,
+                                editeur = l.editeur,
+                                Description = l.Description,
+                                Langue = l.Langue,
+                                couverture = l.couverture,
+                                cote_liv = i.cote_liv,
+                                etat = i.etat,
+                                statut = i.statut,
+                                inventaire = i.inventaire
+                            };
+                if (query is null)
+                {
+                    throw new Exception($"{query} with ID {id} not found");
+                }
 
-                var result = await query.FirstOrDefaultAsync();
-
-                if (result == null)
-                    throw new Exception($"Livre with ID {id} not found or access denied.");
-
-                return (result.Livre, result.Inventaire);
+                return await query.FirstOrDefaultAsync();
             }
             catch (Exception ex)
             {
                 throw new Exception($"Error retrieving Livre with ID {id}: {ex.Message}", ex);
             }
         }
-        public async Task<(Livres, Inventaire , string)> CreateAsync(Livres livre, Inventaire inventaire)
+        public async Task<LivreDTO> CreateAsync(CreateLivreRequest livreCreate)
         {
-
-            if ( await _dbContext.Livres.AnyAsync(l => l.titre == livre.titre && l.date_edition == livre.date_edition))
-            {
-                return (livre , inventaire ,"Failed to add book  it already exist");
-            }
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
-
             try
             {
-                await _dbContext.Livres.AddAsync(livre);
-                await _dbContext.SaveChangesAsync();
+                if (string.IsNullOrEmpty(livreCreate.titre) ||
+                 string.IsNullOrEmpty(livreCreate.editeur) ||
+                 string.IsNullOrEmpty(livreCreate.date_edition) ||
+                 string.IsNullOrEmpty(livreCreate.cote_liv))
+                {
+                    throw new Exception("doit remplir les 4 champs sont obligatoire ");
+                }
+                // Check if book exists by title & edition
+                var existingLivre = await _dbContext.Livres
+                    .FirstOrDefaultAsync(l => l.titre == livreCreate.titre && l.date_edition == livreCreate.date_edition);
 
-                inventaire.id_liv = livre.id_livre;
-                await _dbContext.Inventaires.AddAsync(inventaire);
-                await _dbContext.SaveChangesAsync();
+                if (existingLivre != null)
+                {
+                    // Book exists: check if the inventory cote_liv already exists
+                    var inventaireExists = await _dbContext.Inventaires
+                        .AnyAsync(i => i.cote_liv == livreCreate.cote_liv);
 
-                await transaction.CommitAsync();
-                return (livre, inventaire,"bien crée ");
+                    if (inventaireExists)
+                    {
+                        throw new Exception("Failed to add book: inventory cote_liv already exists");
+                    }
+
+
+                    // Add new inventory linked to existing book
+                    var newInventaire = new Inventaire
+                    {
+                        id_inv = Guid.NewGuid().ToString(),
+                        id_liv = existingLivre.id_livre,
+                        cote_liv = livreCreate.cote_liv,
+                        etat = livreCreate.etat,
+                        inventaire = livreCreate.inventaire
+                    };
+
+                    await _dbContext.Inventaires.AddAsync(newInventaire);
+                    await _dbContext.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                    throw new Exception("Inventory added to existing book successfully");
+                }
+                else
+                {
+                    // Book does not exist: create it
+                    var newLivre = new Livres
+                    {
+                        id_livre = Guid.NewGuid().ToString(),
+                        titre = livreCreate.titre,
+                        date_edition = livreCreate.date_edition,
+                        auteur = livreCreate.auteur,
+                        isbn = livreCreate.isbn,
+                        editeur = livreCreate.editeur,
+                        Description = livreCreate.Description,
+                        Langue = livreCreate.Langue,
+                        couverture = livreCreate.couverture,
+                    };
+
+                    await _dbContext.Livres.AddAsync(newLivre);
+                    await _dbContext.SaveChangesAsync();
+
+                    // Create inventory linked to new book
+                    var newInventaire = new Inventaire
+                    {
+                        id_inv = Guid.NewGuid().ToString(),
+                        id_liv = newLivre.id_livre,
+                        cote_liv = livreCreate.cote_liv,
+                        etat = livreCreate.etat,
+                        inventaire = livreCreate.inventaire
+                    };
+
+                    await _dbContext.Inventaires.AddAsync(newInventaire);
+                    await _dbContext.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                    return newLivre.Adapt<LivreDTO>();
+                }
             }
-            catch
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                throw;
+                throw new Exception("Error creating book and inventory: " + ex.Message, ex);
             }
         }
-        public async Task<(Livres, Inventaire)> UpdateAsync( string id ,Livres livre, Inventaire inventaire)
+        public async Task<LivreDTO> UpdateAsync(string id, UpdateLivreDTO updatelivReq)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
 
-                var UpdateLivreDTO = await GetByIdAsync(id);
-                _dbContext.Entry(UpdateLivreDTO.Item1).CurrentValues.SetValues(livre);
-                _dbContext.Entry(UpdateLivreDTO.Item2).CurrentValues.SetValues(inventaire);
+                var inventaire = await GetInventaireByIdAsync(id);
+                var livre = inventaire.Livre;
+
+                if (updatelivReq.titre is not null)
+                    livre.titre = updatelivReq.titre;
+
+                if (updatelivReq.auteur is not null)
+                    livre.auteur = updatelivReq.auteur;
+
+                if (updatelivReq.cote_liv is not null)
+                    inventaire.cote_liv = updatelivReq.cote_liv;
+
+                if (updatelivReq.couverture is not null)
+                    livre.couverture = updatelivReq.couverture;
+
+                if (updatelivReq.date_edition is not null)
+                    livre.date_edition = updatelivReq.date_edition;
+
+                if (updatelivReq.Description is not null)
+                    livre.Description = updatelivReq.Description;
+
+                if (updatelivReq.editeur is not null)
+                    livre.editeur = updatelivReq.editeur;
+
+                if (updatelivReq.etat is not null)
+                    inventaire.etat = updatelivReq.etat;
+
+                if (updatelivReq.isbn is not null)
+                    livre.isbn = updatelivReq.isbn;
+
+                if (updatelivReq.Langue is not null)
+                    livre.Langue = updatelivReq.Langue;
+
+                if (updatelivReq.statut != Statut_liv.disponible)
+                    inventaire.statut = updatelivReq.statut;
+
+                if (updatelivReq.inventaire is not null)
+                    inventaire.inventaire = updatelivReq.inventaire;
+
                 await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return (livre, inventaire);
+                return await GetByIdAsync(id);
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
                 throw new Exception($"Error updating Livre with ID {id}: {ex.Message}", ex);
             }
+
         }
         public async Task DeleteAsync(string id)
         {
@@ -101,11 +243,26 @@ namespace Infrastructure.Repositories
             try
             {
 
-                var existingPair = await GetByIdAsync(id);
-                _dbContext.Livres.Remove(existingPair.Item1);
-                _dbContext.Inventaires.Remove(existingPair.Item2);
-                await _dbContext.SaveChangesAsync();
+                var inventaire = await GetInventaireByIdAsync(id);
+                var livreId = inventaire.id_liv;
 
+                // Remove this physical book (Inventaire)
+                _dbContext.Inventaires.Remove(inventaire);
+
+                // Check if any other Inventaire references the same Livres
+                bool hasOtherCopies = await _dbContext.Inventaires
+                                 .AnyAsync(i => i.id_liv == livreId);
+
+                // If no other copies, remove the Livres itself
+                if (!hasOtherCopies)
+                {
+                    var livre = await _dbContext.Livres.FindAsync(livreId);
+                    if (livre != null)
+                    {
+                        _dbContext.Livres.Remove(livre);
+                    }
+                }
+                await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 Console.WriteLine($"Livre with ID {id} deleted successfully.");
@@ -114,6 +271,19 @@ namespace Infrastructure.Repositories
             {
                 await transaction.RollbackAsync();
                 throw new Exception($"Error deleting Livre with ID {id}: {ex.Message}", ex);
+            }
+        }
+        public async Task<Inventaire?> GetInventaireByIdAsync(string inventaireId)
+        {
+            try
+            {
+                return await _dbContext.Inventaires
+                    .Include(i => i.Livre)
+                    .FirstOrDefaultAsync(i => i.id_inv == inventaireId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error deleting Livre with ID {inventaireId}: {ex.Message}", ex);
             }
         }
 

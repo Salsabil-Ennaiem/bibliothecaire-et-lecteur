@@ -34,5 +34,6 @@ public class InventaireConfiguration : IEntityTypeConfiguration<Inventaire>
         entity.HasMany(e => e.Emprunts)
             .WithOne(e => e.Inventaire)
             .HasForeignKey(e => e.Id_inv);
+            
     }
 }
