@@ -20,14 +20,15 @@ public static class DataSeeder
             var hasInventaires = await dbContext.Inventaires.AnyAsync();
             var hasMembres = await dbContext.Membres.AnyAsync();
             var hasEmprunts = await dbContext.Emprunts.AnyAsync();
+            var hasNouveautes = await dbContext.Nouveautes.AnyAsync();
+
             /*var hasParametres = await dbContext.Parametres.AnyAsync();
             var hasSanctions = await dbContext.Sanctions.AnyAsync();
-            var hasNouveautes = await dbContext.Nouveautes.AnyAsync();
             var hasStatistiques = await dbContext.Statistiques.AnyAsync(); */
 
             if (hasLivres && hasInventaires
-            && hasMembres && hasEmprunts)
-            /* && hasParametres  && hasSanctions && hasNouveautes && hasStatistiques)*/
+            && hasMembres && hasEmprunts && hasNouveautes)
+            /* && hasParametres  && hasSanctions  && hasStatistiques)*/
             {
                 Console.WriteLine("ℹ️ Data already exists in database.");
                 return;
@@ -87,6 +88,16 @@ public static class DataSeeder
                     Console.WriteLine("📋 Loading existing Emprunts...");
                     emprunts = await dbContext.Emprunts.ToListAsync();
                 }
+                // Seed nouveautés
+                if (!hasNouveautes)
+                {
+                    Console.WriteLine("🌱 Seeding Nouveautes...");
+                    await NouveauteSeeder.SeedNouveautesAsync(dbContext);
+                }
+                else
+                {
+                    Console.WriteLine("🆕 Nouveautes already exist.");
+                }
 
                 // Seed ou récupérer les paramètres
                 /*              if (!hasParametres)
@@ -119,16 +130,7 @@ public static class DataSeeder
                                   Console.WriteLine("⚠️ Sanctions already exist.");
                               }
 
-                              // Seed nouveautés
-                              if (!hasNouveautes)
-                              {
-                                  Console.WriteLine("🌱 Seeding Nouveautes...");
-                                  await NouveauteSeeder.SeedNouveautesAsync(dbContext, biblio1Id, biblio2Id);
-                              }
-                              else
-                              {
-                                  Console.WriteLine("🆕 Nouveautes already exist.");
-                              }
+
 
                               // Seed statistiques
                               if (!hasStatistiques && ancienParametre != null && nouveauParametre != null)

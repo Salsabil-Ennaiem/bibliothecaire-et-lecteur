@@ -9,7 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { Textarea } from 'primeng/textarea';
 import { RouterLink } from '@angular/router';
-import { EtatLiv, LivreDTO, UpdateLivreDTO } from '../../../../model/Livres.model';
+import { EtatLiv, LivreDTO, UpdateLivreDTO } from '../../../../model/livres.model';
 import { LivreService } from '../../../../Services/livre.service';
 
 @Component({

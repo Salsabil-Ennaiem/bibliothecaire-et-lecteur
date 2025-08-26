@@ -7,7 +7,7 @@ namespace Infrastructure.Seeders;
 public class NouveauteSeeder
 {
     
-    public static async Task SeedNouveautesAsync(BiblioDbContext dbContext, string biblio1Id, string biblio2Id)
+    public static async Task SeedNouveautesAsync(BiblioDbContext dbContext)
 
 {
     // Create fichiers for first Nouveaute
@@ -39,7 +39,6 @@ public class NouveauteSeeder
     var nouveaute1 = new Nouveaute
     {
         id_nouv = Guid.NewGuid().ToString(),
-        id_biblio = biblio1Id,
         titre = "Nouvelle Collection Informatique",
         description = "Découvrez notre nouvelle collection de livres d'informatique pour 2024. Plus de 50 nouveaux titres disponibles !",
         date_publication = DateTime.UtcNow.AddDays(-7),
@@ -73,7 +72,6 @@ public class NouveauteSeeder
     var nouveaute2 = new Nouveaute
     {
         id_nouv = Guid.NewGuid().ToString(),
-        id_biblio = biblio2Id,
         titre = "Horaires d'été 2024",
         description = "Nouveaux horaires d'ouverture pour la période estivale. La bibliothèque sera ouverte de 8h à 16h du lundi au vendredi.",
         date_publication = DateTime.UtcNow.AddDays(-3),

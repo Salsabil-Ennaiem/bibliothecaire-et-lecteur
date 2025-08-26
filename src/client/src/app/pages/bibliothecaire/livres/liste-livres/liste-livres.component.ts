@@ -6,12 +6,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { SpeedDialModule } from 'primeng/speeddial';
-import { MenuItem, MessageService } from 'primeng/api';
-import { Router, RouterLink, RouterLinkWithHref } from '@angular/router';
+import { MenuItem } from 'primeng/api';
+import { Router, RouterLink } from '@angular/router';
 import { LivreService } from '../../../../Services/livre.service';
-import { LivreDTO } from '../../../../model/Livres.model';
-
-
+import { LivreDTO } from '../../../../model/livres.model';
 
 @Component({
   selector: 'app-liste-livres',
@@ -33,26 +31,176 @@ export class ListeLivresComponent {
 
   @Input() isHosted: boolean = false;
   searchResults: LivreDTO[] = [];
+  livres: LivreDTO[] = [];
   isInputVisible = false;
   searchQuery = '';
-  livres: LivreDTO[] = [];
 
-  constructor(private livreService: LivreService, private router: Router ) { };
+  constructor(private livreService: LivreService, private router: Router) { };
   ngOnInit() {
-    this.getBooks()
+    this.getBooks();
   }
-  
+
   getBooks(): void {
     this.livreService.getAllLiv().subscribe({
-     next: (data) => {
-      this.livres = data;
-    },
-      error:(error) => {
+      next: (data) => {
+        this.livres = data;
+      },
+      error: (error) => {
         console.error('Error fetching livres:', error);
       }
-  });
+    });
   }
 
+  toggleInput() {
+    this.isInputVisible = true;
+  }
+
+
+  handleSearch(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchQuery = value;
+    if (!this.searchQuery.trim()) {
+      this.searchResults = [];
+      return;
+    }
+    this.livreService.search(this.searchQuery).subscribe({
+      next :(data)=>{ this.searchResults = data},
+      error :(err)=>{console.error('Error searching livres:', err)}
+    }
+    );
+  }
+  isOpen: Set<string> = new Set(); // Track open book IDs
+
+  toggleBook(livre: LivreDTO, event: Event) {
+    event.stopPropagation();
+    const livreId = livre.id_livre;
+    if (this.isOpen.has(livreId)) {
+      this.isOpen.delete(livreId);
+    } else {
+      this.isOpen.clear(); // Close all other books
+      this.isOpen.add(livreId);
+    }
+  }
+
+
+  getSpeedDialItems(livreId: string): MenuItem[] {
+    return [
+
+      {
+        label: 'Modifier',
+        icon: 'pi pi-pencil',
+        command: () => this.editLivre(livreId)
+      },
+      {
+        label: 'Supprimer',
+        icon: 'pi pi-trash',
+        command: () => this.deleteLivre(livreId)
+      },
+      {
+        label: 'Emprunte',
+        icon: 'pi pi-id-card',
+        command: () => this.Emprunter(livreId)
+      }
+    ];
+  }
+
+
+  editLivre(livreId: string) {
+    console.log(`Navigating to edit livre ID: ${livreId}`);
+    this.router.navigate([`/bibliothecaire/livres/modifier/${livreId}`]);
+  }
+  Emprunter(livreId: string) {
+    console.log(`Navigating to emprunte livre ID: ${livreId}`);
+    this.router.navigate([`/bibliothecaire/emprunts/ajouter`]);
+  }
+
+
+
+  deleteLivre(livreId: string) {
+    if (confirm('Voulez-vous vraiment supprimer ce livre ?')) {
+      this.livreService.delete(livreId).subscribe({
+        next: () => {
+          this.getBooks();
+          // this.messageService.add({ severity: 'success', summary: 'Supprimé', detail: 'Livre supprimé avec succès' });
+        },
+        error: (err) => {
+          //  this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Suppression échouée' });
+          console.error(err);
+        }
+
+      });
+    }
+  }
+  @HostListener('document:click', ['$event'])
+  handleOutsideClick(event: MouseEvent) {
+    const clickedInside = this.isClickInside(event);
+    if (!clickedInside) {
+      this.isInputVisible = false;
+    }
+  }
+
+  isClickInside(event: MouseEvent): boolean {
+    const searchContainer = document.getElementById('search-container');
+    return searchContainer ? searchContainer.contains(event.target as Node) : false;
+  }
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  importer() {
+    this.fileInput.nativeElement.click();
+  }
+
+  handleFileUpload(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+
+    if (!file.type.match(/application\/(vnd.ms-excel|vnd.openxmlformats-officedocument.spreadsheetml.sheet)/)) {
+      console.log('Selected file:', file.name, file.type, file.size);
+
+      alert('Veuillez sélectionner un fichier Excel (.xls ou .xlsx).');
+      return;
+    }
+    /* this.livreService.import(file).subscribe(
+       response => console.log('Import successful:', response),
+       error => console.error('Error importing file:', error)
+     );*/
+  }
+
+  exporter() {
+    /*    this.livreService.export().subscribe(
+          blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'LivresInventaire.xlsx';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+          },
+          error => console.error('Error exporting file:', error)
+        );
+        */
+  }
+
+/* livres: LivreDTO[] = [
+    {
+      id_livre: '1',
+      titre: 'Le Petit Prince',
+      auteur: 'Antoine de Saint-Exupéry',
+editeur : 'Gallimard',
+      isbn: '9782070412654',
+      cote_liv: '1234567890',
+      inventaire: '1234567890',
+      couverture: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.m3dSB_jJIuTfk5obG-eQggHaL0%26pid%3DApi&f=1&ipt=57bcc4ba3b487c802b416eb20f5378c03594b2cd4137445c660fa6b5605553a4&ipo=images',
+      date_edition: '1943-04-06',
+      etat: EtatLiv.Mauvais,
+      statut: Statut_liv.disponible,
+     // isOpen: false
+
+  
+    }]
+     */
   /*
   livres: Livre[] = [
     {
@@ -215,136 +363,5 @@ editeur : 'Gallimard',
   
   ];
 */
-  toggleInput() {
-    this.isInputVisible = true;
-  }
 
-
-  handleSearch(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchQuery = value;
-    if (!this.searchQuery.trim()) {
-      this.searchResults = [];
-      return;
-    }
-    this.livreService.search(this.searchQuery).subscribe(
-      data => this.searchResults = data,
-      error => console.error('Error searching livres:', error)
-    );
-  }
-  isOpen: Set<string> = new Set(); // Track open book IDs
-
-  toggleBook(livre: LivreDTO, event: Event) {
-    event.stopPropagation();
-    const livreId = livre.id_livre;
-    if (this.isOpen.has(livreId)) {
-      this.isOpen.delete(livreId);
-    } else {
-      this.isOpen.clear(); // Close all other books
-      this.isOpen.add(livreId);
-    }
-  }
-
-
-  getSpeedDialItems(livreId: string): MenuItem[] {
-    return [
-
-      {
-        label: 'Modifier',
-        icon: 'pi pi-pencil',
-        command: () => this.editLivre(livreId)
-      },
-      {
-        label: 'Supprimer',
-        icon: 'pi pi-trash',
-        command: () => this.deleteLivre(livreId)
-      },
-      {
-        label: 'Emprunte',
-        icon: 'pi pi-id-card',
-        command: () => this.Emprunter(livreId)
-      }
-    ];
-  }
-
-
-
-  handleFileUpload(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
-
-    if (!file.type.match(/application\/(vnd.ms-excel|vnd.openxmlformats-officedocument.spreadsheetml.sheet)/)) {
-      console.log('Selected file:', file.name, file.type, file.size);
-
-      alert('Veuillez sélectionner un fichier Excel (.xls ou .xlsx).');
-      return;
-    }
-    this.livreService.import(file).subscribe(
-      response => console.log('Import successful:', response),
-      error => console.error('Error importing file:', error)
-    );
-  }
-
-  exporter() {
-    this.livreService.export().subscribe(
-      blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'LivresInventaire.xlsx';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      },
-      error => console.error('Error exporting file:', error)
-    );
-  }
-
-
-
-  editLivre(livreId: string) {
-    console.log(`Navigating to edit livre ID: ${livreId}`);
-    this.router.navigate([`/bibliothecaire/livres/modifier/${livreId}`]);
-  }
-    Emprunter(livreId: string) {
-    console.log(`Navigating to emprunte livre ID: ${livreId}`);
-    this.router.navigate([`/bibliothecaire/emprunts/ajouter`]);
-  }
-
-  
-
-  deleteLivre(livreId: string) {
-  if(confirm('Voulez-vous vraiment supprimer ce livre ?')) {
-    this.livreService.delete(livreId).subscribe({
-      next: () => {
-        this.getBooks();
-       // this.messageService.add({ severity: 'success', summary: 'Supprimé', detail: 'Livre supprimé avec succès' });
-      },
-      error: (err) => {
-      //  this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Suppression échouée' });
-        console.error(err);
-      }
-    
-    });
-  }
-  }
-  @HostListener('document:click', ['$event'])
-  handleOutsideClick(event: MouseEvent) {
-    const clickedInside = this.isClickInside(event);
-    if (!clickedInside) {
-      this.isInputVisible = false;
-    }
-  }
-
-  isClickInside(event: MouseEvent): boolean {
-    const searchContainer = document.getElementById('search-container');
-    return searchContainer ? searchContainer.contains(event.target as Node) : false;
-  }
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-  importer() {
-    this.fileInput.nativeElement.click();
-  }
 }

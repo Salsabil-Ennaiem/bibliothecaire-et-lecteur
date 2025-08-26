@@ -16,28 +16,6 @@ namespace Infrastructure.Repositories
         {
             _dbContext = dbContext;
         }
-
-        /* public async Task<IEnumerable<(Livres, Inventaire)>> GetAllLivresAsync()
-         {
-             query manually joins Livres and Inventaire and selects new anonymous objects.
-             Using .Include means: EF will automatically load the related entity */
-        /*var query = from i in _dbContext.Inventaires
-                    join l in _dbContext.Livres
-                        on i.id_liv equals l.id_livre
-                    select new { Livre = l, Inventaire = i };
-                    foreach (var row in query)
-{
-Console.WriteLine($"Inventaire {row.i.id_inv} - Livre: {row.l.titre}");
-}
-        var results = await query.ToListAsync();
-        return results.Select(x => (x.Livre, x.Inventaire));*/
-        /*var results = await _dbContext.Inventaires
-            .Include(i => i.Livre)
-            .ToListAsync();
-            //var test = _dbContext.Inventaires.FromSqlRaw("SELECT * FROM Inventaires").ToList();
-foreach (var inv in results)
-Console.WriteLine($"{inv.id_inv} {inv.id_liv} {inv.cote_liv}");
-        return results.Select(i => (i.Livre, i));*/
         public async Task<IEnumerable<LivreDTO>> GetAllLivresAsync()
         {
             return await (from i in _dbContext.Inventaires
@@ -103,9 +81,9 @@ Console.WriteLine($"{inv.id_inv} {inv.id_liv} {inv.cote_liv}");
                 if (string.IsNullOrEmpty(livreCreate.titre) ||
                  string.IsNullOrEmpty(livreCreate.editeur) ||
                  string.IsNullOrEmpty(livreCreate.date_edition) ||
-                 string.IsNullOrEmpty(livreCreate.cote_liv))
+                 string.IsNullOrEmpty(livreCreate.cote_liv) )
                 {
-                    throw new Exception("doit remplir les 4 champs sont obligatoire ");
+                    throw new Exception("doit remplir les 4 champs sont obligatoire :titre , editeur , date edition , cote liv ");
                 }
                 // Check if book exists by title & edition
                 var existingLivre = await _dbContext.Livres
@@ -137,7 +115,8 @@ Console.WriteLine($"{inv.id_inv} {inv.id_liv} {inv.cote_liv}");
                     await _dbContext.SaveChangesAsync();
 
                     await transaction.CommitAsync();
-                    throw new Exception("Inventory added to existing book successfully");
+            return existingLivre.Adapt<LivreDTO>();
+                    
                 }
                 else
                 {
@@ -251,7 +230,7 @@ Console.WriteLine($"{inv.id_inv} {inv.id_liv} {inv.cote_liv}");
 
                 // Check if any other Inventaire references the same Livres
                 bool hasOtherCopies = await _dbContext.Inventaires
-                                 .AnyAsync(i => i.id_liv == livreId);
+                                 .AnyAsync(i => i.id_liv == livreId && i.id_inv != id);
 
                 // If no other copies, remove the Livres itself
                 if (!hasOtherCopies)

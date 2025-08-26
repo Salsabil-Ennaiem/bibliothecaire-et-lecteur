@@ -13,20 +13,12 @@ public class LivresController : ControllerBase
         _livresHandler = livresHandler;
     }
 
-    [HttpGet("search{term}")]
-    public async Task<IActionResult> Search([FromQuery] string term)
+    [HttpGet("search/{term}")]
+    public async Task<IActionResult> Search(string term)
     {
         var results = await _livresHandler.SearchAsync(term);
         return Ok(results);
     }
-/*
-    [HttpGet("Getalluser")]
-    public async Task<IActionResult> GetAlllivre()
-    {
-        var livres = await _livresHandler.GetAllLivresAsync();
-        return Ok(livres);
-    }*/
-
 
     [HttpGet("Getall")]
     public async Task<IActionResult> GetAll()
@@ -34,7 +26,7 @@ public class LivresController : ControllerBase
         var livres = await _livresHandler.GetAllAsync();
         return Ok(livres);
     }
-    [HttpGet("Get{id}")]
+    [HttpGet("Get/{id}")]
     public async Task<IActionResult> GetById(string id)
     {
         var livre = await _livresHandler.GetByIdAsync(id);
@@ -50,14 +42,14 @@ public class LivresController : ControllerBase
     }
 
 
-    [HttpPut("Update{id}")]
+    [HttpPut("Update/{id}")]
     public async Task<IActionResult> Update(string id, [FromBody] UpdateLivreDTO livre)
     {
         var updated = await _livresHandler.UpdateAsync(id , livre);
         return Ok(updated);
     }
 
-    [HttpDelete("Delete{id}")]
+    [HttpDelete("Delete/{id}")]
     public async Task<IActionResult> Delete(string id)
     {
         await _livresHandler.DeleteAsync(id);

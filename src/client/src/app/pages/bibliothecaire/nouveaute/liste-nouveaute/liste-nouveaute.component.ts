@@ -4,12 +4,10 @@ import { CarouselModule } from 'primeng/carousel';
 import { TagModule } from 'primeng/tag';
 import { SpeedDialModule } from 'primeng/speeddial';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
 import { NouveauteService } from '../../../../Services/nouveaute.service';
 import { NouveauteGetALL } from '../../../../model/nouveaute.model';
-//import { NouveauteDTO, NouveauteGetALL } from '../../../../model/Nouveaute.model';
-//import { NouveauteService } from '../../../../Services/Nouveaute.service';
+
 
 @Component({
   selector: 'app-liste-nouveaute',

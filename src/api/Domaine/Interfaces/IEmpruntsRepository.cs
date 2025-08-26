@@ -9,8 +9,8 @@ namespace domain.Interfaces
         Task<IEnumerable<Emprunts>> GetOverdueEmpruntsAsync(string userId, DateTime currentDate);
         Task<IEnumerable<EmppruntDTO>> GetAllEmpAsync();
         Task<EmppruntDTO> GetByIdAsync(string id);
-       // Task<string> CreateAsync(CreateLivreRequest livreCreate);
-       // Task<LivreDTO> UpdateAsync(string id, UpdateLivreDTO updatelivReq);
+       // Task<EmppruntDTO> CreateAsync(CreateLivreRequest livreCreate);
+       // Task<EmppruntDTO> UpdateAsync(string id, UpdateLivreDTO updatelivReq);
         Task DeleteAsync(string id);
 
     }
