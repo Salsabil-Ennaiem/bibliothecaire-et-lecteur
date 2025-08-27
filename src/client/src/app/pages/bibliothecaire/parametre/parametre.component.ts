@@ -18,11 +18,12 @@ export class ParametreComponent {
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
   
-  onDrawerHide() {
+ /* onDrawerHide() {
     this.visible = false;
     this.visibleChange.emit(false);
     this.isEditing = false;
-  }
+  }*/
+ 
   isEditing = false;
   emailTemplate = `Objet : Rappel de retour de livre en retard
 
