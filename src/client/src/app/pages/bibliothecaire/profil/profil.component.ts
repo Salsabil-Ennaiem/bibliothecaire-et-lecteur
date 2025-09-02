@@ -42,11 +42,11 @@ export class ProfilComponent {
   newImagePreview = this.imageUrl;
 
 
-  /*onDrawerHide() {
+  onDrawerHide() {
     this.visible = false;
     this.cancelEditing();
     this.visibleChange.emit(false);
-  }*/
+  }
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   triggerFileInput() {

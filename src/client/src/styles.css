@@ -1,6 +1,7 @@
 @import "primeicons/primeicons.css";
-:root {
-    --primary-color: #4a6491;
+
+/*:root {
+    --primary-color: #2c3b55;
     --secondary-color: #a777e3;
     --bg-color: #f8f9fa;
     --text-color: #212529;
@@ -18,6 +19,10 @@
     color: var(--text-color);
   }
   
-  .btn-primary {
+  button{
     background-color: var(--primary-color);
   }
+    */
+
+
+

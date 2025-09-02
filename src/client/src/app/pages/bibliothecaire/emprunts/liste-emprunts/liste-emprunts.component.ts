@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild, viewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SpeedDialModule } from 'primeng/speeddial';
@@ -13,11 +13,12 @@ import { InputIconModule } from 'primeng/inputicon';
 import { EmpruntService } from '../../../../Services/emprunt.service';
 import { EmppruntDTO } from '../../../../model/Emprunts.model';
 
-interface FilterOption {
+
+/*interface FilterOption {
   label: string;
   value: string;
 }
-
+*/
 @Component({
   selector: 'app-liste-emprunts',
   imports: [InputIconModule, IconFieldModule, InputTextModule,

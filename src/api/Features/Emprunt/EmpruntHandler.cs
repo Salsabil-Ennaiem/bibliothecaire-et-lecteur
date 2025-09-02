@@ -19,14 +19,16 @@ public class EmpruntHandler
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IConfiguration _configuration;
 
-    public EmpruntHandler(IHttpContextAccessor httpContextAccessor ,UserManager<Bibliothecaire> userManager, IEmpruntsRepository empruntsRepository, IParametreRepository parametreRepository, IConfiguration configuration )
+    public EmpruntHandler(IHttpContextAccessor httpContextAccessor ,UserManager<Bibliothecaire> userManager,IRepository<Membre> membreRepository , IEmpruntsRepository empruntsRepository, IParametreRepository parametreRepository, IConfiguration configuration )
     {
         _empruntsRepository = empruntsRepository;
         _parametreRepository = parametreRepository;
+        _membreRepository = membreRepository;
         _userManager = userManager;
         _httpContextAccessor = httpContextAccessor ;
         _configuration = configuration;
     }
+    /*
 
        public async Task<IEnumerable<EmppruntDTO>> GetAllAsync()
     {
@@ -109,7 +111,8 @@ public class EmpruntHandler
 
             return query;
     }
-/*    public async Task<EmppruntDTO> CreateAsync(CreateEmpRequest empdto)
+
+*//*    public async Task<EmppruntDTO> CreateAsync(CreateEmpRequest empdto)
     {
         // 1. Recherche du membre existant via le repository générique
         var allMembres = await _membreRepository.GetAllAsync(); 
@@ -127,12 +130,12 @@ public class EmpruntHandler
         }
 
         // 3. Récupération des paramètres pour le délai d'emprunt
-      /*  var userId = GetCurrentUserId();
-        var parametre = await _parametreRepository.GetParam(userId);
-        if (parametre == null)
-            throw new Exception("Parametre not found for the user.");*/
+      //  var userId = GetCurrentUserId();
+       // var parametre = await _parametreRepository.GetParam(userId);
+      //  if (parametre == null)
+       //     throw new Exception("Parametre not found for the user.");
 
-/*             var parametre = await _parametreRepository.GetParam();
+          var parametre = await _parametreRepository.GetParam();
         if (parametre == null)
             throw new Exception("Parametre not found for the user.");
 
@@ -155,13 +158,15 @@ public class EmpruntHandler
 
         return createdEmprunt.Adapt<EmppruntDTO>();
     }
-    public async Task<EmppruntDTO> UpdateAsync(UpdateEmppruntDTO emp, string id)
+    */
+    /*public async Task<EmppruntDTO> UpdateAsync(UpdateEmppruntDTO emp, string id)
     {
         var entity = emp.Adapt<Emprunts>();
         var created = await _empruntsRepository.UpdateAsync(entity, id);
         return created.Adapt<EmppruntDTO>();
     }
-    public async Task ImportAsync(Stream excelStream)
+    */
+   /* public async Task ImportAsync(Stream excelStream)
     {
         var workbook = new XSSFWorkbook(excelStream);
         var sheet = workbook.GetSheetAt(0);
@@ -187,7 +192,8 @@ public class EmpruntHandler
             await _empruntsRepository.CreateAsync(emp);
         }
     }
-    public async Task<MemoryStream> ExportAsync()
+    */
+   /* public async Task<MemoryStream> ExportAsync()
     {
         var data = await SearchAsync(""); // Get all data
 

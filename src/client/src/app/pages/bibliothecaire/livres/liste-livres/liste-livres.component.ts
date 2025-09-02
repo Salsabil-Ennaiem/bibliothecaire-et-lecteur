@@ -43,6 +43,8 @@ export class ListeLivresComponent {
   getBooks(): void {
     this.livreService.getAllLiv().subscribe({
       next: (data) => {
+        console.info("let see");
+       // console.log('Livres data:', JSON.stringify(data, null, 2));
         this.livres = data;
       },
       error: (error) => {
@@ -64,8 +66,8 @@ export class ListeLivresComponent {
       return;
     }
     this.livreService.search(this.searchQuery).subscribe({
-      next :(data)=>{ this.searchResults = data},
-      error :(err)=>{console.error('Error searching livres:', err)}
+      next: (data) => { this.searchResults = data },
+      error: (err) => { console.error('Error searching livres:', err) }
     }
     );
   }
@@ -73,7 +75,7 @@ export class ListeLivresComponent {
 
   toggleBook(livre: LivreDTO, event: Event) {
     event.stopPropagation();
-    const livreId = livre.id_livre;
+    const livreId = livre.id_inv;
     if (this.isOpen.has(livreId)) {
       this.isOpen.delete(livreId);
     } else {
@@ -81,7 +83,18 @@ export class ListeLivresComponent {
       this.isOpen.add(livreId);
     }
   }
+  @HostListener('document:click', ['$event'])
+  handleOutsideClick(event: MouseEvent) {
+    const clickedInside = this.isClickInside(event);
+    if (!clickedInside) {
+      this.isInputVisible = false;
+    }
+  }
 
+  isClickInside(event: MouseEvent): boolean {
+    const searchContainer = document.getElementById('search-container');
+    return searchContainer ? searchContainer.contains(event.target as Node) : false;
+  }
 
   getSpeedDialItems(livreId: string): MenuItem[] {
     return [
@@ -131,18 +144,7 @@ export class ListeLivresComponent {
       });
     }
   }
-  @HostListener('document:click', ['$event'])
-  handleOutsideClick(event: MouseEvent) {
-    const clickedInside = this.isClickInside(event);
-    if (!clickedInside) {
-      this.isInputVisible = false;
-    }
-  }
 
-  isClickInside(event: MouseEvent): boolean {
-    const searchContainer = document.getElementById('search-container');
-    return searchContainer ? searchContainer.contains(event.target as Node) : false;
-  }
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   importer() {
     this.fileInput.nativeElement.click();
@@ -183,24 +185,24 @@ export class ListeLivresComponent {
         */
   }
 
-/* livres: LivreDTO[] = [
-    {
-      id_livre: '1',
-      titre: 'Le Petit Prince',
-      auteur: 'Antoine de Saint-Exupéry',
-editeur : 'Gallimard',
-      isbn: '9782070412654',
-      cote_liv: '1234567890',
-      inventaire: '1234567890',
-      couverture: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.m3dSB_jJIuTfk5obG-eQggHaL0%26pid%3DApi&f=1&ipt=57bcc4ba3b487c802b416eb20f5378c03594b2cd4137445c660fa6b5605553a4&ipo=images',
-      date_edition: '1943-04-06',
-      etat: EtatLiv.Mauvais,
-      statut: Statut_liv.disponible,
-     // isOpen: false
-
+  /* livres: LivreDTO[] = [
+      {
+        id_livre: '1',
+        titre: 'Le Petit Prince',
+        auteur: 'Antoine de Saint-Exupéry',
+  editeur : 'Gallimard',
+        isbn: '9782070412654',
+        cote_liv: '1234567890',
+        inventaire: '1234567890',
+        couverture: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.m3dSB_jJIuTfk5obG-eQggHaL0%26pid%3DApi&f=1&ipt=57bcc4ba3b487c802b416eb20f5378c03594b2cd4137445c660fa6b5605553a4&ipo=images',
+        date_edition: '1943-04-06',
+        etat: EtatLiv.Mauvais,
+        statut: Statut_liv.disponible,
+       // isOpen: false
   
-    }]
-     */
+    
+      }]
+       */
   /*
   livres: Livre[] = [
     {

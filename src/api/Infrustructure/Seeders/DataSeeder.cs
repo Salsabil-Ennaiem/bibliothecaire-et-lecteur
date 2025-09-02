@@ -16,6 +16,8 @@ public static class DataSeeder
             var dbContext = serviceProvider.GetRequiredService<BiblioDbContext>();
 
             // Check each table before seeding
+            var nb = await dbContext.Set<Nouveaute>().CountAsync();
+            Console.WriteLine(nb);
             var hasLivres = await dbContext.Livres.AnyAsync();
             var hasInventaires = await dbContext.Inventaires.AnyAsync();
             var hasMembres = await dbContext.Membres.AnyAsync();
@@ -27,7 +29,7 @@ public static class DataSeeder
             var hasStatistiques = await dbContext.Statistiques.AnyAsync(); */
 
             if (hasLivres && hasInventaires
-            && hasMembres && hasEmprunts && hasNouveautes)
+            && hasMembres && hasEmprunts && hasNouveautes && nb > 1)
             /* && hasParametres  && hasSanctions  && hasStatistiques)*/
             {
                 Console.WriteLine("ℹ️ Data already exists in database.");
@@ -89,7 +91,7 @@ public static class DataSeeder
                     emprunts = await dbContext.Emprunts.ToListAsync();
                 }
                 // Seed nouveautés
-                if (!hasNouveautes)
+                if (!hasNouveautes || nb<2)
                 {
                     Console.WriteLine("🌱 Seeding Nouveautes...");
                     await NouveauteSeeder.SeedNouveautesAsync(dbContext);

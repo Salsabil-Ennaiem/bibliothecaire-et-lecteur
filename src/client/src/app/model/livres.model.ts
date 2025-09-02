@@ -1,30 +1,31 @@
-
-
 export enum Statut_liv {
   disponible = 'Disponible',
   emprunté = 'Emprunté',
   perdu = 'Perdu'
 }
 
-export enum EtatLiv {
-  Neuf = 'neuf',
-  Moyen = 'moyen',
-  Mauvais = 'mauvais'
+export enum etat_liv {
+  neuf = 'Neuf',
+  moyen = 'Moyen',
+  mauvais = 'Mauvais'
 }
 
 export interface LivreDTO {
-  id_livre: string;
+  id_inv: string;
   date_edition: string;
   titre: string;
   auteur?: string;
+
   isbn?: string;
   editeur: string;
   Description?: string;
   Langue?: string;
+
   couverture?: string;
   cote_liv: string;
-  etat?: EtatLiv;
-  statut?: Statut_liv;
+  etat?: etat_liv;
+  statut: Statut_liv;
+
   inventaire?: string;
 }
 export interface UpdateLivreDTO {
@@ -32,12 +33,14 @@ export interface UpdateLivreDTO {
   titre: string;
   auteur?: string;
   isbn?: string;
+
   editeur: string;
   Description?: string;
   Langue?: string;
   couverture?: string;
+
   cote_liv: string;
-  etat?: EtatLiv;
+  etat?: etat_liv;
   statut?: Statut_liv;
   inventaire?: string;
 }
@@ -48,11 +51,14 @@ export interface CreateLivreRequest {
   auteur: string;
   editeur: string;
   Langue: string;
+
   titre: string;
   isbn: string;
   inventaire: string;
   date_edition: string;
-  etat: EtatLiv;
+
+
+  etat: etat_liv;
   Description: string;
   couverture: string
 }

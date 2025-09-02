@@ -7,7 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositries
 {
-    public class EmpruntsRepository : IEmpruntsRepository
+        public class EmpruntsRepository 
+
+    //public class EmpruntsRepository : IEmpruntsRepository
     {
         private readonly BiblioDbContext _dbContext;
         public EmpruntsRepository(BiblioDbContext dbContext)
@@ -15,6 +17,7 @@ namespace Infrastructure.Repositries
         {
             _dbContext = dbContext;
         }
+        /*
         public async Task<IEnumerable<EmppruntDTO>> GetAllEmpAsync()
         {
             return await (from e in _dbContext.Emprunts
@@ -30,7 +33,7 @@ namespace Infrastructure.Repositries
                               date_edition = l.date_edition,
                               titre = l.titre,
                               date_emp = e.date_emp,
-                              date_retour_prevu = e.date_retour_prevu,
+                             // date_retour_prevu = e.date_retour_prevu,
                               date_effectif = e.date_effectif,
                               Statut_emp = e.Statut_emp,
                               note = e.note,
@@ -61,7 +64,7 @@ namespace Infrastructure.Repositries
                                 date_edition = l.date_edition,
                                 titre = l.titre,
                                 date_emp = e.date_emp,
-                                date_retour_prevu = e.date_retour_prevu,
+                                date_retour_prevu = e.date_retour_prevu ?? default(DateTime),
                                 date_effectif = e.date_effectif,
                                 Statut_emp = e.Statut_emp,
                                 note = e.note,
@@ -135,7 +138,7 @@ namespace Infrastructure.Repositries
                 throw new Exception($"Error deleting Emprunts with ID {id}: {ex.Message}", ex);
             }
         }
-        /*
+        
           public async Task<LivreDTO> CreateAsync(CreateLivreRequest livreCreate)
                 {
                     using var transaction = await _dbContext.Database.BeginTransactionAsync();
@@ -278,7 +281,7 @@ namespace Infrastructure.Repositries
                     }
 
                 }
-        */
+        
         public async Task<IEnumerable<Emprunts>> GetOverdueEmpruntsAsync(string userId, DateTime currentDate)
         {
             return await _dbContext.Emprunts
@@ -287,6 +290,6 @@ namespace Infrastructure.Repositries
                          && (e.date_effectif == null || e.Statut_emp != Statut_emp.retourne)) // not returned
                 .ToListAsync();
         }
-
+*/
     }
 }

@@ -9,7 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { Textarea } from 'primeng/textarea';
 import { RouterLink } from '@angular/router';
-import { EtatLiv, LivreDTO, UpdateLivreDTO } from '../../../../model/livres.model';
+import { etat_liv, LivreDTO, UpdateLivreDTO } from '../../../../model/livres.model';
 import { LivreService } from '../../../../Services/livre.service';
 
 @Component({
@@ -21,7 +21,7 @@ import { LivreService } from '../../../../Services/livre.service';
 export class ModifierLivresComponent {
   livre: UpdateLivreDTO | any;
   livreId: string | any;
-  selectEtat_Livre: EtatLiv[] = [];
+  selectEtat_Livre: etat_liv[] = [];
   constructor(private livreService: LivreService) { }
 
   editLivre(livreId: string, updatedLivreDTO: UpdateLivreDTO): void {

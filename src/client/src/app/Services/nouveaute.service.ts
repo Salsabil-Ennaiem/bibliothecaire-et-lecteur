@@ -15,10 +15,6 @@ export class NouveauteService {
   constructor(private http: HttpClient) { }
 
 
-  getAll(): Observable<NouveauteGetALL[]> {
-    return this.http.get<NouveauteGetALL[]>(`${this.apiUrl}/GetallUser`);
-  }
-
   getAllNouv(): Observable<NouveauteGetALL[]> {
     return this.http.get<NouveauteGetALL[]>(`${this.apiUrl}/Getall`);
   }

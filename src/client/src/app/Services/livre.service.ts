@@ -9,7 +9,7 @@ import { CreateLivreRequest, LivreDTO, UpdateLivreDTO } from '../model/livres.mo
 })
 
 export class LivreService {
-  private apiUrl = 'http://localhost:5232/api/Livres';
+  private apiUrl = 'http://localhost:5232/api/livres';
 
   constructor(private http: HttpClient) { }
 
@@ -17,6 +17,7 @@ export class LivreService {
     return this.http.get<LivreDTO[]>(`${this.apiUrl}/search/${term}`);
   }
   getAllLiv(): Observable<LivreDTO[]> {
+    console.info("well time to work ");
     return this.http.get<LivreDTO[]>(`${this.apiUrl}/Getall`);
   }
   getById(id: string): Observable<LivreDTO> {

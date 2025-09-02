@@ -4,7 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { RouterLink } from '@angular/router';
 import { LivreService } from '../../../../Services/livre.service';
-import { CreateLivreRequest, EtatLiv } from '../../../../model/livres.model';
+import { CreateLivreRequest, etat_liv } from '../../../../model/livres.model';
 import { InputIcon } from 'primeng/inputicon';
 import { IconField } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
@@ -20,8 +20,7 @@ import { TextareaModule } from 'primeng/textarea';
 })
 export class AjoutLivresComponent implements OnInit {
      livre! : CreateLivreRequest ;// Le ! indique à TypeScript qu'on garantit l'initialisation
-  //selectEtat_Livre: EtatLiv[] = [];
-    selectEtat_Livre: { label: string, value: EtatLiv }[] = [];
+    selectEtat_Livre: { label: string, value: etat_liv }[] = [];
 
   
   constructor(private livreService: LivreService) { }
@@ -36,15 +35,15 @@ ngOnInit(): void {
       isbn: '',
       inventaire: '',
       date_edition: '',
-      etat: EtatLiv.Neuf, 
+      etat: etat_liv.neuf, 
       Description: '',
       couverture: ''
     };
       // Initialize the dropdown options
     this.selectEtat_Livre = [
-      { label: 'Neuf', value: EtatLiv.Neuf },
-      { label: 'Moyen', value: EtatLiv.Moyen },
-      { label: 'Mauvais', value: EtatLiv.Mauvais }
+      { label: 'Neuf', value: etat_liv.neuf },
+      { label: 'Moyen', value: etat_liv.moyen },
+      { label: 'Mauvais', value: etat_liv.mauvais }
     ];
   }
   Ajouter( livre: CreateLivreRequest):void {
@@ -59,7 +58,7 @@ ngOnInit(): void {
           isbn: '',
           inventaire: '',
           date_edition: '',
-          etat: EtatLiv.Neuf,
+          etat: etat_liv.neuf,
           Description: '',
           couverture: ''
         };

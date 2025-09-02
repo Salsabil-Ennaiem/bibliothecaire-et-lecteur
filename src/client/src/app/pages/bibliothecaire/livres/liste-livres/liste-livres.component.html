@@ -30,10 +30,12 @@
     <div class="book-grid ">
 
 
-            <ng-template #defaultGrid>
+        <ng-template #resultsGrid>
+            <ng-container *ngIf="searchResults.length > 0; else defaultGrid">
                 <div class="row row-cols-1 row-cols-sm-3 g-4">
-                    <div *ngFor="let livre of livres" class="col">
-                        <div class="book" [ngClass]="{'open': isOpen.has(livre.id_livre)  }" (click)="toggleBook(livre, $event)">
+                    <div *ngFor="let livre of searchResults" class="col">
+                        <div class="book" [ngClass]="{ 'open': isOpen.has(livre.id_inv)  }"
+                            (click)="toggleBook(livre, $event)">
                             <div class="back"></div>
                             <div class="page6"></div>
                             <div class="page5"></div>
@@ -45,6 +47,8 @@
                                     <p class="mb-2"><strong>État:</strong> {{ livre.etat }}</p>
                                     <p class="mb-2"><strong>cote:</strong> {{ livre.cote_liv }}</p>
                                     <p class="mb-2"><strong>invtentaire:</strong> {{ livre.inventaire }}</p>
+                                    <p class="mb-2"><strong>Description:</strong> {{ livre.Description }}</p>
+
                                 </div>
                             </div>
                             <div class="page1"></div>
@@ -64,12 +68,57 @@
                                     </span>
                                 </div>
                                 <p-speeddial *ngIf="!isHosted" class="speed-dial"
-                                    [model]="getSpeedDialItems(livre.id_livre)" direction="down"
+                                    [model]="getSpeedDialItems(livre.id_inv)" direction="down"
                                     showIcon="pi pi-ellipsis-v" (click)="$event.stopPropagation()" />
                             </div>
                         </div>
                     </div>
                 </div>
-            </ng-template>
+            </ng-container>
+        </ng-template>
+
+        <ng-template #defaultGrid>
+            <div class="row row-cols-1 row-cols-sm-3 g-4">
+                <div *ngFor="let livre of livres" class="col">
+                    <div class="book" [ngClass]="{'open': isOpen.has(livre.id_inv)  }"
+                        (click)="toggleBook(livre, $event)">
+                        <div class="back"></div>
+                        <div class="page6"></div>
+                        <div class="page5"></div>
+                        <div class="page4"></div>
+                        <div class="page3"></div>
+                        <div class="page2">
+                            <div class="page-details">
+                                <p class="mb-2"><strong>ISBN :</strong> {{ livre.isbn }}</p>
+                                <p class="mb-2"><strong>État:</strong> {{ livre.etat }}</p>
+                                <p class="mb-2"><strong>cote:</strong> {{ livre.cote_liv }}</p>
+                                <p class="mb-2"><strong>invtentaire:</strong> {{ livre.inventaire }}</p>
+                                <p class="mb-2"><strong>Description:</strong> {{ livre.Description }}</p>
+
+                            </div>
+                        </div>
+                        <div class="page1"></div>
+                        <div class="front">
+                            <img [src]="livre.couverture" [alt]="livre.titre" class="book-image" />
+                            <div class="book-details">
+                                <h3 class="book-title">{{ livre.titre }}</h3>
+                                <p class="book-author">{{ livre.auteur }}</p>
+                                <p>{{livre.editeur}}</p>
+                                <p class="book-date">{{ livre.date_edition }}</p>
+                                <span class="badge position-absolute top-0 start-0 m-2" [ngClass]="{
+                                            'bg-success': livre.statut === 'Disponible',
+                                            'bg-warning': livre.statut === 'Emprunté',
+                                            'bg-danger': livre.statut === 'Perdu'
+                                          }">
+                                    {{ livre.statut }}
+                                </span>
+                            </div>
+                            <p-speeddial *ngIf="!isHosted" class="speed-dial" [model]="getSpeedDialItems(livre.id_inv)"
+                                direction="down" showIcon="pi pi-ellipsis-v" (click)="$event.stopPropagation()" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
     </div>
 </div>
