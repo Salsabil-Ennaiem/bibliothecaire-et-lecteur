@@ -3,21 +3,26 @@ using Data;
 using domain.Entity;
 using domain.Entity.Enum;
 using domain.Interfaces;
+using Infrastructure.Repositories;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositries
 {
-        public class EmpruntsRepository 
-
-    //public class EmpruntsRepository : IEmpruntsRepository
+    public class EmpruntsRepository : IEmpruntsRepository
     {
         private readonly BiblioDbContext _dbContext;
-        public EmpruntsRepository(BiblioDbContext dbContext)
+        private readonly IRepository<Membre> _membreRepository;
+        private readonly LivresRepository _LivresRepository;
+        private readonly IParametreRepository _ParametreRepository;
+
+        public EmpruntsRepository(BiblioDbContext dbContext, IParametreRepository ParametreRepository, IRepository<Membre> membreRepository, LivresRepository LivresRepository)
 
         {
             _dbContext = dbContext;
+            _membreRepository = membreRepository;
+            _ParametreRepository = ParametreRepository;
         }
-        /*
         public async Task<IEnumerable<EmppruntDTO>> GetAllEmpAsync()
         {
             return await (from e in _dbContext.Emprunts
@@ -33,7 +38,7 @@ namespace Infrastructure.Repositries
                               date_edition = l.date_edition,
                               titre = l.titre,
                               date_emp = e.date_emp,
-                             // date_retour_prevu = e.date_retour_prevu,
+                              // date_retour_prevu = e.date_retour_prevu,
                               date_effectif = e.date_effectif,
                               Statut_emp = e.Statut_emp,
                               note = e.note,
@@ -138,150 +143,6 @@ namespace Infrastructure.Repositries
                 throw new Exception($"Error deleting Emprunts with ID {id}: {ex.Message}", ex);
             }
         }
-        
-          public async Task<LivreDTO> CreateAsync(CreateLivreRequest livreCreate)
-                {
-                    using var transaction = await _dbContext.Database.BeginTransactionAsync();
-                    try
-                    {
-                        if (string.IsNullOrEmpty(livreCreate.titre) ||
-                         string.IsNullOrEmpty(livreCreate.editeur) ||
-                         string.IsNullOrEmpty(livreCreate.date_edition) ||
-                         string.IsNullOrEmpty(livreCreate.cote_liv) )
-                        {
-                            throw new Exception("doit remplir les 4 champs sont obligatoire :titre , editeur , date edition , cote liv ");
-                        }
-                        // Check if book exists by title & edition
-                        var existingLivre = await _dbContext.Livres
-                            .FirstOrDefaultAsync(l => l.titre == livreCreate.titre && l.date_edition == livreCreate.date_edition);
-
-                        if (existingLivre != null)
-                        {
-                            // Book exists: check if the inventory cote_liv already exists
-                            var inventaireExists = await _dbContext.Inventaires
-                                .AnyAsync(i => i.cote_liv == livreCreate.cote_liv);
-
-                            if (inventaireExists)
-                            {
-                                throw new Exception("Failed to add book: inventory cote_liv already exists");
-                            }
-
-
-                            // Add new inventory linked to existing book
-                            var newInventaire = new Inventaire
-                            {
-                                id_inv = Guid.NewGuid().ToString(),
-                                id_liv = existingLivre.id_livre,
-                                cote_liv = livreCreate.cote_liv,
-                                etat = livreCreate.etat,
-                                inventaire = livreCreate.inventaire
-                            };
-
-                            await _dbContext.Inventaires.AddAsync(newInventaire);
-                            await _dbContext.SaveChangesAsync();
-
-                            await transaction.CommitAsync();
-                            throw new Exception("Inventory added to existing book successfully");
-                        }
-                        else
-                        {
-                            // Book does not exist: create it
-                            var newLivre = new Livres
-                            {
-                                id_livre = Guid.NewGuid().ToString(),
-                                titre = livreCreate.titre,
-                                date_edition = livreCreate.date_edition,
-                                auteur = livreCreate.auteur,
-                                isbn = livreCreate.isbn,
-                                editeur = livreCreate.editeur,
-                                Description = livreCreate.Description,
-                                Langue = livreCreate.Langue,
-                                couverture = livreCreate.couverture,
-                            };
-
-                            await _dbContext.Livres.AddAsync(newLivre);
-                            await _dbContext.SaveChangesAsync();
-
-                            // Create inventory linked to new book
-                            var newInventaire = new Inventaire
-                            {
-                                id_inv = Guid.NewGuid().ToString(),
-                                id_liv = newLivre.id_livre,
-                                cote_liv = livreCreate.cote_liv,
-                                etat = livreCreate.etat,
-                                inventaire = livreCreate.inventaire
-                            };
-
-                            await _dbContext.Inventaires.AddAsync(newInventaire);
-                            await _dbContext.SaveChangesAsync();
-
-                            await transaction.CommitAsync();
-                            return newLivre.Adapt<LivreDTO>();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        await transaction.RollbackAsync();
-                        throw new Exception("Error creating book and inventory: " + ex.Message, ex);
-                    }
-                }
-                public async Task<LivreDTO> UpdateAsync(string id, UpdateLivreDTO updatelivReq)
-                {
-                    using var transaction = await _dbContext.Database.BeginTransactionAsync();
-                    try
-                    {
-
-                        var inventaire = await GetInventaireByIdAsync(id);
-                        var livre = inventaire.Livre;
-
-                        if (updatelivReq.titre is not null)
-                            livre.titre = updatelivReq.titre;
-
-                        if (updatelivReq.auteur is not null)
-                            livre.auteur = updatelivReq.auteur;
-
-                        if (updatelivReq.cote_liv is not null)
-                            inventaire.cote_liv = updatelivReq.cote_liv;
-
-                        if (updatelivReq.couverture is not null)
-                            livre.couverture = updatelivReq.couverture;
-
-                        if (updatelivReq.date_edition is not null)
-                            livre.date_edition = updatelivReq.date_edition;
-
-                        if (updatelivReq.Description is not null)
-                            livre.Description = updatelivReq.Description;
-
-                        if (updatelivReq.editeur is not null)
-                            livre.editeur = updatelivReq.editeur;
-
-                        if (updatelivReq.etat is not null)
-                            inventaire.etat = updatelivReq.etat;
-
-                        if (updatelivReq.isbn is not null)
-                            livre.isbn = updatelivReq.isbn;
-
-                        if (updatelivReq.Langue is not null)
-                            livre.Langue = updatelivReq.Langue;
-
-                        if (updatelivReq.statut != Statut_liv.disponible)
-                            inventaire.statut = updatelivReq.statut;
-
-                        if (updatelivReq.inventaire is not null)
-                            inventaire.inventaire = updatelivReq.inventaire;
-
-                        await _dbContext.SaveChangesAsync();
-                        await transaction.CommitAsync();
-                        return await GetByIdAsync(id);
-                    }
-                    catch (Exception ex)
-                    {
-                        await transaction.RollbackAsync();
-                        throw new Exception($"Error updating Livre with ID {id}: {ex.Message}", ex);
-                    }
-
-                }
-        
         public async Task<IEnumerable<Emprunts>> GetOverdueEmpruntsAsync(string userId, DateTime currentDate)
         {
             return await _dbContext.Emprunts
@@ -290,6 +151,63 @@ namespace Infrastructure.Repositries
                          && (e.date_effectif == null || e.Statut_emp != Statut_emp.retourne)) // not returned
                 .ToListAsync();
         }
-*/
+        public async Task<EmppruntDTO> CreateAsync(CreateEmpRequest empdto)
+        {
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                // 1. Recherche du membre existant via le repository générique
+                var allMembres = await _membreRepository.GetAllAsync();
+                var membreExistant = allMembres.FirstOrDefault(m =>
+                    (!string.IsNullOrEmpty(empdto.cin_ou_passeport) && m.cin_ou_passeport == empdto.cin_ou_passeport) ||
+                    (!string.IsNullOrEmpty(empdto.email) && m.email == empdto.email)
+                );
+                if (membreExistant != null && membreExistant.Statut != StatutMemb.actif)
+                {
+                    if (membreExistant.Statut == StatutMemb.sanctionne)
+                    {
+                        //add serach sanction how time he gonna be wait until he finish that
+                        throw new Exception("this membre not allowed to get any book right now ");
+                    }
+                    else
+                        throw new Exception("this membre not allowed to have any service with us  ");
+                }
+                // 2. Création du membre si inexistant
+                else if (membreExistant == null)
+                {
+                    var nouveauMembre = new Membre
+                    {
+                        id_membre = Guid.NewGuid().ToString(),
+                        nom = empdto.nom,
+                        prenom = empdto.prenom,
+                        cin_ou_passeport = empdto.cin_ou_passeport,
+                        email = empdto.email,
+                        telephone = empdto.telephone,
+                        TypeMembre = empdto.TypeMembre
+                    };
+                    membreExistant = await _membreRepository.CreateAsync(nouveauMembre);
+                }
+                var s = _LivresRepository.RechercheCote(empdto.cote_liv);
+                var delais = await _ParametreRepository.GetDelais(empdto.TypeMembre);
+
+                var nouveauEmp = new Emprunts
+                      {
+                          id_emp = Guid.NewGuid().ToString(),
+                          Id_inv = s,
+                          date_retour_prevu = DateTime.Now.AddDays(Convert.ToDouble(delais))
+                      };
+                       await _dbContext.Emprunts.AddAsync(nouveauEmp);
+                       await _dbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                return empdto.Adapt<EmppruntDTO>();
+
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw new Exception("Error creating book and inventory: " + ex.Message, ex);
+            }
+        }
     }
 }

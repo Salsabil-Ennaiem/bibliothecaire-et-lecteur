@@ -81,78 +81,85 @@ namespace Infrastructure.Repositories
                 if (string.IsNullOrEmpty(livreCreate.titre) ||
                  string.IsNullOrEmpty(livreCreate.editeur) ||
                  string.IsNullOrEmpty(livreCreate.date_edition) ||
-                 string.IsNullOrEmpty(livreCreate.cote_liv) )
+                 string.IsNullOrEmpty(livreCreate.cote_liv))
                 {
                     throw new Exception("doit remplir les 4 champs sont obligatoire :titre , editeur , date edition , cote liv ");
                 }
-                // Check if book exists by title & edition
-                var existingLivre = await _dbContext.Livres
-                    .FirstOrDefaultAsync(l => l.titre == livreCreate.titre && l.date_edition == livreCreate.date_edition);
 
-                if (existingLivre != null)
+                if (RechercheCote(livreCreate.cote_liv) != null)
                 {
-                    // Book exists: check if the inventory cote_liv already exists
-                    var inventaireExists = await _dbContext.Inventaires
-                        .AnyAsync(i => i.cote_liv == livreCreate.cote_liv);
+                    // Check if book exists by title & edition
+                    var existingLivre = await _dbContext.Livres
+                        .FirstOrDefaultAsync(l => l.titre == livreCreate.titre && l.date_edition == livreCreate.date_edition);
 
-                    if (inventaireExists)
+                    if (existingLivre != null)
                     {
-                        throw new Exception("Failed to add book: inventory cote_liv already exists");
+                        // Book exists: check if the inventory cote_liv already exists
+                        var inventaireExists = await _dbContext.Inventaires
+                            .AnyAsync(i => i.cote_liv == livreCreate.cote_liv);
+
+                        if (inventaireExists)
+                        {
+                            throw new Exception("Failed to add book: inventory cote_liv already exists");
+                        }
+
+
+                        // Add new inventory linked to existing book
+                        var newInventaire = new Inventaire
+                        {
+                            id_inv = Guid.NewGuid().ToString(),
+                            id_liv = existingLivre.id_livre,
+                            cote_liv = livreCreate.cote_liv,
+                            etat = livreCreate.etat,
+                            inventaire = livreCreate.inventaire
+                        };
+
+                        await _dbContext.Inventaires.AddAsync(newInventaire);
+                        await _dbContext.SaveChangesAsync();
+
+                        await transaction.CommitAsync();
+                        return existingLivre.Adapt<LivreDTO>();
+
                     }
-
-
-                    // Add new inventory linked to existing book
-                    var newInventaire = new Inventaire
+                    else
                     {
-                        id_inv = Guid.NewGuid().ToString(),
-                        id_liv = existingLivre.id_livre,
-                        cote_liv = livreCreate.cote_liv,
-                        etat = livreCreate.etat,
-                        inventaire = livreCreate.inventaire
-                    };
+                        // Book does not exist: create it
+                        var newLivre = new Livres
+                        {
+                            id_livre = Guid.NewGuid().ToString(),
+                            titre = livreCreate.titre,
+                            date_edition = livreCreate.date_edition,
+                            auteur = livreCreate.auteur,
+                            isbn = livreCreate.isbn,
+                            editeur = livreCreate.editeur,
+                            Description = livreCreate.Description,
+                            Langue = livreCreate.Langue,
+                            couverture = livreCreate.couverture,
+                        };
 
-                    await _dbContext.Inventaires.AddAsync(newInventaire);
-                    await _dbContext.SaveChangesAsync();
+                        await _dbContext.Livres.AddAsync(newLivre);
+                        await _dbContext.SaveChangesAsync();
 
-                    await transaction.CommitAsync();
-            return existingLivre.Adapt<LivreDTO>();
-                    
+                        // Create inventory linked to new book
+                        var newInventaire = new Inventaire
+                        {
+                            id_inv = Guid.NewGuid().ToString(),
+                            id_liv = newLivre.id_livre,
+                            cote_liv = livreCreate.cote_liv,
+                            etat = livreCreate.etat,
+                            inventaire = livreCreate.inventaire
+                        };
+
+                        await _dbContext.Inventaires.AddAsync(newInventaire);
+                        await _dbContext.SaveChangesAsync();
+
+                        await transaction.CommitAsync();
+                        return newLivre.Adapt<LivreDTO>();
+                    }
                 }
-                else
-                {
-                    // Book does not exist: create it
-                    var newLivre = new Livres
-                    {
-                        id_livre = Guid.NewGuid().ToString(),
-                        titre = livreCreate.titre,
-                        date_edition = livreCreate.date_edition,
-                        auteur = livreCreate.auteur,
-                        isbn = livreCreate.isbn,
-                        editeur = livreCreate.editeur,
-                        Description = livreCreate.Description,
-                        Langue = livreCreate.Langue,
-                        couverture = livreCreate.couverture,
-                    };
-
-                    await _dbContext.Livres.AddAsync(newLivre);
-                    await _dbContext.SaveChangesAsync();
-
-                    // Create inventory linked to new book
-                    var newInventaire = new Inventaire
-                    {
-                        id_inv = Guid.NewGuid().ToString(),
-                        id_liv = newLivre.id_livre,
-                        cote_liv = livreCreate.cote_liv,
-                        etat = livreCreate.etat,
-                        inventaire = livreCreate.inventaire
-                    };
-
-                    await _dbContext.Inventaires.AddAsync(newInventaire);
-                    await _dbContext.SaveChangesAsync();
-
-                    await transaction.CommitAsync();
-                    return newLivre.Adapt<LivreDTO>();
-                }
+                       else{
+                        throw new Exception("no yu should change that cote ");
+                    }
             }
             catch (Exception ex)
             {
@@ -252,7 +259,7 @@ namespace Infrastructure.Repositories
                 throw new Exception($"Error deleting Livre with ID {id}: {ex.Message}", ex);
             }
         }
-        public async Task<Inventaire?> GetInventaireByIdAsync(string inventaireId)
+        private async Task<Inventaire?> GetInventaireByIdAsync(string inventaireId)
         {
             try
             {
@@ -265,6 +272,28 @@ namespace Infrastructure.Repositories
                 throw new Exception($"Error deleting Livre with ID {inventaireId}: {ex.Message}", ex);
             }
         }
+        public string RechercheCote(string cote)
+        {
+            try
+            {
+                var cot = from l in _dbContext.Livres
+                          join i in _dbContext.Inventaires
+                              on l.id_livre equals i.id_liv
+                          where i.cote_liv == cote &&
+                          i.statut != Statut_liv.perdu
+                          select i.id_inv;
+                
+                if (cot is null)
+                {
+                    throw new Exception($"{cot} with cote {cote} not found");
+                }
+                return  cot.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error retrieving Livre with cote {cote}: {ex.Message}", ex);
+            }
 
+        }
     }
 }

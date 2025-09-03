@@ -1,12 +1,15 @@
+using api.Features.Parametre;
 using domain.Entity;
+using domain.Entity.Enum;
 
 namespace domain.Interfaces
 {
     public interface IParametreRepository
     {
-       // Task<Parametre> GetParam(string userId);
-       Task<Parametre> GetParam();
-        Task<Parametre> Updatepram(Parametre entity);
+        // Task<Parametre> GetParam(string userId);
+        Task<ParametreDTO> GetParam();
+        Task<ParametreDTO> Updatepram(ParametreDTO entity);
+        Task<int> GetDelais(TypeMemb type);
 
     }
 }

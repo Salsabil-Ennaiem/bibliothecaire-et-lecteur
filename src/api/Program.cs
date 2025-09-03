@@ -107,7 +107,7 @@ builder.Services.AddScoped<Repository<Nouveaute>>();
 
 
 builder.Services.AddScoped<ILivresRepository, LivresRepository>();
-//builder.Services.AddScoped<IEmpruntsRepository, EmpruntsRepository>();
+builder.Services.AddScoped<IEmpruntsRepository, EmpruntsRepository>();
 builder.Services.AddScoped<IParametreRepository, ParametreRepository>();
 builder.Services.AddScoped<IScrapingRepository, ScrapingRepository>();
 builder.Services.AddScoped<ISanctionRepository, SanctionRepository>();

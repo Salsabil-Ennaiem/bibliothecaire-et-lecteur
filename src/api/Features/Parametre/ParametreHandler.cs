@@ -8,20 +8,27 @@ namespace api.Features.Parametre;
 
 public class ParametreHandler
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IParametreRepository _parametreRepository;
-    private readonly IEmpruntsRepository _empruntsRepository;
-    private readonly ISanctionRepository _sanctionRepository;
 
 
-    public ParametreHandler(IHttpContextAccessor httpContextAccessor, ISanctionRepository sanctionRepository, IParametreRepository parametreRepository, IEmpruntsRepository empruntsRepository)
+
+    public ParametreHandler( IParametreRepository parametreRepository)
     {
-        _httpContextAccessor = httpContextAccessor;
-        _parametreRepository = parametreRepository;
-        _empruntsRepository = empruntsRepository;
-        _sanctionRepository = sanctionRepository;
+                _parametreRepository = parametreRepository;
+
     }
 
+            public async Task<ParametreDTO> GetParam()
+            {
+var rt await _parametreRepository.GetParam;
+ret
+    }
+        public async Task<ParametreDTO> Updatepram(ParametreDTO entity)
+        {
+
+        }
+
+/*
     public async Task<ParametreDTO> GetByIdAsync()
     {
         var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;

@@ -1,6 +1,9 @@
+using api.Features.Parametre;
 using Data;
 using domain.Entity;
+using domain.Entity.Enum;
 using domain.Interfaces;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositries
@@ -9,72 +12,84 @@ namespace Infrastructure.Repositries
     {
         private readonly BiblioDbContext _context;
 
-        public ParametreRepository(Repository<Parametre> repository, BiblioDbContext context)
+        public ParametreRepository(BiblioDbContext context)
         {
             _context = context;
         }
-      /*  public async Task<Parametre> GetParam(string userId)
-        {
-            try
-            {
-                var parametre = await _context.Parametres
-                    .Where(p => p.IdBiblio == userId)
-                    .OrderByDescending(p => p.id_param)
-                    .FirstOrDefaultAsync();
-                return parametre;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error retrieving Parametre for User ID {userId}: {ex.Message}", ex);
-            }
-        }*/
-        public async Task<Parametre> GetParam()
+        /*  public async Task<Parametre> GetParam(string userId)
+          {
+              try
+              {
+                  var parametre = await _context.Parametres
+                      .Where(p => p.IdBiblio == userId)
+                      .OrderByDescending(p => p.id_param)
+                      .FirstOrDefaultAsync();
+                  return parametre;
+              }
+              catch (Exception ex)
+              {
+                  throw new Exception($"Error retrieving Parametre for User ID {userId}: {ex.Message}", ex);
+              }
+          }*/
+        public async Task<ParametreDTO> GetParam()
         {
             try
             {
                 var parametre = await _context.Parametres
                     .OrderByDescending(p => p.date_modification)
                     .FirstOrDefaultAsync();
-                return parametre;
+                return parametre.Adapt<ParametreDTO>();
             }
             catch (Exception ex)
             {
                 throw new Exception($"Error retrieving Parametre : {ex.Message}", ex);
             }
         }
-        public async Task<Parametre> Updatepram(Parametre entity)
+        public async Task<ParametreDTO> Updatepram(ParametreDTO entity)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
                 var existingParam = await GetParam();
+                if (!AreParametersEqual(entity, existingParam))
+                {
+                    _context.Entry(existingParam).CurrentValues.SetValues(entity);
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                return entity.Adapt<ParametreDTO>();
 
-                _context.Entry(existingParam).CurrentValues.SetValues(entity);
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return entity;
             }
 
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                throw new Exception($"Error updating Parametre for User ID {entity.IdBiblio}: {ex.Message}", ex);
+                throw new Exception($"Error updating Parametre : {ex.Message}", ex);
             }
 
         }
+        public async Task<int> GetDelais(TypeMemb type)
+        {
+                var param = await GetParam(); 
 
-        /*   private bool AreParametersEqual(Parametre p1, Parametre p2)
-           {
-               if (p1 == null || p2 == null) return false;
+            if (type == TypeMemb.Autre)
+                return  param.Delais_Emprunt_Autre;
+            else if (type == TypeMemb.Etudiant)
+                return param.Delais_Emprunt_Etudiant;
+            else
+                return param.Delais_Emprunt_Enseignant;
 
-               return p1.Delais_Emprunt_Etudiant == p2.Delais_Emprunt_Etudiant &&
-                      p1.Delais_Emprunt_Enseignant == p2.Delais_Emprunt_Enseignant &&
-                      p1.Delais_Emprunt_Autre == p2.Delais_Emprunt_Autre &&
-                      p1.Modele_Email_Retard == p2.Modele_Email_Retard;
-           }
-   */
+        }
+        private bool AreParametersEqual(ParametreDTO p1, ParametreDTO p2)
+        {
+            if (p1 == null || p2 == null) return false;
 
+            return p1.Delais_Emprunt_Etudiant == p2.Delais_Emprunt_Etudiant &&
+                   p1.Delais_Emprunt_Enseignant == p2.Delais_Emprunt_Enseignant &&
+                   p1.Delais_Emprunt_Autre == p2.Delais_Emprunt_Autre &&
+                   p1.Modele_Email_Retard == p2.Modele_Email_Retard;
+        }
     }
 
 }

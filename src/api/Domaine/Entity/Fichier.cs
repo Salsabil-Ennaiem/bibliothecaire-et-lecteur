@@ -10,7 +10,7 @@ public class Fichier
     public string? TypeFichier { get; set; }
     public required byte[] ContenuFichier { get; set; }
     public long TailleFichier { get; set; }
-    public DateTime DateCreation { get; set; }
+    public DateTime DateCreation { get; set; } = DateTime.UtcNow;
     public string? NouveauteId { get; set; }
     public virtual Nouveaute? ficherNouv { get; set; }
     public virtual Nouveaute? couvertureNouv { get; set; }
