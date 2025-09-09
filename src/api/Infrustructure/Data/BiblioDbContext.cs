@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Data.Configurations;
 using domain.Entity;
-using Domaine.Entity;
+using domain.Entity.Enum;
 
 
 namespace Data;
@@ -10,28 +10,35 @@ namespace Data;
 public class BiblioDbContext : IdentityDbContext<Bibliothecaire>
 
 {
- 
-        public BiblioDbContext(DbContextOptions<BiblioDbContext> options ) : base(options)
-        {
-           
-        }
-        
 
-        public DbSet<Emprunts> Emprunts { get; set; }
-        public DbSet<Inventaire> Inventaires { get; set; }
-        public DbSet<Livres> Livres { get; set; }
-        public DbSet<Bibliothecaire> Bibliothecaires { get; set; }
-        public DbSet<Statistique> Statistiques { get; set; }
-        public DbSet<Parametre> Parametres { get; set; }
-        public DbSet<Nouveaute> Nouveautes { get; set; }
-        public DbSet<Sanction> Sanctions { get; set; }
-        public DbSet<Membre> Membres { get; set; }
-        public DbSet<Fichier> Fichiers { get; set; }
-
-
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+    public BiblioDbContext(DbContextOptions<BiblioDbContext> options) : base(options)
     {
+
+    }
+
+
+    public DbSet<Emprunts> Emprunts { get; set; }
+    public DbSet<Inventaire> Inventaires { get; set; }
+    public DbSet<Livres> Livres { get; set; }
+    public DbSet<Bibliothecaire> Bibliothecaires { get; set; }
+    public DbSet<Statistique> Statistiques { get; set; }
+    public DbSet<Parametre> Parametres { get; set; }
+    public DbSet<Nouveaute> Nouveautes { get; set; }
+    public DbSet<Sanction> Sanctions { get; set; }
+    public DbSet<Membre> Membres { get; set; }
+    public DbSet<Fichier> Fichiers { get; set; }
+
+
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.HasPostgresEnum<Raison_sanction>();
+        modelBuilder.HasPostgresEnum<etat_liv>();
+        modelBuilder.HasPostgresEnum<Statut_emp>();
+        modelBuilder.HasPostgresEnum<Statut_liv>();
+        modelBuilder.HasPostgresEnum<StatutMemb>();
+        modelBuilder.HasPostgresEnum<TypeMemb>();
+
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfiguration(new EmpruntConfiguration());
         modelBuilder.ApplyConfiguration(new LivreConfiguration());
@@ -44,5 +51,5 @@ public class BiblioDbContext : IdentityDbContext<Bibliothecaire>
         modelBuilder.ApplyConfiguration(new SanctionConfiguration());
         modelBuilder.ApplyConfiguration(new MembreConfiguration());
     }
-       
+
 }

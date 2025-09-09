@@ -5,12 +5,12 @@ namespace Infrastructure.Seeders;
 
 public class parametreSeeder
 {
-        public static async Task<(Parametre ancien, Parametre nouveau)> SeedParametresAsync(BiblioDbContext dbContext, string biblio1Id, string biblio2Id)
+        public static async Task<(Parametre ancien, Parametre nouveau)> SeedParametresAsync(BiblioDbContext dbContext)
     {
         var ancienParametre = new Parametre
         {
             id_param = Guid.NewGuid().ToString(),
-            IdBiblio = biblio1Id,
+         //   IdBiblio = biblio1Id,
             Delais_Emprunt_Etudiant = 7,
             Delais_Emprunt_Enseignant = 10,
             Delais_Emprunt_Autre = 5,
@@ -21,7 +21,7 @@ public class parametreSeeder
         var nouveauParametre = new Parametre
         {
             id_param = Guid.NewGuid().ToString(),
-            IdBiblio = biblio1Id,
+           // IdBiblio = biblio1Id,
             Delais_Emprunt_Etudiant = 14,
             Delais_Emprunt_Enseignant = 20,
             Delais_Emprunt_Autre = 10,

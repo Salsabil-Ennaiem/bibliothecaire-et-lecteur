@@ -21,7 +21,7 @@ public class StatistiqueSeeder
         // RETARD = EN_COURS + date_retour_prevu dépassée
         var empruntsEnRetardP1 = empruntsP1.Where(e =>
             e.Statut_emp == Statut_emp.en_cours &&
-            e.date_retour_prevu.HasValue &&
+          //  e.date_retour_prevu.HasValue && 
             e.date_retour_prevu < DateTime.UtcNow).Count();
 
         // PERTE = PERDU ou EN_COURS depuis plus de 1 an
@@ -39,7 +39,7 @@ public class StatistiqueSeeder
         // RETARD = EN_COURS + date_retour_prevu dépassée
         var empruntsEnRetardP2 = empruntsP2.Where(e =>
             e.Statut_emp == Statut_emp.en_cours &&
-            e.date_retour_prevu.HasValue &&
+          //  e.date_retour_prevu.HasValue &&
             e.date_retour_prevu < DateTime.UtcNow).Count();
 
         var statistiques = new List<Statistique>

@@ -12,72 +12,70 @@ public class ParametreHandler
 
 
 
-    public ParametreHandler( IParametreRepository parametreRepository)
+    public ParametreHandler(IParametreRepository parametreRepository)
     {
-                _parametreRepository = parametreRepository;
+        _parametreRepository = parametreRepository;
 
     }
 
-            public async Task<ParametreDTO> GetParam()
-            {
-var rt await _parametreRepository.GetParam;
-ret
+    public async Task<ParametreDTO> GetParam()
+    {
+        return await _parametreRepository.GetParam();
     }
-        public async Task<ParametreDTO> Updatepram(ParametreDTO entity)
+    public async Task<ParametreDTO> Updatepram(UpdateParametreDTO entity)
+    {
+        return await _parametreRepository.Updatepram(entity);
+
+    }
+    /* public async Task<ParametreDTO> GetByIdAsync()
         {
-
+            var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var entity = await _parametreRepository.GetParam();
+            return entity.Adapt<ParametreDTO>();
         }
+        */
+        /*  public async Task<ParametreDTO> CreateAsync(ParametreDTO createNouveaute)
+        {
+            var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                throw new UnauthorizedAccessException("Utilisateur non authentifié.");
 
-/*
-    public async Task<ParametreDTO> GetByIdAsync()
+            var parametreEntity = createNouveaute.Adapt<domain.Entity.Parametre>();
+            parametreEntity.IdBiblio = userId;
+            var createdParametre = await _parametreRepository.Updatepram(parametreEntity);
+
+            //var statistiqueEntity = await CalculerStatistiquesAsync(createdParametre);
+            //await _statistiqueRepository.CreateAsync(statistiqueEntity);
+
+            return createdParametre.Adapt<ParametreDTO>();
+        }
+        */
+    /* private async Task<Statistique> CalculerStatistiquesAsync(domain.Entity.Parametre parametre)
     {
-        var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var entity = await _parametreRepository.GetParam();
-        return entity.Adapt<ParametreDTO>();
+        // Exemple : récupérer les emprunts et sanctions liés à ce paramètre / utilisateur
+        var emprunts = await _empruntsRepository.GetAllAsync(parametre.IdBiblio);
+        var sanctions = await _sanctionRepository.GetAllAsync(parametre.IdBiblio);
+
+        // Calculs simplifiés (à adapter selon votre logique métier)
+        int nombreSanctions = sanctions.Count();
+        decimal sommeAmendes = sanctions.Sum(s => s.MontantAmende); // supposez que MontantAmende existe
+        double tauxEmpruntEnPerte = emprunts.Count(e => e.Statut_emp == Statut_emp.perdu) / (double)emprunts.Count();
+        double empruntParMembre = emprunts.Count() / (double)await _membreRepository.CountByUserIdAsync(parametre.IdBiblio);
+        double tauxEmpruntEnRetard = emprunts.Count(e => e.date_retour_prevu < DateTime.UtcNow && e.Statut_emp != Statut_emp.retourne) / (double)emprunts.Count();
+
+        return new Statistique
+        {
+            id_stat = Guid.NewGuid().ToString(),
+            id_param = parametre.id_param,
+            Nombre_Sanction_Emises = nombreSanctions,
+            Somme_Amende_Collectées = sommeAmendes,
+            Taux_Emprunt_En_Perte = tauxEmpruntEnPerte,
+            Emprunt_Par_Membre = empruntParMembre,
+            Taux_Emprunt_En_Retard = tauxEmpruntEnRetard,
+            Période_en_jour = 30, 
+            date_stat = DateTime.UtcNow
+        };
     }
 
-    public async Task<ParametreDTO> CreateAsync(ParametreDTO createNouveaute)
-    {
-        var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userId))
-            throw new UnauthorizedAccessException("Utilisateur non authentifié.");
-
-        var parametreEntity = createNouveaute.Adapt<domain.Entity.Parametre>();
-        parametreEntity.IdBiblio = userId;
-        var createdParametre = await _parametreRepository.Updatepram(parametreEntity);
-
-        //var statistiqueEntity = await CalculerStatistiquesAsync(createdParametre);
-        //await _statistiqueRepository.CreateAsync(statistiqueEntity);
-
-        return createdParametre.Adapt<ParametreDTO>();
-    }
-/*
-private async Task<Statistique> CalculerStatistiquesAsync(domain.Entity.Parametre parametre)
-{
-    // Exemple : récupérer les emprunts et sanctions liés à ce paramètre / utilisateur
-    var emprunts = await _empruntsRepository.GetAllAsync(parametre.IdBiblio);
-    var sanctions = await _sanctionRepository.GetAllAsync(parametre.IdBiblio);
-
-    // Calculs simplifiés (à adapter selon votre logique métier)
-    int nombreSanctions = sanctions.Count();
-    decimal sommeAmendes = sanctions.Sum(s => s.MontantAmende); // supposez que MontantAmende existe
-    double tauxEmpruntEnPerte = emprunts.Count(e => e.Statut_emp == Statut_emp.perdu) / (double)emprunts.Count();
-    double empruntParMembre = emprunts.Count() / (double)await _membreRepository.CountByUserIdAsync(parametre.IdBiblio);
-    double tauxEmpruntEnRetard = emprunts.Count(e => e.date_retour_prevu < DateTime.UtcNow && e.Statut_emp != Statut_emp.retourne) / (double)emprunts.Count();
-
-    return new Statistique
-    {
-        id_stat = Guid.NewGuid().ToString(),
-        id_param = parametre.id_param,
-        Nombre_Sanction_Emises = nombreSanctions,
-        Somme_Amende_Collectées = sommeAmendes,
-        Taux_Emprunt_En_Perte = tauxEmpruntEnPerte,
-        Emprunt_Par_Membre = empruntParMembre,
-        Taux_Emprunt_En_Retard = tauxEmpruntEnRetard,
-        Période_en_jour = 30, 
-        date_stat = DateTime.UtcNow
-    };
-}
-
-*/
+    */
 }

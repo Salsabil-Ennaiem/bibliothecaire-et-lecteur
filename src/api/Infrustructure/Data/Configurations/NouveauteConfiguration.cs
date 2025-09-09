@@ -18,8 +18,7 @@ public class NouveauteConfiguration : IEntityTypeConfiguration<Nouveaute>
             .HasMaxLength(200)
             .IsRequired();
 
-        entity.Property(e => e.fichier)
-            .HasColumnType("jsonb");
+       //entity.Property(e => e.fichier).HasColumnType("jsonb");
 
         entity.Property(e => e.description)
             .HasColumnType("text");

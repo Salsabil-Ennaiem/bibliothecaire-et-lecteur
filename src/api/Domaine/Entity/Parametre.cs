@@ -1,10 +1,9 @@
-using domain.Entity.Enum;
 
 namespace domain.Entity;
 
     public class Parametre
     {
-    public string?  id_param { get; set; }
+    public string  id_param { get; set; }
     public string?  IdBiblio { get; set; }
     public int Delais_Emprunt_Etudiant { get; set; }
     public int Delais_Emprunt_Enseignant { get; set; }

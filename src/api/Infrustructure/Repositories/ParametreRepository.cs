@@ -45,7 +45,7 @@ namespace Infrastructure.Repositries
                 throw new Exception($"Error retrieving Parametre : {ex.Message}", ex);
             }
         }
-        public async Task<ParametreDTO> Updatepram(ParametreDTO entity)
+        public async Task<ParametreDTO> Updatepram(UpdateParametreDTO entity)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -54,7 +54,24 @@ namespace Infrastructure.Repositries
                 var existingParam = await GetParam();
                 if (!AreParametersEqual(entity, existingParam))
                 {
-                    _context.Entry(existingParam).CurrentValues.SetValues(entity);
+                    var paramEntity = entity.Adapt<Parametre>();
+                    paramEntity.id_param = Guid.NewGuid().ToString();
+                    paramEntity.date_modification = DateTime.Now;
+                    if (paramEntity.Delais_Emprunt_Autre == null)
+                    {
+                        paramEntity.Delais_Emprunt_Autre = existingParam.Delais_Emprunt_Autre;
+                    }
+                    if (paramEntity.Delais_Emprunt_Enseignant == null)
+                    {
+                        paramEntity.Delais_Emprunt_Enseignant = existingParam.Delais_Emprunt_Enseignant;
+                    }
+                    if (paramEntity.Delais_Emprunt_Etudiant == null)
+                    {
+                        paramEntity.Delais_Emprunt_Etudiant = existingParam.Delais_Emprunt_Etudiant;
+                    }
+                    if (paramEntity.Modele_Email_Retard == null)
+                    { paramEntity.Modele_Email_Retard = existingParam.Modele_Email_Retard; }
+                    await _context.Parametres.AddAsync(paramEntity);
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
                 }
@@ -71,17 +88,18 @@ namespace Infrastructure.Repositries
         }
         public async Task<int> GetDelais(TypeMemb type)
         {
-                var param = await GetParam(); 
-
+            var param = await GetParam();
+            if (param == null)
+                throw new Exception("Paramètre non trouvé");
             if (type == TypeMemb.Autre)
-                return  param.Delais_Emprunt_Autre;
+                return param.Delais_Emprunt_Autre;
             else if (type == TypeMemb.Etudiant)
                 return param.Delais_Emprunt_Etudiant;
             else
                 return param.Delais_Emprunt_Enseignant;
 
         }
-        private bool AreParametersEqual(ParametreDTO p1, ParametreDTO p2)
+        private bool AreParametersEqual(UpdateParametreDTO p1, ParametreDTO p2)
         {
             if (p1 == null || p2 == null) return false;
 

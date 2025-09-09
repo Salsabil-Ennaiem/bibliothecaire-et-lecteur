@@ -23,28 +23,28 @@ public static class DataSeeder
             var hasMembres = await dbContext.Membres.AnyAsync();
             var hasEmprunts = await dbContext.Emprunts.AnyAsync();
             var hasNouveautes = await dbContext.Nouveautes.AnyAsync();
-
-            /*var hasParametres = await dbContext.Parametres.AnyAsync();
+            var hasParametres = await dbContext.Parametres.AnyAsync();
             var hasSanctions = await dbContext.Sanctions.AnyAsync();
-            var hasStatistiques = await dbContext.Statistiques.AnyAsync(); */
+            // var hasStatistiques = await dbContext.Statistiques.AnyAsync(); 
 
             if (hasLivres && hasInventaires
-            && hasMembres && hasEmprunts && hasNouveautes && nb > 1)
-            /* && hasParametres  && hasSanctions  && hasStatistiques)*/
+            && hasMembres && hasEmprunts
+            && hasNouveautes && nb > 1 &&
+            hasParametres && hasSanctions)
+            // && hasStatistiques)
             {
                 Console.WriteLine("ℹ️ Data already exists in database.");
                 return;
             }
-            //using var transaction = await dbContext.Database.BeginTransactionAsync();
             try
             {
                 List<Livres> livres = new List<Livres>();
                 List<Inventaire> inventaires = new List<Inventaire>();
                 List<Membre> membres = new List<Membre>();
                 List<Emprunts> emprunts = new List<Emprunts>();
-                /* Parametre ancienParametre = null;
-                 Parametre nouveauParametre = null;
-                 */
+                Parametre ancienParametre = null;
+                Parametre nouveauParametre = null;
+
 
                 if (!hasLivres)
                 {
@@ -91,7 +91,7 @@ public static class DataSeeder
                     emprunts = await dbContext.Emprunts.ToListAsync();
                 }
                 // Seed nouveautés
-                if (!hasNouveautes || nb<2)
+                if (!hasNouveautes || nb < 2)
                 {
                     Console.WriteLine("🌱 Seeding Nouveautes...");
                     await NouveauteSeeder.SeedNouveautesAsync(dbContext);
@@ -102,55 +102,60 @@ public static class DataSeeder
                 }
 
                 // Seed ou récupérer les paramètres
-                /*              if (!hasParametres)
-                              {
-                                  Console.WriteLine("🌱 Seeding Parametres...");
-                                  (ancienParametre, nouveauParametre) = await parametreSeeder.SeedParametresAsync(dbContext, biblio1Id, biblio2Id);
-                              }
-                              else
-                              {
-                                  Console.WriteLine("⚙️ Loading existing Parametres...");
-                                  var parametres = await dbContext.Parametres.OrderBy(p => p.date_modification).ToListAsync();
-                                  if (parametres.Count >= 2)
-                                  {
-                                      ancienParametre = parametres[0];
-                                      nouveauParametre = parametres[1];
-                                  }
-                                  else if (parametres.Count == 1)
-                                  {
-                                      ancienParametre = nouveauParametre = parametres[0];
-                                  }
-                              }
-                              // Seed sanctions
-                              if (!hasSanctions && emprunts.Any() && membres.Any())
-                              {
-                                  Console.WriteLine("🌱 Seeding Sanctions...");
-                                  await SanctionSeeder.SeedSanctionsAsync(dbContext, emprunts, membres, biblio1Id);
-                              }
-                              else if (hasSanctions)
-                              {
-                                  Console.WriteLine("⚠️ Sanctions already exist.");
-                              }
+                if (!hasParametres)
+                {
+                    Console.WriteLine("🌱 Seeding Parametres...");
+                    (ancienParametre, nouveauParametre) = await parametreSeeder.SeedParametresAsync(dbContext);
+                }
+                else
+                {
+                    Console.WriteLine("⚙️ Loading existing Parametres...");
+                    var parametres = await dbContext.Parametres.OrderBy(p => p.date_modification).ToListAsync();
+                    if (parametres.Count >= 2)
+                    {
+                        ancienParametre = parametres[0];
+                        nouveauParametre = parametres[1];
+                    }
+                    else if (parametres.Count == 1)
+                    {
+                        ancienParametre = nouveauParametre = parametres[0];
+                    }
+                }
+
+                // Seed sanctions
+                if (!hasSanctions && emprunts.Any() && membres.Any())
+                {
+                    Console.WriteLine("🌱 Seeding Sanctions...");
+                    await SanctionSeeder.SeedSanctionsAsync(dbContext, emprunts, membres);
+                }
+                else if (hasSanctions)
+                {
+                    Console.WriteLine("⚠️ Sanctions already exist.");
+                }
 
 
 
-                              // Seed statistiques
-                              if (!hasStatistiques && ancienParametre != null && nouveauParametre != null)
-                              {
-                                  Console.WriteLine("🌱 Seeding Statistiques...");
-                                  await StatistiqueSeeder.SeedStatistiquesAsync(dbContext, ancienParametre, nouveauParametre, emprunts, membres);
-                              }
-                              else if (hasStatistiques)
-                              {
-                                  Console.WriteLine("📊 Statistiques already exist.");
-                              }*/
+                // Seed statistiques
+                /* if (!hasStatistiques && ancienParametre != null && nouveauParametre != null)
+                 {
+                     Console.WriteLine("🌱 Seeding Statistiques...");
+                     await StatistiqueSeeder.SeedStatistiquesAsync(dbContext, ancienParametre, nouveauParametre, emprunts, membres);
+                 }
+                 else if (hasStatistiques)
+                 {
+                     Console.WriteLine("📊 Statistiques already exist.");
+                 }
+                 */
+
 
                 await dbContext.SaveChangesAsync();
+
                 Console.WriteLine("✅ All data seeded successfully!");
 
             }
             catch (Exception ex)
             {
+
                 Console.WriteLine($"❌ Error during seeding transaction: {ex.Message}");
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 throw;
@@ -158,6 +163,7 @@ public static class DataSeeder
         }
         catch (Exception ex)
         {
+
             Console.WriteLine($"❌ Error seeding all data: {ex.Message}");
             Console.WriteLine($"Stack trace: {ex.StackTrace}");
         }

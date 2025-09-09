@@ -7,7 +7,7 @@ namespace Infrustructure.Seeders;
 public class SanctionSeeder
 {
 
-    public static async Task SeedSanctionsAsync(BiblioDbContext dbContext, List<Emprunts> emprunts, List<Membre> membres, string biblio1Id)
+    public static async Task SeedSanctionsAsync(BiblioDbContext dbContext, List<Emprunts> emprunts, List<Membre> membres)
     {
         var sanctions = new List<Sanction>
         {
@@ -16,9 +16,8 @@ public class SanctionSeeder
             {
                 id_sanc = Guid.NewGuid().ToString(),
                 id_membre = membres[1].id_membre,
-                id_biblio = biblio1Id,
                 id_emp = emprunts[1].id_emp,
-                raison = Raison_sanction.retard,
+                raison = [Raison_sanction.retard],
                 date_sanction = DateTime.UtcNow.AddDays(-20),
                 date_fin_sanction = DateTime.UtcNow.AddDays(10), // Sanction de 30 jours
                 montant = 15.00m,
@@ -31,9 +30,8 @@ public class SanctionSeeder
             {
                 id_sanc = Guid.NewGuid().ToString(),
                 id_membre = membres[2].id_membre,
-                id_biblio = biblio1Id,
                 id_emp = emprunts[2].id_emp,
-                raison = Raison_sanction.perte,
+                raison = [Raison_sanction.perte],
                 date_sanction = DateTime.UtcNow.AddDays(-100),
                 date_fin_sanction = null, // Pas de fin tant que pas retourne le livre ou payer 
                 montant = 45.00m, // Amende de 45dt pour livre perdu
@@ -46,9 +44,8 @@ public class SanctionSeeder
             {
                 id_sanc = Guid.NewGuid().ToString(),
                 id_membre = membres[0].id_membre, // Ahmed
-                id_biblio = biblio1Id,
                 id_emp = emprunts[3].id_emp,
-                raison = Raison_sanction.retard,
+                raison = [Raison_sanction.retard],
                 date_sanction = DateTime.UtcNow.AddDays(-2),
                 date_fin_sanction = DateTime.UtcNow.AddDays(5), // Sanction de 7 jours
                 montant = 8.00m,

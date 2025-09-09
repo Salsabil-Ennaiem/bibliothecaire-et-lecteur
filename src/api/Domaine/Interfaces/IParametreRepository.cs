@@ -8,7 +8,7 @@ namespace domain.Interfaces
     {
         // Task<Parametre> GetParam(string userId);
         Task<ParametreDTO> GetParam();
-        Task<ParametreDTO> Updatepram(ParametreDTO entity);
+        Task<ParametreDTO> Updatepram(UpdateParametreDTO entity);
         Task<int> GetDelais(TypeMemb type);
 
     }

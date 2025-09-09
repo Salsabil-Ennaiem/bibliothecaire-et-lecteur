@@ -1,6 +1,6 @@
 export enum Statut_liv {
   disponible = 'Disponible',
-  emprunté = 'Emprunté',
+  emprunte = 'Emprunte',
   perdu = 'Perdu'
 }
 

@@ -15,13 +15,16 @@ using api.Features.Livre;
 using api.Features.Nouveautes;
 using api.Features.Emprunt;
 using api.Features.Parametre;
-using api.Features.Sanction;
+using api.Features.Sanctions;
 using Npgsql;
 using api.Features.Auth.ForgetPassword;
 using api.Features.Profile;
 using Infrastructure.Repositories;
 using LibraryManagement.Features.Dashboard.Repositories;
 using LibraryManagement.Features.Dashboard.Services;
+using Infrastructure.SignalR;
+using api.Features.Membres;
+using domain.Entity.Enum;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +37,13 @@ builder.Services.AddSwaggerGen();
 
 
 var dataSourceBuilder = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("postgres"));
+
+NpgsqlConnection.GlobalTypeMapper.MapEnum<Raison_sanction>("raison_sanction");
+NpgsqlConnection.GlobalTypeMapper.MapEnum<etat_liv>("etat_liv");
+NpgsqlConnection.GlobalTypeMapper.MapEnum<Statut_emp>("statut_emp");
+NpgsqlConnection.GlobalTypeMapper.MapEnum<Statut_liv>("statut_liv");
+NpgsqlConnection.GlobalTypeMapper.MapEnum<StatutMemb>("statut_memb");
+NpgsqlConnection.GlobalTypeMapper.MapEnum<TypeMemb>("type_memb");
 dataSourceBuilder.EnableDynamicJson();
 var dataSource = dataSourceBuilder.Build();
 
@@ -95,24 +105,22 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddSignalR();
 
 builder.Services.AddScoped<IRepository<Nouveaute>, Repository<Nouveaute>>();
-builder.Services.AddScoped<IRepository<Emprunts>, Repository<Emprunts>>();
-builder.Services.AddScoped<IRepository<Parametre>, Repository<Parametre>>();
 builder.Services.AddScoped<IRepository<Sanction>, Repository<Sanction>>();
-builder.Services.AddScoped<IRepository<Livres>, Repository<Livres>>();
+builder.Services.AddScoped<IRepository<Membre>, Repository<Membre>>();
 
-builder.Services.AddScoped<Repository<Parametre>>(); 
 builder.Services.AddScoped<Repository<Sanction>>();
 builder.Services.AddScoped<Repository<Membre>>();
 builder.Services.AddScoped<Repository<Nouveaute>>();
 
 
 builder.Services.AddScoped<ILivresRepository, LivresRepository>();
+builder.Services.AddScoped<IFichierRepository, FichierRepository>();
 builder.Services.AddScoped<IEmpruntsRepository, EmpruntsRepository>();
 builder.Services.AddScoped<IParametreRepository, ParametreRepository>();
 builder.Services.AddScoped<IScrapingRepository, ScrapingRepository>();
-builder.Services.AddScoped<ISanctionRepository, SanctionRepository>();
 
 builder.Services.AddScoped<LivresHandler>();
+builder.Services.AddScoped<MembreHandler>();
 builder.Services.AddScoped<EmpruntHandler>();
 builder.Services.AddScoped<ParametreHandler>();
 builder.Services.AddScoped<SanctionHandler>();
@@ -180,6 +188,8 @@ using (var scope = app.Services.CreateScope())
 
 app.UseRouting();// After app.UseRouting()
 app.MapHub<DashboardHub>("/dashboardHub");
+app.MapHub<NotificationHub>("/notificationHub");
+
 app.UseCors("AllowAngularDevClient");
 
 app.UseAuthentication();

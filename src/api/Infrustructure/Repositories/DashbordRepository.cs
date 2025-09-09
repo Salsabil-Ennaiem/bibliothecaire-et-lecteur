@@ -13,7 +13,6 @@ public class DashboardRepository : IDashboardRepository
     {
         _context = context;
     }
-
     public async Task<List<BookLoanCountDto>> GetTopBooksLoansAsync(string biblioId, int count = 10)
     {
         var query = await (from e in _context.Emprunts
@@ -50,7 +49,6 @@ public class DashboardRepository : IDashboardRepository
 
           return query.Adapt<List<BookRotationRateDto>>();
       }
-
       public async Task<List<UnusedBookDto>> GetUnusedBooksAsync(string biblioId, int monthsBack = 6)
       {
           var cutoffDate = DateTime.Now.AddMonths(-monthsBack);
@@ -126,7 +124,6 @@ public class DashboardRepository : IDashboardRepository
 
         return (delayRate, topUsers, problematicBooks);
     }
-
     public async Task<(decimal sanctionRate, List<MonthlyLossDto> monthlyLosses, DelayVsLossDto delayVsLoss, decimal totalLossCost)> GetLossDataAsync(string biblioId)
     {
         var totalLoans = await _context.Emprunts.CountAsync(e => e.id_biblio == biblioId);
@@ -167,7 +164,6 @@ public class DashboardRepository : IDashboardRepository
 
         return (sanctionRate, monthlyLosses, delayVsLoss, totalLossCost);
     }
-
     public async Task<(List<MonthlyLoanDto> monthlyLoans, decimal avgDuration)> GetResourceDataAsync(string biblioId)
     {
         var monthlyLoansQuery = await (from e in _context.Emprunts
@@ -194,7 +190,6 @@ public class DashboardRepository : IDashboardRepository
 
         return (monthlyLoans, avgDuration);
     }
-
     public async Task<(decimal beforeRate, decimal afterRate, List<MonthlyPolicyComparisonDto> comparison)> GetPolicyDataAsync(string biblioId)
     {
         var policyChangeDate = await _context.Parametres

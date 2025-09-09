@@ -5,7 +5,6 @@ namespace api.Features.Parametre;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
 
 public class ParametreController : ControllerBase
 {
@@ -14,16 +13,16 @@ public class ParametreController : ControllerBase
     {
         _parametreHandler = parametreHandler;
     }
-            [HttpGet("Get")]
-        public async Task<IActionResult> GetById()
-        {
-            var Parametre = await _parametreHandler.GetByIdAsync();
-            return Ok(Parametre);
-        } 
-        [HttpPost("Update")]
-        public async Task<IActionResult> Update([FromBody] ParametreDTO Parametre)
-        {
-            var CreateParametre = await _parametreHandler.CreateAsync(Parametre);
-            return Ok(CreateParametre);
-        }
+    [HttpGet("Get")]
+    public async Task<IActionResult> GetById()
+    {
+        var Parametre = await _parametreHandler.GetParam();
+        return Ok(Parametre);
+    }
+    [HttpPost("Update")]
+    public async Task<IActionResult> Update([FromBody] UpdateParametreDTO Parametre)
+    {
+        var Updatepram = await _parametreHandler.Updatepram(Parametre);
+        return Ok(Updatepram);
+    }
 }

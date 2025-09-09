@@ -1,3 +1,4 @@
+using domain.Entity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Features.Nouveautes
@@ -28,7 +29,7 @@ namespace api.Features.Nouveautes
         }
 
         [HttpPost("Create")]
-        public async Task<IActionResult> Create([FromBody] CreateNouveauteRequest nouveautes)
+        public async Task<IActionResult> Create([FromBody] CreateNouveauteRequest nouveautes , Fichier file)
         {
             var createdNouveaute = await _nouveauteHandler.CreateAsync(nouveautes);
             return Ok(createdNouveaute);

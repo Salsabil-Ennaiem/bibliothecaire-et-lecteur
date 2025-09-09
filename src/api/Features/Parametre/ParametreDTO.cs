@@ -8,3 +8,10 @@ public class ParametreDTO
     public int Delais_Emprunt_Autre { get; set; }
     public string? Modele_Email_Retard { get; set; }
 }
+public class UpdateParametreDTO
+{
+    public int Delais_Emprunt_Etudiant { get; set; }
+    public int Delais_Emprunt_Enseignant { get; set; }
+    public int Delais_Emprunt_Autre { get; set; }
+    public string? Modele_Email_Retard { get; set; }
+}

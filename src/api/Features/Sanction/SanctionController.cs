@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace api.Features.Sanction;
+namespace api.Features.Sanctions;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class SanctionController : ControllerBase
 {
     private readonly SanctionHandler _sanctionHandler;
@@ -16,8 +16,8 @@ public class SanctionController : ControllerBase
         _sanctionHandler = sanctionHandler;
     }
 
-    [HttpGet("search{term}")]
-    public async Task<IActionResult> Search([FromQuery] string term)
+    [HttpGet("search/{term}")]
+    public async Task<IActionResult> Search( string term)
     {
         var results = await _sanctionHandler.SearchAsync(term);
         return Ok(results);
@@ -31,9 +31,9 @@ public class SanctionController : ControllerBase
     }
     
     [HttpPost("Create")]
-    public async Task<IActionResult> Create([FromBody] CreateSanctionRequest createSanction)
+    public async Task<IActionResult> Create([FromBody] CreateSanctionRequest createSanction , string id)
     {
-        var createdSanc = await _sanctionHandler.CreateAsync(createSanction);
+        var createdSanc = await _sanctionHandler.CreateAsync(createSanction , id);
         return Ok(createdSanc);
     }
     

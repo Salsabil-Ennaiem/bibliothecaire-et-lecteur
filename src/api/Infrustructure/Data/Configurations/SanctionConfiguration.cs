@@ -17,8 +17,8 @@ namespace Data.Configurations;
                 entity.Property(e => e.id_membre)
                     .IsRequired();
 
-                entity.Property(e => e.raison)
-                    .HasConversion<string>()
+               entity.Property(e => e.raison)
+              .HasColumnType("raison_sanction[]")
                     .IsRequired();
 
                 entity.Property(e => e.date_sanction)

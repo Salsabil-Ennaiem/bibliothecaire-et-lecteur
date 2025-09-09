@@ -22,12 +22,12 @@ public class InventaireConfiguration : IEntityTypeConfiguration<Inventaire>
             .HasMaxLength(50);
 
         entity.Property(e => e.etat)
-            .HasConversion<string>()
+              .HasColumnType("etat_liv")
             .HasDefaultValue(etat_liv.moyen)
             .IsRequired();
 
         entity.Property(e => e.statut)
-            .HasConversion<string>()
+              .HasColumnType("statut_liv")
             .HasDefaultValue(Statut_liv.disponible)
             .IsRequired();
 

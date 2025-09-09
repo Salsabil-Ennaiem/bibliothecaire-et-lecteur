@@ -25,7 +25,7 @@ public class InventaireSeeder
                 id_liv = livres[1].id_livre,
                 cote_liv = "DATA-001",
                 etat = etat_liv.moyen,
-                statut = Statut_liv.emprunté,
+                statut = Statut_liv.emprunte,
                 inventaire = "INV-2024-002"
             },
             new Inventaire
@@ -34,7 +34,7 @@ public class InventaireSeeder
                 id_liv = livres[2].id_livre,
                 cote_liv = "ARCH-001",
                 etat = etat_liv.moyen,
-                statut = Statut_liv.emprunté,
+                statut = Statut_liv.emprunte,
                 inventaire = "INV-2024-003"
             },
             new Inventaire

@@ -7,7 +7,7 @@ export enum TypeMemb {
 export enum StatutMemb {
     actif = "actif",
     sanctionne = "sanctionne",
-    block='block'
+    block = 'block'
 }
 export enum Statut_emp {
     en_cours = "en_cours",
@@ -36,7 +36,7 @@ export interface EmppruntDTO {
 }
 
 export interface UpdateEmppruntDTO {
-    date_effectif: string | null;
+    Statut_emp: Statut_emp | null;
     note: string | null;
 }
 

@@ -10,6 +10,7 @@ namespace domain.Interfaces
         Task<LivreDTO> CreateAsync(CreateLivreRequest livreCreate);
         Task<LivreDTO> UpdateAsync(string id, UpdateLivreDTO updatelivReq);
         Task DeleteAsync(string id);
+        string RechercheCote(string cote);
 
     }
 }

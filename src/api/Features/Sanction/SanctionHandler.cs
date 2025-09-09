@@ -1,54 +1,49 @@
-using System.Security.Claims;
+using domain.Entity;
 using domain.Interfaces;
+using Infrastructure.Repositries;
 using Mapster;
 
-namespace api.Features.Sanction;
+namespace api.Features.Sanctions;
 
 public class SanctionHandler
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ISanctionRepository _sanctionRepository;
+    private readonly Repository<Sanction> _sanctionRepository;
 
 
-    public SanctionHandler(IHttpContextAccessor httpContextAccessor, ISanctionRepository sanctionRepository)
+    public SanctionHandler(Repository<Sanction> sanctionRepository)
     {
-        _httpContextAccessor = httpContextAccessor;
         _sanctionRepository = sanctionRepository;
     }
 
-    private string GetUserId()
-    {
-        var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if(userId == null)
-        {
-            throw new Exception("User not authenticated");
-        }
-        return userId;
-    }
 
     public async Task<IEnumerable<SanctionDTO>> GetAllAsync()
     {
-        var userId = GetUserId();
         var entities = await _sanctionRepository.GetAllAsync();
-        var filtre = entities.Where(e => e.id_biblio == userId);
-        return filtre.Adapt<IEnumerable<SanctionDTO>>();
+        return entities.Adapt<IEnumerable<SanctionDTO>>();
     }
-
-    public async Task<SanctionDTO> CreateAsync(CreateSanctionRequest createSanction)
+    public async Task<SanctionDTO> CreateAsync(CreateSanctionRequest createSanction, string id)
     {
-        var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var entity = createSanction.Adapt<domain.Entity.Sanction>();
-        entity.id_biblio = userId;
+        var entity = createSanction.Adapt<Sanction>();
+        if (entity.raison == null || entity.date_fin_sanction == null || entity.date_fin_sanction > DateTime.Now)
+        {
+            throw new Exception("Raison et date fin sont obligatoire ainsi date fin doit > date aujourd'hui ");
+        }
+        entity.id_emp = id;
+        entity.payement = entity.montant > 0 ? false : true;
+        entity.id_sanc = Guid.NewGuid().ToString();
         var created = await _sanctionRepository.CreateAsync(entity);
         return created.Adapt<SanctionDTO>();
     }
-
-    public async Task<IEnumerable<domain.Entity.Sanction>> SearchAsync(string searchTerm)
+    public async Task<IEnumerable<SanctionDTO>> SearchAsync(string searchTerm)
     {
-        var id = GetUserId();
-        var entities = await _sanctionRepository.SearchAsync(searchTerm);
-        var filtre = entities.Where(e => e.id_biblio == id);
-        return filtre;
+        var list = await GetAllAsync();
+        var query = list.Where(s => (s.description != null && s.description.Contains(searchTerm))
+                           || s.date_sanction.ToString().Contains(searchTerm)
+                           || s.date_sanction.ToString().Contains(searchTerm)
+                           || (s.id_membre != null && s.id_membre.Contains(searchTerm))
+                           || (s.id_emp != null && s.id_emp.Contains(searchTerm)));
+
+        return query;
     }
-    
+
 }

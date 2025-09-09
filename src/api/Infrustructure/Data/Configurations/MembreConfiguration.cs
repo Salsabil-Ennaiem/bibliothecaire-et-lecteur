@@ -5,54 +5,54 @@ using domain.Entity.Enum;
 
 namespace Data.Configurations;
 
-    public class MembreConfiguration : IEntityTypeConfiguration<Membre>
+public class MembreConfiguration : IEntityTypeConfiguration<Membre>
+{
+    public void Configure(EntityTypeBuilder<Membre> entity)
     {
-        public void Configure(EntityTypeBuilder<Membre> entity)
-        {
-            entity.ToTable("Membre");
-                entity.HasKey(e => e.id_membre);
+        entity.ToTable("Membre");
+        entity.HasKey(e => e.id_membre);
 
-                entity.Property(e => e.id_membre)
-                    .ValueGeneratedOnAdd();
+        entity.Property(e => e.id_membre)
+            .ValueGeneratedOnAdd();
 
-                entity.Property(e => e.cin_ou_passeport)
-                    .HasMaxLength(20)
-                    .IsRequired();
+        entity.Property(e => e.cin_ou_passeport)
+            .HasMaxLength(20)
+            .IsRequired();
 
-                entity.Property(e => e.nom)
-                    .HasMaxLength(100)
-                    .IsRequired();
+        entity.Property(e => e.nom)
+            .HasMaxLength(100)
+            .IsRequired();
 
-                entity.Property(e => e.prenom)
-                    .HasMaxLength(100)
-                    .IsRequired();
+        entity.Property(e => e.prenom)
+            .HasMaxLength(100)
+            .IsRequired();
 
-                entity.Property(e => e.email)
-                    .HasMaxLength(100)
-                    .IsRequired();
+        entity.Property(e => e.email)
+            .HasMaxLength(100)
+            .IsRequired();
 
-                entity.Property(e => e.telephone)
-                    .HasMaxLength(20);
+        entity.Property(e => e.telephone)
+            .HasMaxLength(20);
 
-                entity.Property(e => e.TypeMembre)
-                    .HasConversion<string>()
-                    .IsRequired();
+        entity.Property(e => e.TypeMembre)
+      .HasColumnType("type_memb")
+            .IsRequired();
 
-                entity.Property(e => e.date_inscription)
-                    .HasColumnType("timestamp with time zone")
-            .HasDefaultValueSql("CURRENT_TIMESTAMP") ;
+        entity.Property(e => e.date_inscription)
+            .HasColumnType("timestamp with time zone")
+    .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                entity.Property(e => e.Statut)
-                    .HasConversion<string>()
-                    .HasDefaultValue(StatutMemb.actif)
-                    .IsRequired();
+        entity.Property(e => e.Statut)
+      .HasColumnType("statut_memb")
+            .HasDefaultValue(StatutMemb.actif)
+            .IsRequired();
 
 
-                entity.HasIndex(e => e.cin_ou_passeport)
-                    .IsUnique();
+        entity.HasIndex(e => e.cin_ou_passeport)
+            .IsUnique();
 
-                entity.HasIndex(e => e.email)
-                    .IsUnique();
+        entity.HasIndex(e => e.email)
+            .IsUnique();
 
         entity.HasMany(e => e.Emprunts)
             .WithOne(e => e.Membre)
@@ -61,5 +61,5 @@ namespace Data.Configurations;
         entity.HasMany(e => e.Sanctions)
             .WithOne(s => s.Membre)
             .HasForeignKey(s => s.id_membre);
-        }
     }
+}

@@ -29,14 +29,16 @@ public class EmpruntConfiguration : IEntityTypeConfiguration<Emprunts>
             .IsRequired();
 
         entity.Property(e => e.date_retour_prevu)
-            .HasColumnType("timestamp with time zone");
+            .HasColumnType("timestamp with time zone")
+            ;
 
         entity.Property(e => e.date_effectif)
             .HasColumnType("timestamp with time zone");
 
         entity.Property(e => e.Statut_emp)
             .HasDefaultValue(Statut_emp.en_cours)
-            .HasConversion<string>()
+            .HasColumnType("statut_emp")
+            //.HasConversion<string>()
             .IsRequired();
 
         entity.Property(e => e.note)

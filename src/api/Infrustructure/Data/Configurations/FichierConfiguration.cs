@@ -1,4 +1,4 @@
-using Domaine.Entity;
+using domain.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,6 +10,11 @@ public class FichierConfiguration : IEntityTypeConfiguration<Fichier>
     {
         entity.ToTable("Fichier");
         entity.HasKey(e => e.IdFichier);
+
+        entity.Property("ContentHash").IsRequired();
+        
+        entity.HasIndex(f => f.ContentHash)
+            .IsUnique();
 
         entity.Property(e => e.IdFichier)
             .ValueGeneratedOnAdd();

@@ -4,7 +4,7 @@ namespace domain.Entity;
 
     public class Membre
     {
-        public string?  id_membre { get; set; }
+        public string  id_membre { get; set; }
         public string?  id_biblio { get; set; }
         public TypeMemb TypeMembre { get; set; }
         public string? nom { get; set; }

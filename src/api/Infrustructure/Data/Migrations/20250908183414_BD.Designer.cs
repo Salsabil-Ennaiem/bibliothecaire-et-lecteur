@@ -6,14 +6,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using domain.Entity.Enum;
 
 #nullable disable
 
 namespace api.Migrations
 {
     [DbContext(typeof(BiblioDbContext))]
-    [Migration("20250823234352_isbn")]
-    partial class isbn
+    [Migration("20250908183414_BD")]
+    partial class BD
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,9 +24,15 @@ namespace api.Migrations
                 .HasAnnotation("ProductVersion", "8.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "etat_liv", new[] { "neuf", "moyen", "mauvais" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "raison_sanction", new[] { "retard", "perte", "degat", "autre" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "statut_emp", new[] { "en_cours", "retourne", "perdu" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "statut_liv", new[] { "disponible", "emprunte", "perdu" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "statut_memb", new[] { "actif", "sanctionne", "block" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "type_memb", new[] { "etudiant", "enseignant", "autre" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Domaine.Entity.Fichier", b =>
+            modelBuilder.Entity("domain.Entity.Fichier", b =>
                 {
                     b.Property<string>("IdFichier")
                         .ValueGeneratedOnAdd()
@@ -34,8 +41,11 @@ namespace api.Migrations
                     b.Property<string>("CheminFichier")
                         .HasColumnType("text");
 
-                    b.Property<byte[]>("ContenuFichier")
+                    b.Property<string>("ContentHash")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("ContenuFichier")
                         .HasColumnType("bytea");
 
                     b.Property<DateTime>("DateCreation")
@@ -54,6 +64,9 @@ namespace api.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("IdFichier");
+
+                    b.HasIndex("ContentHash")
+                        .IsUnique();
 
                     b.HasIndex("NouveauteId");
 
@@ -290,11 +303,10 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Statut_emp")
-                        .IsRequired()
+                    b.Property<Statut_emp>("Statut_emp")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("en_cours");
+                        .HasColumnType("statut_emp")
+                        .HasDefaultValue(Statut_emp.en_cours);
 
                     b.Property<DateTime?>("date_effectif")
                         .HasColumnType("timestamp with time zone");
@@ -302,9 +314,9 @@ namespace api.Migrations
                     b.Property<DateTime>("date_emp")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValue(new DateTime(2025, 8, 23, 23, 43, 50, 149, DateTimeKind.Utc).AddTicks(6308));
+                        .HasDefaultValue(new DateTime(2025, 9, 8, 18, 34, 12, 449, DateTimeKind.Utc).AddTicks(8870));
 
-                    b.Property<DateTime?>("date_retour_prevu")
+                    b.Property<DateTime>("date_retour_prevu")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("id_biblio")
@@ -339,11 +351,11 @@ namespace api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<string>("etat")
+                    b.Property<etat_liv?>("etat")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("moyen");
+                        .HasColumnType("etat_liv")
+                        .HasDefaultValue(etat_liv.moyen);
 
                     b.Property<string>("id_biblio")
                         .HasColumnType("text");
@@ -355,11 +367,10 @@ namespace api.Migrations
                     b.Property<string>("inventaire")
                         .HasColumnType("text");
 
-                    b.Property<string>("statut")
-                        .IsRequired()
+                    b.Property<Statut_liv>("statut")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("disponible");
+                        .HasColumnType("statut_liv")
+                        .HasDefaultValue(Statut_liv.disponible);
 
                     b.HasKey("id_inv");
 
@@ -392,12 +403,10 @@ namespace api.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.Property<string>("date_edition")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
                     b.Property<string>("editeur")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -406,7 +415,6 @@ namespace api.Migrations
                         .HasColumnType("character varying(18)");
 
                     b.Property<string>("titre")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
@@ -424,15 +432,13 @@ namespace api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("text");
 
-                    b.Property<string>("Statut")
-                        .IsRequired()
+                    b.Property<StatutMemb>("Statut")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("actif");
+                        .HasColumnType("statut_memb")
+                        .HasDefaultValue(StatutMemb.actif);
 
-                    b.Property<string>("TypeMembre")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<TypeMemb>("TypeMembre")
+                        .HasColumnType("type_memb");
 
                     b.Property<string>("cin_ou_passeport")
                         .IsRequired()
@@ -500,7 +506,7 @@ namespace api.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("fichier")
-                        .HasColumnType("jsonb");
+                        .HasColumnType("text");
 
                     b.Property<string>("id_biblio")
                         .HasColumnType("text");
@@ -544,9 +550,7 @@ namespace api.Migrations
                         .HasColumnType("character varying(1000)");
 
                     b.Property<DateTime>("date_modification")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("id_param");
 
@@ -593,9 +597,9 @@ namespace api.Migrations
                     b.Property<bool?>("payement")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("raison")
+                    b.Property<Raison_sanction[]>("raison")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("raison_sanction[]");
 
                     b.HasKey("id_sanc");
 
@@ -648,7 +652,7 @@ namespace api.Migrations
                     b.ToTable("Statistiques", (string)null);
                 });
 
-            modelBuilder.Entity("Domaine.Entity.Fichier", b =>
+            modelBuilder.Entity("domain.Entity.Fichier", b =>
                 {
                     b.HasOne("domain.Entity.Nouveaute", "ficherNouv")
                         .WithMany("Fichiers")
@@ -710,7 +714,7 @@ namespace api.Migrations
 
             modelBuilder.Entity("domain.Entity.Bibliothecaire", b =>
                 {
-                    b.HasOne("Domaine.Entity.Fichier", "Fichier")
+                    b.HasOne("domain.Entity.Fichier", "Fichier")
                         .WithOne("Bibliothecaire")
                         .HasForeignKey("domain.Entity.Bibliothecaire", "Photo");
 
@@ -762,7 +766,7 @@ namespace api.Migrations
 
             modelBuilder.Entity("domain.Entity.Livres", b =>
                 {
-                    b.HasOne("Domaine.Entity.Fichier", "Fichiers")
+                    b.HasOne("domain.Entity.Fichier", "Fichiers")
                         .WithOne("Livre")
                         .HasForeignKey("domain.Entity.Livres", "couverture");
 
@@ -780,7 +784,7 @@ namespace api.Migrations
 
             modelBuilder.Entity("domain.Entity.Nouveaute", b =>
                 {
-                    b.HasOne("Domaine.Entity.Fichier", "Couvertures")
+                    b.HasOne("domain.Entity.Fichier", "Couvertures")
                         .WithOne("couvertureNouv")
                         .HasForeignKey("domain.Entity.Nouveaute", "couverture");
 
@@ -834,7 +838,7 @@ namespace api.Migrations
                     b.Navigation("Parametre");
                 });
 
-            modelBuilder.Entity("Domaine.Entity.Fichier", b =>
+            modelBuilder.Entity("domain.Entity.Fichier", b =>
                 {
                     b.Navigation("Bibliothecaire");
 

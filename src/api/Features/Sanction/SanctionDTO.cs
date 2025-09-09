@@ -1,12 +1,15 @@
 using domain.Entity.Enum;
 
-namespace api.Features.Sanction;
+namespace api.Features.Sanctions;
 
 public class SanctionDTO
 {
+    public string id_sanc { get; set; }
+    public string id_membre { get; set; }
+    public string? id_emp { get; set; }
     public string? email { get; set; }
     public DateTime date_emp { get; set; }
-    public Raison_sanction raison { get; set; }
+    public Raison_sanction[] raison { get; set; }
     public DateTime date_sanction { get; set; }
     public DateTime? date_fin_sanction { get; set; }
     public decimal? montant { get; set; }
@@ -17,10 +20,10 @@ public class SanctionDTO
 public class CreateSanctionRequest
 {
     public string? email { get; set; }
-    public DateTime date_emp { get; set; }
-    public Raison_sanction raison { get; set; }
+    public string id_emp { get; set; }
+    public Raison_sanction[] raison { get; set; }
     public DateTime? date_fin_sanction { get; set; }
     public decimal? montant { get; set; }
     public string? description { get; set; }
-       
+
 }

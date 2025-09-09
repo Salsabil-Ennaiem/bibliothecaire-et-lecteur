@@ -1,17 +1,26 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using domain.Entity.Enum;
 
 #nullable disable
 
 namespace api.Migrations
 {
     /// <inheritdoc />
-    public partial class letsee : Migration
+    public partial class BD : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("Npgsql:Enum:etat_liv", "neuf,moyen,mauvais")
+                .Annotation("Npgsql:Enum:raison_sanction", "retard,perte,degat,autre")
+                .Annotation("Npgsql:Enum:statut_emp", "en_cours,retourne,perdu")
+                .Annotation("Npgsql:Enum:statut_liv", "disponible,emprunte,perdu")
+                .Annotation("Npgsql:Enum:statut_memb", "actif,sanctionne,block")
+                .Annotation("Npgsql:Enum:type_memb", "etudiant,enseignant,autre");
+
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -144,14 +153,14 @@ namespace api.Migrations
                 {
                     id_membre = table.Column<string>(type: "text", nullable: false),
                     id_biblio = table.Column<string>(type: "text", nullable: true),
-                    TypeMembre = table.Column<string>(type: "text", nullable: false),
+                    TypeMembre = table.Column<TypeMemb>(type: "type_memb", nullable: false),
                     nom = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     prenom = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     telephone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
                     cin_ou_passeport = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     date_inscription = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    Statut = table.Column<string>(type: "text", nullable: false, defaultValue: "actif")
+                    Statut = table.Column<StatutMemb>(type: "statut_memb", nullable: false, defaultValue: StatutMemb.actif)
                 },
                 constraints: table =>
                 {
@@ -173,7 +182,7 @@ namespace api.Migrations
                     Delais_Emprunt_Enseignant = table.Column<int>(type: "integer", nullable: false),
                     Delais_Emprunt_Autre = table.Column<int>(type: "integer", nullable: false),
                     Modele_Email_Retard = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
-                    date_modification = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
+                    date_modification = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -217,10 +226,10 @@ namespace api.Migrations
                     id_membre = table.Column<string>(type: "text", nullable: false),
                     id_biblio = table.Column<string>(type: "text", nullable: true),
                     Id_inv = table.Column<string>(type: "text", nullable: false),
-                    date_emp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2025, 8, 12, 0, 9, 39, 603, DateTimeKind.Utc).AddTicks(8494)),
-                    date_retour_prevu = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    date_emp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2025, 9, 8, 18, 34, 12, 449, DateTimeKind.Utc).AddTicks(8870)),
+                    date_retour_prevu = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     date_effectif = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    Statut_emp = table.Column<string>(type: "text", nullable: false, defaultValue: "en_cours"),
+                    Statut_emp = table.Column<Statut_emp>(type: "statut_emp", nullable: false, defaultValue: Statut_emp.en_cours),
                     note = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -247,7 +256,7 @@ namespace api.Migrations
                     id_membre = table.Column<string>(type: "text", nullable: false),
                     id_biblio = table.Column<string>(type: "text", nullable: true),
                     id_emp = table.Column<string>(type: "text", nullable: true),
-                    raison = table.Column<string>(type: "text", nullable: false),
+                    raison = table.Column<Raison_sanction[]>(type: "raison_sanction[]", nullable: false),
                     date_sanction = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     date_fin_sanction = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     montant = table.Column<decimal>(type: "numeric(100,3)", nullable: true),
@@ -284,7 +293,8 @@ namespace api.Migrations
                     NomFichier = table.Column<string>(type: "text", nullable: true),
                     CheminFichier = table.Column<string>(type: "text", nullable: true),
                     TypeFichier = table.Column<string>(type: "text", nullable: true),
-                    ContenuFichier = table.Column<byte[]>(type: "bytea", nullable: false),
+                    ContenuFichier = table.Column<byte[]>(type: "bytea", nullable: true),
+                    ContentHash = table.Column<string>(type: "text", nullable: false),
                     TailleFichier = table.Column<long>(type: "bigint", nullable: false),
                     DateCreation = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     NouveauteId = table.Column<string>(type: "text", nullable: true)
@@ -299,11 +309,11 @@ namespace api.Migrations
                 columns: table => new
                 {
                     id_livre = table.Column<string>(type: "text", nullable: false),
-                    date_edition = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                    titre = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    date_edition = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
+                    titre = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     auteur = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     isbn = table.Column<string>(type: "character varying(18)", maxLength: 18, nullable: true),
-                    editeur = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    editeur = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
                     Langue = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: true),
                     couverture = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true)
@@ -325,7 +335,7 @@ namespace api.Migrations
                     id_nouv = table.Column<string>(type: "text", nullable: false),
                     id_biblio = table.Column<string>(type: "text", nullable: true),
                     titre = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    fichier = table.Column<string>(type: "jsonb", nullable: true),
+                    fichier = table.Column<string>(type: "text", nullable: true),
                     description = table.Column<string>(type: "text", nullable: true),
                     date_publication = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     couverture = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true, defaultValue: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Favf.asso.fr%2Famboise%2Fwp-content%2Fuploads%2Fsites%2F171%2F2021%2F03%2FLogo-Nouveau.jpg&f=1&nofb=1&ipt=fdbaaa07e45eb9aa0e1f8802a963c3259485319662623816e07adf250d84f1f9")
@@ -352,9 +362,9 @@ namespace api.Migrations
                     id_inv = table.Column<string>(type: "text", nullable: false),
                     id_biblio = table.Column<string>(type: "text", nullable: true),
                     id_liv = table.Column<string>(type: "text", nullable: false),
-                    cote_liv = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                    etat = table.Column<string>(type: "text", nullable: false, defaultValue: "moyen"),
-                    statut = table.Column<string>(type: "text", nullable: false, defaultValue: "disponible"),
+                    cote_liv = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    etat = table.Column<etat_liv>(type: "etat_liv", nullable: false, defaultValue: etat_liv.moyen),
+                    statut = table.Column<Statut_liv>(type: "statut_liv", nullable: false, defaultValue: Statut_liv.disponible),
                     inventaire = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -433,6 +443,12 @@ namespace api.Migrations
                 column: "id_membre");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Fichier_ContentHash",
+                table: "Fichier",
+                column: "ContentHash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Fichier_NouveauteId",
                 table: "Fichier",
                 column: "NouveauteId");
@@ -451,12 +467,6 @@ namespace api.Migrations
                 name: "IX_Livres_couverture",
                 table: "Livres",
                 column: "couverture",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Livres_isbn",
-                table: "Livres",
-                column: "isbn",
                 unique: true);
 
             migrationBuilder.CreateIndex(
