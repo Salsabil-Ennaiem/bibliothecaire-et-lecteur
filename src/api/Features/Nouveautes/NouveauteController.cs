@@ -29,14 +29,14 @@ namespace api.Features.Nouveautes
         }
 
         [HttpPost("Create")]
-        public async Task<IActionResult> Create([FromBody] CreateNouveauteRequest nouveautes , Fichier file)
+        public async Task<IActionResult> Create([FromBody] CreateNouveauteRequestWithFiles createdNouveauteDto)
         {
-            var createdNouveaute = await _nouveauteHandler.CreateAsync(nouveautes);
-            return Ok(createdNouveaute);
+            var createdNouveaute = await _nouveauteHandler.CreateAsync(createdNouveauteDto );
+            return Ok(createdNouveaute); 
         }
 
         [HttpPut("Update{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] CreateNouveauteRequest request)
+        public async Task<IActionResult> Update(string id, [FromBody] UpdateNouveauteRequest request)
         {
             var updated = await _nouveauteHandler.UpdateAsync(request, id);
             return Ok(updated);

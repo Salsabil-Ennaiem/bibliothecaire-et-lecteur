@@ -11,10 +11,12 @@ namespace Infrastructure.Repositories
     public class LivresRepository : ILivresRepository
     {
         private readonly BiblioDbContext _dbContext;
+        private readonly IFichierRepository _FichierRepository;
 
-        public LivresRepository(BiblioDbContext dbContext)
+        public LivresRepository(BiblioDbContext dbContext, IFichierRepository FichierRepository)
         {
             _dbContext = dbContext;
+            _FichierRepository = FichierRepository;
         }
         public async Task<IEnumerable<LivreDTO>> GetAllLivresAsync()
         {
@@ -42,8 +44,7 @@ namespace Infrastructure.Repositories
             try
             {
                 var query = from l in _dbContext.Livres
-                            join i in _dbContext.Inventaires
-                                on l.id_livre equals i.id_liv
+                            join i in _dbContext.Inventaires on l.id_livre equals i.id_liv
                             where i.id_inv == id
                             select new LivreDTO
                             {
@@ -134,9 +135,13 @@ namespace Infrastructure.Repositories
                             editeur = livreCreate.editeur,
                             Description = livreCreate.Description,
                             Langue = livreCreate.Langue,
-                            couverture = livreCreate.couverture,
                         };
-
+                        if (livreCreate.couverture != null)
+                        {
+                            var couvEntity = livreCreate.couverture.Adapt<Fichier>();
+                            var couv = await _FichierRepository.UploadImageAsync(couvEntity);
+                            newLivre.couverture = couv;
+                        }
                         await _dbContext.Livres.AddAsync(newLivre);
                         await _dbContext.SaveChangesAsync();
 
@@ -157,9 +162,10 @@ namespace Infrastructure.Repositories
                         return newLivre.Adapt<LivreDTO>();
                     }
                 }
-                       else{
-                        throw new Exception("no yu should change that cote ");
-                    }
+                else
+                {
+                    throw new Exception("no yu should change that cote ");
+                }
             }
             catch (Exception ex)
             {
@@ -186,7 +192,12 @@ namespace Infrastructure.Repositories
                     inventaire.cote_liv = updatelivReq.cote_liv;
 
                 if (updatelivReq.couverture is not null)
-                    livre.couverture = updatelivReq.couverture;
+                {
+                    var idcouv = livre.couverture;
+                    var couvEntity = updatelivReq.couverture.Adapt<Fichier>();
+                    livre.couverture = await _FichierRepository.UploadImageAsync(couvEntity);
+                    await _FichierRepository.DeleteFileByIdAsync(idcouv);
+                }
 
                 if (updatelivReq.date_edition is not null)
                     livre.date_edition = updatelivReq.date_edition;
@@ -245,6 +256,7 @@ namespace Infrastructure.Repositories
                     var livre = await _dbContext.Livres.FindAsync(livreId);
                     if (livre != null)
                     {
+                        await _FichierRepository.DeleteFileByIdAsync(livre.couverture);
                         _dbContext.Livres.Remove(livre);
                     }
                 }
@@ -282,12 +294,12 @@ namespace Infrastructure.Repositories
                           where i.cote_liv == cote &&
                           i.statut != Statut_liv.perdu
                           select i.id_inv;
-                
+
                 if (cot is null)
                 {
                     throw new Exception($"{cot} with cote {cote} not found");
                 }
-                return  cot.FirstOrDefault();
+                return cot.FirstOrDefault();
             }
             catch (Exception ex)
             {

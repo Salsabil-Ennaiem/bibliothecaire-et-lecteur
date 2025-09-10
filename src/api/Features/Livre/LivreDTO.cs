@@ -1,4 +1,5 @@
 
+using api.Common;
 using domain.Entity.Enum;
 
 namespace api.Features.Livre
@@ -33,8 +34,7 @@ public class UpdateLivreDTO
         public  string? editeur { get; set; }
         public string? Description { get; set; }
         public string? Langue { get; set; }
-        public string? couverture { get; set; }
-
+        public FichierDto? couverture { get; set; }
         public string? cote_liv { get; set; }       
         public etat_liv? etat { get; set; }
         public Statut_liv statut { get; set; } 
@@ -56,7 +56,7 @@ public class UpdateLivreDTO
         
         public etat_liv? etat { get; set; }
         public string? Description { get; set; }
-        public string? couverture { get; set; }
+        public FichierDto? couverture { get; set; }
     }
 
 }

@@ -1,15 +1,18 @@
 using domain.Entity;
 using domain.Interfaces;
 using Mapster;
+using NPOI.SS.Formula.Functions;
 
 namespace api.Features.Nouveautes
 {
     public class NouveauteHandler
     {
         private readonly IRepository<Nouveaute> _nouveauteRepository;
-        public NouveauteHandler(IRepository<Nouveaute> nouveauteRepository)
+        private readonly IFichierRepository _FichierRepository;
+        public NouveauteHandler(IRepository<Nouveaute> nouveauteRepository, IFichierRepository FichierRepository)
         {
             _nouveauteRepository = nouveauteRepository;
+            _FichierRepository = FichierRepository;
         }
 
         public async Task<IEnumerable<NouveauteGetALL>> GetAllNouvAsync()
@@ -24,28 +27,56 @@ namespace api.Features.Nouveautes
             var entity = await _nouveauteRepository.GetByIdAsync(id);
             return entity.Adapt<NouveauteDTO>();
         }
-        public async Task<NouveauteDTO> CreateAsync(CreateNouveauteRequest createNouveaute)
+        public async Task<NouveauteDTO> CreateAsync(CreateNouveauteRequestWithFiles createdNouveauteDto)
         {
-            if (!await ExistenceNouv(createNouveaute.titre))
+                var nouv = createdNouveauteDto.Adapt<Nouveaute>();
+                var file = createdNouveauteDto.Adapt<List<Fichier>>();
+            var couv = createdNouveauteDto.Adapt<Fichier>();
+            if (!await ExistenceNouv(nouv.titre))
             {
-                var entity = createNouveaute.Adapt<Nouveaute>();
-                var created = await _nouveauteRepository.CreateAsync(entity);
+                var id = nouv.id_nouv;
+
+                if (file != null)
+                {
+
+                    if (file.Count() == 1)
+                    {
+                        var filecree = await _FichierRepository.UploadF(file, id);
+                        nouv.fichier = filecree.IdFichier;
+                    }
+                    else
+                    {
+                        await _FichierRepository.UploadF(file, id);
+                    }
+
+                }
+                if (couv != null)
+                {
+                    var filecree = await _FichierRepository.UploadImageAsync(couv);
+                    nouv.couverture = filecree;
+                }
+                var created = await _nouveauteRepository.CreateAsync(nouv);
                 return created.Adapt<NouveauteDTO>();
+
             }
             throw new Exception("Alredy exist");
         }
-        public async Task<NouveauteDTO> UpdateAsync(CreateNouveauteRequest nouveaute, string id)
+        public async Task<NouveauteDTO> UpdateAsync(UpdateNouveauteRequest nouveaute, string id)
         {
             if (!await ExistenceNouv(nouveaute.titre))
             {
                 var entity = nouveaute.Adapt<Nouveaute>();
                 var Updated = await _nouveauteRepository.UpdateAsync(entity, id);
                 return Updated.Adapt<NouveauteDTO>();
-            }
+            } 
             throw new Exception("Alredy exist");
         }
         public async Task DeleteAsync(string id)
         {
+            var nouv = await GetByIdAsync(id);
+            await _FichierRepository.DeleteFileByIdAsync(nouv.couverture);
+            await _FichierRepository.DeleteFileByIdAsync(nouv.fichier);
+            await _FichierRepository.DeleteFileListAsync(id);
             await _nouveauteRepository.DeleteAsync(id);
         }
 
