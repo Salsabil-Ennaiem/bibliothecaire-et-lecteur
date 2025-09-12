@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ParametreDTO } from '../model/Parametre.model';
+import { ParametreDTO } from '../model/parametre.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,10 +12,9 @@ export class ParametreService {
 
   constructor(private http: HttpClient) { }
 
-  getById(id: string): Observable<ParametreDTO> {
+  getById(): Observable<ParametreDTO> {
     return this.http.get<ParametreDTO>(`${this.apiUrl}/Get`);
   }
-
   create(Parametre: ParametreDTO): Observable<ParametreDTO> {
     return this.http.post<ParametreDTO>(`${this.apiUrl}/Update`, Parametre);
   }

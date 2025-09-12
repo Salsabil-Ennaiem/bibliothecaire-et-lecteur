@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace api.Features.Livre;
 [ApiController]
-[Route("api/livres")]
+[Route("api/[controller]")]
 public class LivresController : ControllerBase
 {
     private readonly LivresHandler _livresHandler;

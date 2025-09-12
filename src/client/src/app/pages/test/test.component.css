@@ -1,0 +1,116 @@
+/* emprunt-cards.component.css */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: start;
+  margin: 50px;
+}
+
+.card {
+  width: 300px;
+  perspective: 1000px;
+  cursor: pointer;
+  position: relative;
+}
+
+.card-face {
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  display: flex;
+  box-sizing: border-box;
+  padding: 1rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: transform 0.6s ease;
+  flex-direction: row;
+}
+
+.card-front {
+  background: #fff;
+  display: flex;
+}
+
+.card-back {
+  background: #f9f9f9;
+  transform: rotateY(180deg);
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.card.flipped .card-front {
+  transform: rotateY(180deg);
+  visibility: hidden;
+}
+
+.card.flipped .card-back {
+  transform: rotateY(0deg);
+  visibility: visible;
+  position: relative;
+}
+
+.section1 {
+  width: 100px;
+  border-right: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  flex-direction: column;
+  padding-right: 0.5rem;
+}
+
+.section2 {
+  flex-grow: 1;
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.line1,.line2,.line3 {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.type-icon {
+  font-size: 1.3rem;
+}
+
+.timer {
+  color: white;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  width: max-content;
+}
+
+.orange {
+  background-color: orange;
+}
+
+.green {
+  background-color: green;
+}
+
+.red {
+  background-color: red;
+}
+
+.line4.note {
+  margin-top: 1rem;
+  font-style: italic;
+  white-space: pre-wrap;
+}
+
+/* Ensure all cards share the max height */
+.card {
+  display: inline-block;
+}

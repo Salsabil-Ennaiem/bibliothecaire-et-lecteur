@@ -8,18 +8,16 @@ import { CreateSanctionRequest, SanctionDTO } from '../model/sanction.model';
 })
 export class SanctionService {
 
-  constructor(private http:HttpClient) { }
-  private apiUrl = 'http://localhost:5232/api/Sanctions';
+  constructor(private http: HttpClient) { }
+  private apiUrl = 'http://localhost:5232/api/Sanction';
 
   search(term: string): Observable<SanctionDTO[]> {
-      return this.http.get<SanctionDTO[]>(`${this.apiUrl}/search${term}`);
-    }
-    
-      getAll(): Observable<SanctionDTO[]> {
-        return this.http.get<SanctionDTO[]>(`${this.apiUrl}/Getall`);
-      }
-      
-        create(livre: CreateSanctionRequest): Observable<SanctionDTO> {
-          return this.http.post<SanctionDTO>(`${this.apiUrl}/Create`, livre);
-        }
+    return this.http.get<SanctionDTO[]>(`${this.apiUrl}/search/${term}`);
+  }
+  getAll(): Observable<SanctionDTO[]> {
+    return this.http.get<SanctionDTO[]>(`${this.apiUrl}/Getall`);
+  }
+  create(Sanction: CreateSanctionRequest, id :string): Observable<SanctionDTO> {
+    return this.http.post<SanctionDTO>(`${this.apiUrl}/Create/${id}`, Sanction);
+  }
 }

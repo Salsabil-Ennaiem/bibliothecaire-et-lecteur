@@ -37,7 +37,7 @@ ngOnInit(): void {
       date_edition: '',
       etat: etat_liv.neuf, 
       Description: '',
-      couverture: ''
+      //couverture: ''
     };
       // Initialize the dropdown options
     this.selectEtat_Livre = [
@@ -60,7 +60,7 @@ ngOnInit(): void {
           date_edition: '',
           etat: etat_liv.neuf,
           Description: '',
-          couverture: ''
+         // couverture: ''
         };
       
           console.log('Livre added successfully',data);},

@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Features.Sanctions;
@@ -30,7 +29,7 @@ public class SanctionController : ControllerBase
         return Ok(sanctions);
     }
     
-    [HttpPost("Create")]
+    [HttpPost("Create/{id}")]
     public async Task<IActionResult> Create([FromBody] CreateSanctionRequest createSanction , string id)
     {
         var createdSanc = await _sanctionHandler.CreateAsync(createSanction , id);

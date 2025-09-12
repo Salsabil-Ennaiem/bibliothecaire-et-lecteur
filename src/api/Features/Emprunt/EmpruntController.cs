@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Features.Emprunt;
@@ -35,10 +34,9 @@ public class EmpruntController : ControllerBase
     [HttpPut("Update/{id}")]
     public async Task<IActionResult> Update(string id, [FromBody] UpdateEmppruntDTO emp)
     {
-        var updated = await _empruntHundler.UpdateAsync(emp, id);
+        var updated = await _empruntHundler.UpdateAsync(id,emp);
         return Ok(updated);
     }
-
 
     [HttpDelete("Delete/{id}")]
     public async Task<IActionResult> Delete(string id)

@@ -9,7 +9,7 @@ import { CreateLivreRequest, LivreDTO, UpdateLivreDTO } from '../model/livres.mo
 })
 
 export class LivreService {
-  private apiUrl = 'http://localhost:5232/api/livres';
+  private apiUrl = 'http://localhost:5232/api/Livres';
 
   constructor(private http: HttpClient) { }
 
@@ -17,14 +17,13 @@ export class LivreService {
     return this.http.get<LivreDTO[]>(`${this.apiUrl}/search/${term}`);
   }
   getAllLiv(): Observable<LivreDTO[]> {
-    console.info("well time to work ");
     return this.http.get<LivreDTO[]>(`${this.apiUrl}/Getall`);
   }
   getById(id: string): Observable<LivreDTO> {
     return this.http.get<LivreDTO>(`${this.apiUrl}/Get/${id}`);
   }
-  create(livre: CreateLivreRequest): Observable<CreateLivreRequest> {
-    return this.http.post<CreateLivreRequest>(`${this.apiUrl}/Create`, livre);
+  create(livre: CreateLivreRequest): Observable<LivreDTO> {
+    return this.http.post<LivreDTO>(`${this.apiUrl}/Create`, livre);
   }
   update(id: string, livre: UpdateLivreDTO): Observable<LivreDTO> {
     return this.http.put<LivreDTO>(`${this.apiUrl}/Update/${id}`, livre);

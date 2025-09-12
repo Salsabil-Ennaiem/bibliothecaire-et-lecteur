@@ -11,14 +11,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { EmpruntService } from '../../../../Services/emprunt.service';
-import { EmppruntDTO } from '../../../../model/Emprunts.model';
+import { EmppruntDTO } from '../../../../model/emprunts.model';
 
 
-/*interface FilterOption {
-  label: string;
-  value: string;
-}
-*/
 @Component({
   selector: 'app-liste-emprunts',
   imports: [InputIconModule, IconFieldModule, InputTextModule,
@@ -27,84 +22,20 @@ import { EmppruntDTO } from '../../../../model/Emprunts.model';
   styleUrls: ['./liste-emprunts.component.css']
 })
 export class ListeEmpruntsComponent implements OnInit {
-  /*emprunts: Emprunt[] = [];
-  filteredEmprunts: Emprunt[] = [];
-  selectedFilter: string = 'all';
-  filterOptions: FilterOption[] = [
-    { label: 'Tous', value: 'all' },
-    { label: 'En cours', value: 'en_cours' },
-    { label: 'Retourné', value: 'retourne' },
-    { label: 'Perdu', value: 'perdu' }
-  ];
-*/
-  //speedDialItems: MenuItem[] | any;
-  isFlipped: boolean = false;
-  showSpeedDial: boolean = false;
 
-  /*  ngOnInit() {
-    this.emprunts = [
-       {
-         id: '1',
-         id_Emprunteur: '123456789',
-         DateRetourePrevu: new Date('2025-01-30'),
-         statut: 'en_cours',
-         Cote_Liv: 'A123456',
-         Date_Emprunt: new Date('2025-01-15'),
-         speedDialItems: this.createSpeedDialItems('1'),
-         isFlipped: false,
-         showSpeedDial: false
-       },
-       {
-         id: '2',
-         id_Emprunteur: '153456789',
-         DateRetourePrevu: new Date('2025-01-10'),
-         statut: 'en_cours',
-         Cote_Liv: 'A123456',
-         Date_Emprunt: new Date('2025-01-05'),
-         speedDialItems: this.createSpeedDialItems('2'),
-         isFlipped: false,
-         showSpeedDial: false
-       },
-       {
-         id: '3',
-         id_Emprunteur: '123456789',
-         DateRetourePrevu: new Date('2022-01-30'),
-         statut: 'perdu',
-         Cote_Liv: 'A123456',
-         Date_Emprunt: new Date('2022-01-15'),
-         Note: 'Prêt sans retoure',
-         speedDialItems: this.createSpeedDialItems('3'),
-         isFlipped: false,
-         showSpeedDial: false
-       },
-       {
-         id: '4',
-         id_Emprunteur: '123456789',
-         DateRetourePrevu: new Date('2025-01-30'),
-         statut: 'retourne',
-         Date_Effectif: new Date('2025-01-25'),
-         Cote_Liv: 'A123456',
-         Date_Emprunt: new Date('2025-01-15'),
-         Note: 'Prêt personnel pour rénovation',
-         speedDialItems: this.createSpeedDialItems('4'),
-         isFlipped: false,
-         showSpeedDial: false
-       }
-      
-     ];
-     this.filteredEmprunts = [...this.emprunts];
-   }
- 
-   applyFilter() {
-     if (this.selectedFilter === 'all') {
-       this.filteredEmprunts = [...this.emprunts];
-     } else {
-       this.filteredEmprunts = this.emprunts.filter(emprunt => emprunt.statut === this.selectedFilter);
-     }
-   } */
-
+    ngOnInit() {
+this.loadEmprunts();
+  }
+  constructor(private EmpService: EmpruntService, private router: Router) { }
   emprunts: EmppruntDTO[] = [];
-  searchResults: EmppruntDTO[] = [];
+
+  loadEmprunts(): void {
+    this.EmpService.getAll().subscribe({
+      next: (data) => this.emprunts = data,
+      error: (err) => console.error('Erreur chargement Emp', err)
+    });
+  }
+
   isInputVisible = false;
   searchQuery = '';
   toggleInput() {
@@ -114,19 +45,11 @@ export class ListeEmpruntsComponent implements OnInit {
   handleSearch(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery = value;
-    if (!this.searchQuery.trim()) {
-      this.searchResults = [];
-      return;
-    }
-    /*this.searchResults = this.emprunts.filter(e =>
-      e.cin_ou_passeport.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      e.date_emp.toString().includes(this.searchQuery.toLowerCase())*/
-    this.EmpService.search(this.searchQuery).subscribe(
-      data => this.searchResults = data,
-      error => console.error('Error searching livres:', error)
-
-    );
+    this.EmpService.search(this.searchQuery).subscribe({
+      next:(data) => this.emprunts = data,
+      error:(error) => console.error('Error searching livres:', error)});
   }
+
   @HostListener('document:click', ['$event'])
   @HostListener('window:scroll', [])
   @HostListener('document:keydown', ['$event'])
@@ -150,6 +73,14 @@ export class ListeEmpruntsComponent implements OnInit {
     return searchContainer ? searchContainer.contains(event.target as Node) : false;
   }
 
+  showSpeedDial: boolean = false;
+    toggleSpeedDial(event: Event, id: string) {
+    event.stopPropagation();
+    const emprunt = this.emprunts.find(e => e.id_emp === id);
+    if (emprunt) {
+      this.showSpeedDial = !this.showSpeedDial;
+    }
+  }
   createSpeedDialItems(empruntId: string): MenuItem[] {
     return [
       {
@@ -169,7 +100,7 @@ export class ListeEmpruntsComponent implements OnInit {
       }
     ];
   }
-
+    isFlipped: boolean = false;
   toggleFlip(id: string) {
     this.emprunts.forEach(emprunt => {
       if (emprunt.id_emp !== id) {
@@ -182,14 +113,30 @@ export class ListeEmpruntsComponent implements OnInit {
       this.isFlipped = !this.isFlipped;
     }
   }
-
-  toggleSpeedDial(event: Event, id: string) {
-    event.stopPropagation();
-    const emprunt = this.emprunts.find(e => e.id_emp === id);
-    if (emprunt) {
-      this.showSpeedDial = !this.showSpeedDial;
-    }
+  
+    modifier(id: string) {
+    console.log(`Navigating to edit Emprunts ID: ${id}`);
+    this.router.navigate([`/bibliothecaire/emprunts/modifier/${id}`]);
   }
+      Ajouter() {
+    console.log(`Navigating to ajouter Emprunts`);
+    this.router.navigate([`/bibliothecaire/emprunts/ajouter`]);
+  }
+
+  supprimer(id: string):void {
+    console.log(`Delete Emprunts ID: ${id}`);
+    this.EmpService.delete(id).subscribe(
+{    next:() => console.log('Emprunts deleted successfully'),
+      error:(error) => console.error('Error deleting Emprunts:', error)}
+    );
+  }
+
+  sanctionner(id: string) {
+    console.log(`Navigating to edit Emprunts ID: ${id}`);
+    this.router.navigate([`/bibliothecaire/sanctions/ajouter/${id}`]);
+  }
+
+
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   importer() {
@@ -200,23 +147,17 @@ export class ListeEmpruntsComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
-
-
     if (!file.type.match(/application\/(vnd.ms-excel|vnd.openxmlformats-officedocument.spreadsheetml.sheet)/)) {
       console.log('Selected file:', file.name, file.type, file.size);
-
       alert('Veuillez sélectionner un fichier Excel (.xls ou .xlsx).');
       return;
     }
-
-    this.EmpService.import(file).subscribe(
+/* this.EmpService.import(file).subscribe(
       response => console.log('Import successful:', response),
       error => console.error('Error importing file:', error)
-    );
-
+    );*/
   }
-  constructor(private EmpService: EmpruntService, private router: Router) { }
-  exporter() {
+  /*exporter() {
     this.EmpService.export().subscribe(
       blob => {
         const url = window.URL.createObjectURL(blob);
@@ -230,35 +171,5 @@ export class ListeEmpruntsComponent implements OnInit {
       },
       error => console.error('Error exporting file:', error)
     );
-  }
-
-  modifier(id: string) {
-    console.log(`Navigating to edit Emprunts ID: ${id}`);
-    this.router.navigate([`/bibliothecaire/emprunts/modifier/${id}`]);
-  }
-
-
-  supprimer(id: string) {
-    console.log(`Delete Emprunts ID: ${id}`);
-    this.EmpService.delete(id).subscribe(
-      () => console.log('Emprunts deleted successfully'),
-      error => console.error('Error deleting Emprunts:', error)
-    );
-  }
-
-  sanctionner(id: string) {
-    console.log(`Navigating to edit Emprunts ID: ${id}`);
-    this.router.navigate([`/bibliothecaire/sanctions/ajouter/${id}`]);
-  }
-
-
-  ngOnInit() {
-    this.EmpService.getAll().subscribe(
-      emprunts => {
-        this.emprunts = emprunts;
-        //   this.filteredEmprunts = [...this.emprunts];
-      },
-      error => console.error('Error fetching Emprunts:', error)
-    );
-  }
+  }*/
 }

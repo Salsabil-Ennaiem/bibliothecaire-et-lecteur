@@ -1,17 +1,10 @@
-using System.Security.Claims;
-using domain.Entity;
-using domain.Entity.Enum;
 using domain.Interfaces;
-using Mapster;
 
 namespace api.Features.Parametre;
 
 public class ParametreHandler
 {
     private readonly IParametreRepository _parametreRepository;
-
-
-
     public ParametreHandler(IParametreRepository parametreRepository)
     {
         _parametreRepository = parametreRepository;

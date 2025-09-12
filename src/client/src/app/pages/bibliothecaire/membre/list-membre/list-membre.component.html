@@ -1,1 +1,14 @@
-<p>list-membre works!</p>
+<div class="container mt-4">
+    <div class="row g-4">
+        <div class="col-md-4" *ngFor="let m of users">
+                <div class="p-4 text-center position-relative">
+                    <h3><strong class="mb-3">{{IconTypeMem(m.typeMembre)}}{{ m.prenom }} {{ m.nom }}</strong>
+                    </h3>
+                    <p><strong>CIN/Passeport:</strong> {{ m.cin_ou_passeport}}</p>
+                    <p><strong>Telephone :</strong> {{ m.telephone}} </p>
+                    <p><strong>Email :</strong> {{ m.email }}</p>
+                    <p>date_inscription :{{ m.date_inscription | date:'dd-MM-yyyy' }}</p>
+                </div>
+        </div>
+    </div>
+</div>

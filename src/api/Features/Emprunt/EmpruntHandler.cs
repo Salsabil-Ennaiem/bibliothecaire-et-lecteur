@@ -34,12 +34,10 @@ public class EmpruntHandler
         _hubContext = hubContext;
         _dbContext = dbContext;
     }
-
-
     private async Task EnvoyerNotificationAsync(string userId, string message, string when)
     {
         // Ici userId doit être identifiant SignalR ou groupe auquel l'utilisateur appartient
-        await _hubContext.Clients.User(userId).SendAsync("ReceiveNotification", message);
+        await _hubContext.Clients.User(userId).SendAsync("ReceiveNotification", message,when);
     }
     private async Task SendEmailAsync(string userEmail, string subject, string body)
     {
@@ -130,7 +128,7 @@ public class EmpruntHandler
     {
         return await _empruntsRepository.GetByIdAsync(id);
     }
-    public async Task<EmppruntDTO> UpdateAsync(UpdateEmppruntDTO emp, string id)
+    public async Task<EmppruntDTO> UpdateAsync(string id,UpdateEmppruntDTO emp)
     {
         return await _empruntsRepository.UpdateAsync(id, emp);
     }

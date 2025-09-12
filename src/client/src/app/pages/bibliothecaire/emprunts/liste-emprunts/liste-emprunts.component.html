@@ -1,19 +1,18 @@
 <div class="top-controls d-flex justify-content-center align-items-center mb-4 gap-3 flex-wrap">
     <h1 class="m-0">Liste des emprunts</h1>
-    <!--  <p-select [options]="filterOptions" [(ngModel)]="selectedFilter" optionLabel="label" optionValue="value"
+    <!--  <p-select [options]="s" [(ngModel)]="selectedFilter" optionLabel="label" optionValue="value"
                 placeholder="Filtrer par statut" styleClass="w-auto" (onChange)="applyFilter()">
       </p-select> -->
     <button pButton icon="pi pi-plus" routerLink="ajouter" class="btn btn-primary">
-        <span class="d-none d-md-inline">Ajouter</span>
+        <span class="d-none d-md-inline"(click)="Ajouter()" >Ajouter</span>
     </button>
     <button pButton icon="pi pi-upload" (click)="importer()" class="btn btn-secondary">
         <span class="d-none d-md-inline">Importer</span>
         <input #fileInput type="file" accept=".xlsx,.xls" (change)="handleFileUpload($event)" style="display: none;" />
     </button>
-    <button pButton icon="pi pi-download" (click)="exporter()" class="btn btn-success">
+    <!--  <button pButton icon="pi pi-download" (click)="exporter()" class="btn btn-success">
         <span class="d-none d-md-inline">Exporter</span>
-    </button>
-
+    </button>-->
     <div id="search-container" class="position-relative w-100 d-md-inline " style="max-width: 20rem;">
         <div *ngIf="isInputVisible; else buttonTemplate">
             <p-iconfield>
@@ -23,7 +22,7 @@
             </p-iconfield>
         </div>
         <ng-template #buttonTemplate>
-            <p-button icon="pi pi-search" styleClass="p-button-text" (click)="toggleInput()"></p-button>
+            <button pButton icon="pi pi-search" styleClass="p-button-text" (click)="toggleInput()"></button>
         </ng-template>
     </div>
 </div>
@@ -40,15 +39,16 @@
                                 <h3 class="mb-3">Emprunt #{{ emprunt.id_emp }}</h3>
                                 <p><strong>Id Emprunteur :</strong> {{ emprunt.id_emp }} TDN </p>
                                 <p><strong>Cote livre :</strong> {{ emprunt.id_emp }}</p>
-                                <p><strong>Statut :</strong> {{ emprunt.Statut }}</p>
+                                <p><strong>Statut :</strong> {{ emprunt.statut }}</p>
                                 <p><strong>date retoure prevu :</strong> {{ emprunt.date_retour_prevu |
                                     date:'dd/MM/yyyy' }}</p>
                                 <!-- Speed Dial -->
-                                <!--<p-speedDial class="position-absolute top-0 start-0 m-2"
-                                    (click)="toggleSpeedDial($event, emprunt.id_emp)" [model]="emprunt.speedDialItems"
-                                    [visible]="emprunt.showSpeedDial" direction="down" showIcon="pi pi-ellipsis-v"
+                                <p-speedDial class="position-absolute top-0 start-0 m-2"
+                                    (click)="toggleSpeedDial($event, emprunt.id_emp)"
+                                    [model]="createSpeedDialItems(emprunt.id_emp)" [visible]="showSpeedDial"
+                                    direction="down" showIcon="pi pi-ellipsis-v"
                                     buttonClass="p-button-sm p-button-text">
-                                </p-speedDial>-->
+                                </p-speedDial>
                             </div>
                         </p-card>
                     </div>

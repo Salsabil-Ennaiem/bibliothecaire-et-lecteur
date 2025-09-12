@@ -26,58 +26,67 @@ import { MembreComponent } from './pages/bibliothecaire/membre/membre.component'
 import { ListMembreComponent } from './pages/bibliothecaire/membre/list-membre/list-membre.component';
 import { AjoutMembreComponent } from './pages/bibliothecaire/membre/ajout-membre/ajout-membre.component';
 import { NotificationComponent } from './pages/bibliothecaire/notification/notification.component';
+import { TestComponent } from './pages/test/test.component';
 
 
 export const routes: Routes = [
-    { path: 'accueil', component: AccueilComponent },
-    {path:'compte', component:CompteComponent ,
-      children:[
-        {path:'login',component:LoginComponent } ,
-        {path:'motDePasseOublie',component:MdpOublieeComponent} ,
-      ]
-    },
-    {path:'bibliothecaire' , component:BibliothecaireComponent ,
-      children:[
-        {path:'',component:TableauxDeBordComponent},
-        {path:'Notification' , component:NotificationComponent},
-        {path:'membres',component:MembreComponent , 
-          children:[
-            {path:'' , component:ListMembreComponent},
-            {path:'ajouter' , component:AjoutMembreComponent}
-          ]
-        },
-        {path:'sanctions' , component:SanctionsComponent ,
-          children:[
-             {path:'',component:ListSanctionsComponent },
-            {path:'ajouter',component:AjoutSanctionComponent }
-          ]
-        } ,
-        {path:'nouveaute', component :NouveauteComponent ,
-          children:[
-            {path:'',component:ListeNouveauteComponent },
-            {path:'ajouter',component:AjouterNouveauteComponent },
-            {path:'modifier/:id',component:ModifierNouveauteComponent } ,
-            {path:'detail/:id' , component:NouveauteDetailsComponent}         
-          ]
-        },
-        {path:'emprunts',component:EmpruntsComponent ,
-          children:[
-            {path:'',component:ListeEmpruntsComponent } ,
-            {path:'ajouter',component:AjoutEmpruntsComponent },
-            {path:'modifier/:id',component:ModifierEmpruntsComponent },
-          ]
-        },
-        {path:'livres',component:LivresComponent ,
-          children:[
-            {path:'',component:ListeLivresComponent } ,
-            {path:'ajouter',component:AjoutLivresComponent },
-            {path:'modifier/:id',component:ModifierLivresComponent }
-          ]
-        }
-      ]
-    } ,
-    {path:'', redirectTo: 'accueil', pathMatch: 'full' },
-    {path:'**',component:ErreurComponent ,pathMatch:'full'}
-   
-     
+  { path: 'accueil', component: AccueilComponent },
+  { path: 'test', component: TestComponent },
+  {
+    path: 'compte', component: CompteComponent,
+    children: [
+      { path: 'login', component: LoginComponent },
+      { path: 'motDePasseOublie', component: MdpOublieeComponent },
+    ]
+  },
+  {
+    path: 'bibliothecaire', component: BibliothecaireComponent,
+    children: [
+      { path: '', component: TableauxDeBordComponent },
+      { path: 'Notification', component: NotificationComponent },
+      {
+        path: 'membres', component: MembreComponent,
+        children: [
+          { path: '', component: ListMembreComponent },
+          { path: 'ajouter', component: AjoutMembreComponent }
+        ]
+      },
+      {
+        path: 'sanctions', component: SanctionsComponent,
+        children: [
+          { path: '', component: ListSanctionsComponent },
+          { path: 'ajouter', component: AjoutSanctionComponent }
+        ]
+      },
+      {
+        path: 'nouveaute', component: NouveauteComponent,
+        children: [
+          { path: '', component: ListeNouveauteComponent },
+          { path: 'ajouter', component: AjouterNouveauteComponent },
+          { path: 'modifier/:id', component: ModifierNouveauteComponent },
+          { path: 'detail/:id', component: NouveauteDetailsComponent }
+        ]
+      },
+      {
+        path: 'emprunts', component: EmpruntsComponent,
+        children: [
+          { path: '', component: ListeEmpruntsComponent },
+          { path: 'ajouter', component: AjoutEmpruntsComponent },
+          { path: 'modifier/:id', component: ModifierEmpruntsComponent },
+        ]
+      },
+      {
+        path: 'livres', component: LivresComponent,
+        children: [
+          { path: '', component: ListeLivresComponent },
+          { path: 'ajouter', component: AjoutLivresComponent },
+          { path: 'modifier/:id', component: ModifierLivresComponent }
+        ]
+      }
+    ]
+  },
+  { path: '', redirectTo: 'accueil', pathMatch: 'full' },
+  { path: '**', component: ErreurComponent, pathMatch: 'full' }
+
+
 ];

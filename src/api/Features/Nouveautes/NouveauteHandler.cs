@@ -1,7 +1,6 @@
 using domain.Entity;
 using domain.Interfaces;
 using Mapster;
-using NPOI.SS.Formula.Functions;
 
 namespace api.Features.Nouveautes
 {
@@ -21,7 +20,6 @@ namespace api.Features.Nouveautes
             return rt.Adapt<IEnumerable<NouveauteGetALL>>();
 
         }
-
         public async Task<NouveauteDTO> GetByIdAsync(string id)
         {
             var entity = await _nouveauteRepository.GetByIdAsync(id);
@@ -79,7 +77,6 @@ namespace api.Features.Nouveautes
             await _FichierRepository.DeleteFileListAsync(id);
             await _nouveauteRepository.DeleteAsync(id);
         }
-
         private async Task<bool> ExistenceNouv(string titre)
         {
             var allNouveautes = await GetAllNouvAsync();

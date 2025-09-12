@@ -9,22 +9,25 @@ export enum Raison_sanction
 
 
 export interface SanctionDTO {
-    email: string | null;
-    date_emp: string;
-    raison: Raison_sanction;
-    date_sanction: string;
-    date_fin_sanction: string | null;
-    montant: number | null;
-    payement: boolean | null;
-    active: boolean;
-    description: string | null;
+  id_sanc: string;
+  id_membre: string;
+  id_emp?: string | null;
+  email?: string | null;
+  date_emp: Date;
+  raison: Raison_sanction[];
+  date_sanction: Date;
+  date_fin_sanction?: Date | null;
+  montant?: number | null;
+  payement?: boolean | null;
+  active: boolean;
+  description?: string | null;
 }
 
 export interface CreateSanctionRequest {
-    email: string | null;
-    date_emp: string;
-    raison: Raison_sanction;
-    date_fin_sanction: string | null;
-    montant: number | null;
-    description: string | null;
+  email?: string | null;
+  id_emp: string;
+  raison: Raison_sanction[];
+  date_fin_sanction?: Date | null;
+  montant?: number | null;
+  description?: string | null;
 }

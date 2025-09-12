@@ -21,7 +21,7 @@ namespace api.Features.Nouveautes
             return Ok(nouveautes);
         }
 
-        [HttpGet("Get{id}")]
+        [HttpGet("Get/{id}")]
         public async Task<IActionResult> GetById(string id)
         {
             var nouveautes = await _nouveauteHandler.GetByIdAsync(id);
@@ -35,14 +35,14 @@ namespace api.Features.Nouveautes
             return Ok(createdNouveaute); 
         }
 
-        [HttpPut("Update{id}")]
+        [HttpPut("Update/{id}")]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateNouveauteRequest request)
         {
             var updated = await _nouveauteHandler.UpdateAsync(request, id);
             return Ok(updated);
         }
 
-        [HttpDelete("Delete{id}")]
+        [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             await _nouveauteHandler.DeleteAsync(id);
