@@ -1,1 +1,23 @@
-<p>nouveaute-details works!</p>
+<div class="page-container p-d-flex p-jc-center p-ai-center">
+    <div class="content-container">
+        <img src="cover.jpg" alt="Couverture" class="cover-image" />
+
+        <div class="title">{{nouv.titre}}</div>
+
+        <div class="date">{{nouv.date_publication | date:'mediumDate'}}</div>
+
+        <p class="description">
+           {{nouv.description}}.
+        </p>
+
+        <div class="files-wrapper p-d-flex p-ai-center">
+            <div class="files-list" [ngClass]="{'collapsed': collapsed}">
+                <a *ngFor="let file of files" [href]="file.url" target="_blank" download
+                    class="p-link">{{file.name}}</a>
+            </div>
+            <button pButton type="button" class="toggle-btn p-button-rounded p-button-text" (click)="toggleFiles()"
+                [icon]="collapsed ? 'pi pi-ellipsis-h' : 'pi pi-angle-up'" aria-label="Toggle files"></button>
+
+        </div>
+    </div>
+</div>

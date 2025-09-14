@@ -1,0 +1,17 @@
+.card-inner {
+  border-radius: 12px; /* arrondi visible des cartes */
+  background-color: white;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+  height: 100%;
+}
+.status-actif {
+  background-color: #d4edda; /* vert clair pour actif */
+}
+
+.status-bloc {
+  background-color: #f8d7da; /* rouge clair pour bloc */
+}
+
+.status-sanction {
+  background-color: #fff3cd; /* jaune clair pour sanction */
+}

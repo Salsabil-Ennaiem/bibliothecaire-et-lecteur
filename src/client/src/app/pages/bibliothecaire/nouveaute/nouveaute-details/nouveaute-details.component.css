@@ -1,0 +1,72 @@
+
+.page-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.content-container {
+  max-width: 600px;
+  width: 100%;
+  background: white;
+  padding: 2rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgb(0 0 0 / 0.1);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.cover-image {
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.date {
+  font-size: 14px;
+  color: #6c757d;
+  text-align: right;
+  margin-bottom: 16px;
+  padding-right: 4px;
+}
+
+.description {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 24px;
+  padding: 0 8px;
+}
+
+.files-wrapper {
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+}
+
+.files-list a {
+  margin-right: 12px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.files-list.collapsed a:not(:first-child) {
+  display: none;
+}
+
+.toggle-btn {
+  margin-left: 12px;
+  font-size: 24px;
+  cursor: pointer;
+}

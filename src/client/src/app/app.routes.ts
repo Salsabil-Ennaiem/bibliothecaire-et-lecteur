@@ -7,7 +7,6 @@ import { TableauxDeBordComponent } from './pages/bibliothecaire/tableaux-de-bord
 import { NouveauteComponent } from './pages/bibliothecaire/nouveaute/nouveaute.component';
 import { ListeNouveauteComponent } from './pages/bibliothecaire/nouveaute/liste-nouveaute/liste-nouveaute.component';
 import { AjouterNouveauteComponent } from './pages/bibliothecaire/nouveaute/ajouter-nouveaute/ajouter-nouveaute.component';
-import { ModifierNouveauteComponent } from './pages/bibliothecaire/nouveaute/modifier-nouveaute/modifier-nouveaute.component';
 import { NouveauteDetailsComponent } from './pages/bibliothecaire/nouveaute/nouveaute-details/nouveaute-details.component';
 import { EmpruntsComponent } from './pages/bibliothecaire/emprunts/emprunts.component';
 import { ListeEmpruntsComponent } from './pages/bibliothecaire/emprunts/liste-emprunts/liste-emprunts.component';
@@ -24,9 +23,9 @@ import { ListSanctionsComponent } from './pages/bibliothecaire/sanctions/list-sa
 import { AccueilComponent } from './pages/accueil/accueil.component';
 import { MembreComponent } from './pages/bibliothecaire/membre/membre.component';
 import { ListMembreComponent } from './pages/bibliothecaire/membre/list-membre/list-membre.component';
-import { AjoutMembreComponent } from './pages/bibliothecaire/membre/ajout-membre/ajout-membre.component';
 import { NotificationComponent } from './pages/bibliothecaire/notification/notification.component';
 import { TestComponent } from './pages/test/test.component';
+import { ModifierMembreComponent } from './pages/bibliothecaire/membre/modifier-membre/modifier-membre.component';
 
 
 export const routes: Routes = [
@@ -48,14 +47,14 @@ export const routes: Routes = [
         path: 'membres', component: MembreComponent,
         children: [
           { path: '', component: ListMembreComponent },
-          { path: 'ajouter', component: AjoutMembreComponent }
+          { path: 'modifier/:id', component: ModifierMembreComponent }
         ]
       },
       {
         path: 'sanctions', component: SanctionsComponent,
         children: [
           { path: '', component: ListSanctionsComponent },
-          { path: 'ajouter', component: AjoutSanctionComponent }
+          { path: 'ajouter/:id', component: AjoutSanctionComponent }
         ]
       },
       {
@@ -63,7 +62,6 @@ export const routes: Routes = [
         children: [
           { path: '', component: ListeNouveauteComponent },
           { path: 'ajouter', component: AjouterNouveauteComponent },
-          { path: 'modifier/:id', component: ModifierNouveauteComponent },
           { path: 'detail/:id', component: NouveauteDetailsComponent }
         ]
       },

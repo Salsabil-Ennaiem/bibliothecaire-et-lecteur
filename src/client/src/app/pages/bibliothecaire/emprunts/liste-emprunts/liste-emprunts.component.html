@@ -1,71 +1,74 @@
+<div class="container ">
 <div class="top-controls d-flex justify-content-center align-items-center mb-4 gap-3 flex-wrap">
-    <h1 class="m-0">Liste des emprunts</h1>
-    <!--  <p-select [options]="s" [(ngModel)]="selectedFilter" optionLabel="label" optionValue="value"
+  <h1 class="m-0">Liste des emprunts</h1>
+  <!--  <p-select [options]="s" [(ngModel)]="selectedFilter" optionLabel="label" optionValue="value"
                 placeholder="Filtrer par statut" styleClass="w-auto" (onChange)="applyFilter()">
       </p-select> -->
-    <button pButton icon="pi pi-plus" routerLink="ajouter" class="btn btn-primary">
-        <span class="d-none d-md-inline"(click)="Ajouter()" >Ajouter</span>
-    </button>
-    <button pButton icon="pi pi-upload" (click)="importer()" class="btn btn-secondary">
-        <span class="d-none d-md-inline">Importer</span>
-        <input #fileInput type="file" accept=".xlsx,.xls" (change)="handleFileUpload($event)" style="display: none;" />
-    </button>
-    <!--  <button pButton icon="pi pi-download" (click)="exporter()" class="btn btn-success">
+  <button pButton icon="pi pi-plus" routerLink="ajouter" [rounded]="true" [raised]="true" [text]="true">
+    <span class="d-none d-md-inline" (click)="Ajouter()">Ajouter</span>
+  </button>
+  <button pButton icon="pi pi-upload" (click)="importer()" [rounded]="true" [text]="true">
+    <span class="d-none d-md-inline">Importer</span>
+    <input #fileInput type="file" accept=".xlsx,.xls" (change)="handleFileUpload($event)" style="display: none;" />
+  </button>
+  <!--  <button pButton icon="pi pi-download" (click)="exporter()" class="btn btn-success">
         <span class="d-none d-md-inline">Exporter</span>
     </button>-->
-    <div id="search-container" class="position-relative w-100 d-md-inline " style="max-width: 20rem;">
-        <div *ngIf="isInputVisible; else buttonTemplate">
-            <p-iconfield>
-                <p-inputicon styleClass="pi pi-search" />
-                <input type="text" pInputText placeholder="Rechercher un livre..." [(ngModel)]="searchQuery"
-                    (input)="handleSearch($event)" class="w-100" />
-            </p-iconfield>
-        </div>
-        <ng-template #buttonTemplate>
-            <button pButton icon="pi pi-search" styleClass="p-button-text" (click)="toggleInput()"></button>
-        </ng-template>
+  <div id="search-container" class="position-relative w-100 d-md-inline " style="max-width: 20rem;">
+    <div *ngIf="isInputVisible; else buttonTemplate">
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search" />
+        <input type="text" pInputText placeholder="Rechercher un livre..." [(ngModel)]="searchQuery"
+          (input)="handleSearch($event)" class="w-100" />
+      </p-iconfield>
     </div>
+    <ng-template #buttonTemplate>
+      <button pButton icon="pi pi-search" [rounded]="true" [text]="true" (click)="toggleInput()"></button>
+    </ng-template>
+  </div>
 </div>
 
-<div class="container mt-4">
-    <div class="row g-4">
-        <div class="col-md-4" *ngFor="let emprunt of emprunts">
-            <div class="flip-card" (click)="toggleFlip(emprunt.id_emp)">
-                <div class="flip-card-inner" [class.flipped]="isFlipped">
-                    <!-- Front of the card -->
-                    <div class="flip-card-front">
-                        <p-card styleClass="shadow-2 h-100">
-                            <div class="p-4 text-center position-relative">
-                                <h3 class="mb-3">Emprunt #{{ emprunt.id_emp }}</h3>
-                                <p><strong>Id Emprunteur :</strong> {{ emprunt.id_emp }} TDN </p>
-                                <p><strong>Cote livre :</strong> {{ emprunt.id_emp }}</p>
-                                <p><strong>Statut :</strong> {{ emprunt.statut }}</p>
-                                <p><strong>date retoure prevu :</strong> {{ emprunt.date_retour_prevu |
-                                    date:'dd/MM/yyyy' }}</p>
-                                <!-- Speed Dial -->
-                                <p-speedDial class="position-absolute top-0 start-0 m-2"
-                                    (click)="toggleSpeedDial($event, emprunt.id_emp)"
-                                    [model]="createSpeedDialItems(emprunt.id_emp)" [visible]="showSpeedDial"
-                                    direction="down" showIcon="pi pi-ellipsis-v"
-                                    buttonClass="p-button-sm p-button-text">
-                                </p-speedDial>
-                            </div>
-                        </p-card>
-                    </div>
-                    <!--Back of the card -->
-                    <div class="flip-card-back">
-                        <p-card styleClass="shadow-2 h-100">
-                            <div class="p-4 text-center">
-                                <h3 class="mb-3">Détails Emprunt #{{ emprunt.id_emp }}</h3>
-                                <p><strong>date emprunt :</strong> {{ emprunt.date_emp | date:'dd/MM/yyyy' }} mois</p>
-                                <p><strong>date Effectif :</strong> {{ emprunt.date_effectif| date:'dd/MM/yyyy' }} TDN
-                                </p>
-                                <p><strong>Note :</strong> {{ emprunt.note }}</p>
-                            </div>
-                        </p-card>
-                    </div>
-                </div>
+  <div class="row g-4">
+<div class="col-12 col-sm-6" *ngFor="let m of emprunts; let i = index">
+      <div class="cardcontainer p-4 text-center position-relative" [class.flipped]="flippedIndex === i"
+        (click)="toggleFlipoo(i)">
+        <div class="inner-card">
+          <div class="frontcard">
+            <!-- Speed Dial -->
+            <p-speedDial class="position-absolute top-0 end-0 m-2" (click)="toggleSpeedDial($event, m.id_emp)"
+              [model]="createSpeedDialItems(m.id_emp)" direction="down" showIcon="pi pi-ellipsis-v">
+            </p-speedDial>
+            <div class="badge-top-left">
+              <p-badge [value]="Getvalue(m.statut_emp)" [severity]="getSeverity(m.statut_emp)"></p-badge>
             </div>
+            <div class="front-left">
+              <div class="countdown">
+                <div class="countdown-item">
+                  <span class="countdown-number">{{ days }}</span>
+                  <span class="countdown-label">days</span>
+                </div>
+                <div class="countdown-item">
+                  <span class="countdown-number">{{ hours }}</span>
+                  <span class="countdown-label">hours</span>
+                </div>
+              </div>
+            </div>
+            <div class="front-right">
+              <h3><strong>{{ IconTypeMem(m.typeMembre) }} {{ m.prenom }} {{ m.nom }}</strong></h3>
+              <p><strong>Titre :</strong> {{ m.titre }}</p>
+              <p><strong>Cote :</strong> {{ m.cote_liv }}</p>
+              <p><strong>Telephone :</strong> {{ m.telephone }}</p>
+              <p><strong>CIN/Passeport:</strong> {{ m.cin_ou_passeport }}</p>
+            </div>
+          </div>
+          <div class="backcard">
+            <p><strong>Email :</strong> {{ m.email }}</p>
+            <p><strong>Id Inv :</strong> {{ m.id_inv }}</p>
+            <p><strong>Editeur :</strong> {{ m.editeur }} <strong>DateEdition:</strong> {{ m.date_edition }}</p>
+            <p><strong>Note:</strong> {{ m.note }}</p>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>

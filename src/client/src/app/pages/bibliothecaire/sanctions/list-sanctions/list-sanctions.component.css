@@ -1,38 +1,115 @@
-.flip-card {
+.cardcontainer {
   perspective: 1000px;
-  height: 300px;
+  cursor: pointer;
+  width: 100%;
+  height: 320px;
+  position: relative;
+  margin-right: 100px;
 }
 
-.flip-card-inner {
-  position: relative;
+.inner-card {
   width: 100%;
   height: 100%;
+  border-radius: 8px;
   transition: transform 0.6s;
   transform-style: preserve-3d;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: row;
 }
 
-.flip-card-inner.flipped {
+.cardcontainer.flipped .inner-card {
   transform: rotateY(180deg);
 }
 
-.flip-card-front, .flip-card-back {
+.frontcard, .backcard {
   position: absolute;
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
+  border-radius: 8px;
+  box-sizing: border-box;
+  padding: 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 
-.flip-card-front {
+.frontcard {
   z-index: 2;
 }
 
-.flip-card-back {
+.backcard {
   transform: rotateY(180deg);
+  justify-content: center;
+  padding: 15px;
+  flex-direction: column;
 }
 
-.p-card {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.badge-top-left {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
 }
+
+.front-left {
+  flex: 2;
+  border-right: 1px solid #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-right: 10px;
+  font-size: 1.1rem;
+  color: var(--primary-color, #1976d2);
+  flex-direction: column;
+}
+
+.countdown {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+.countdown-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 40px;
+}
+
+
+.front-right {
+  flex: 5;
+  padding-left: 2%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  text-align: left;
+}
+@media (max-width: 374px) {
+  .frontcard {
+    flex-direction: column !important;
+    padding: 10px !important;
+  }
+
+  .front-left {
+    border-right: none !important;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0 !important;
+    flex: none !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .front-right {
+    padding-left: 0 !important;
+    width: 100% !important;
+    margin-top: 10px;
+    flex: none !important;
+  }
+}
+

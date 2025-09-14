@@ -1,14 +1,38 @@
-<div class="container mt-4">
-    <div class="row g-4">
-        <div class="col-md-4" *ngFor="let m of users">
-                <div class="p-4 text-center position-relative">
-                    <h3><strong class="mb-3">{{IconTypeMem(m.typeMembre)}}{{ m.prenom }} {{ m.nom }}</strong>
-                    </h3>
-                    <p><strong>CIN/Passeport:</strong> {{ m.cin_ou_passeport}}</p>
-                    <p><strong>Telephone :</strong> {{ m.telephone}} </p>
-                    <p><strong>Email :</strong> {{ m.email }}</p>
-                    <p>date_inscription :{{ m.date_inscription | date:'dd-MM-yyyy' }}</p>
-                </div>
+<div class="container">
+<div class="top-controls d-flex justify-content-center align-items-center mb-4 gap-3 flex-wrap">
+    <h1 class="m-0">Liste des Membre</h1>
+
+    <div id="search-container" class="position-relative w-100 d-md-inline " style="max-width: 20rem;">
+        <div *ngIf="isInputVisible; else buttonTemplate">
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input type="text" pInputText placeholder="Rechercher un livre..." [(ngModel)]="searchQuery"
+                    (input)="handleSearch($event)" class="w-100" />
+            </p-iconfield>
         </div>
+        <ng-template #buttonTemplate>
+            <button pButton icon="pi pi-search" [rounded]="true" [text]="true" (click)="toggleInput()"></button>
+        </ng-template>
     </div>
+</div>
+  <div class="row justify-content-around g-4">
+    <div class="col-md-4" *ngFor="let m of users">
+      <div class="card-inner p-4 text-center position-relative" [ngClass]="{
+        'status-actif': m.statut === 0,'status-bloc': m.statut === 2,'status-sanction': m.statut === 1}">
+        <!-- Speed Dial -->
+        <p-speedDial class="position-absolute top-0 end-0 m-2" (click)="toggleSpeedDial($event, m.id_membre)"
+          [model]="createSpeedDialItems(m.id_membre)" direction="down" showIcon="pi pi-ellipsis-v">
+        </p-speedDial>
+        <h3>
+          <strong class="mb-3">{{ IconTypeMem(m.typeMembre)}} {{ m.prenom }} {{ m.nom }}</strong>
+        </h3>
+        <p><strong>CIN/Passeport:</strong> {{ m.cin_ou_passeport }}</p>
+        <p><strong>Telephone :</strong> {{ m.telephone }}</p>
+        <p><strong>Email :</strong> {{ m.email }}</p>
+        <p style="margin-bottom: 12px; font-size: 12px;">
+          date_inscription : {{ m.date_inscription | date: 'dd-MM-yyyy' }}
+        </p>
+      </div>
+    </div>
+  </div>
 </div>

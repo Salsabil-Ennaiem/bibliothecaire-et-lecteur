@@ -50,29 +50,28 @@ export class ListeLivresComponent {
       error: (error) => console.error('Error fetching livres:', error)
     });
   }
+
   //Recherche 
+      searchQuery = '';
      isInputVisible = false;
   @HostListener('document:click', ['$event'])
   @HostListener('window:scroll', [])
-  @HostListener('document:keydown', ['$event'])
   handleOutsideEvents(event?: MouseEvent | KeyboardEvent) {
     if (event instanceof MouseEvent) {
       const clickedInside = this.isClickInside(event);
       if (!clickedInside) {
         this.isInputVisible = false;
+        this.searchQuery = '';
       }
-    } else if (event instanceof KeyboardEvent) {
-      if (event.key === 'Escape') {
-        this.isInputVisible = false;
-      }
-    } else {
+    }  else {
       this.isInputVisible = false;
+              this.searchQuery = '';
+
     }
   }
   toggleInput() {
     this.isInputVisible = true;
   }
-    searchQuery = '';
   handleSearch(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery = value;

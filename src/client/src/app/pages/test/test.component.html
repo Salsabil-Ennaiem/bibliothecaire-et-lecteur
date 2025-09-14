@@ -4,10 +4,13 @@
         [style.height.px]="maxHeight">
         <!-- Front face -->
         <div class="card-face card-front">
-            <div class="status-badge" [ngClass]="getStatusClass(e.statut_emp) ">
+            <span class=" badge" [ngClass]="{'badge-warning':e.statut_emp===0,
+                'badge-success':e.statut_emp===1,
+                'badge-danger':e.statut_emp===2,
+            } ">
                 {{ getStatutLabel(e.statut_emp )}}
-            </div>
-            <div class="section1" [ngClass]="getStatusClass(e.statut_emp)">
+            </span>
+            <div class="section1">
                 <div class="countdown">
                     <div class="countdown-item">
                         <span class="countdown-number">{{ days }}</span>

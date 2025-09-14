@@ -1,10 +1,10 @@
 
 export enum Raison_sanction
     {
-       retard="retard",
-       perte="perte",
-       degat ="degat", 
-       autre="autre"
+       retard,
+       perte,
+       degat , 
+       autre
     }
 
 

@@ -2,7 +2,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CarouselModule } from 'primeng/carousel';
 import { TagModule } from 'primeng/tag';
-import { SpeedDialModule } from 'primeng/speeddial';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NouveauteService } from '../../../../Services/nouveaute.service';
@@ -11,13 +10,14 @@ import { NouveauteGetALL } from '../../../../model/nouveaute.model';
 
 @Component({
   selector: 'app-liste-nouveaute',
-  imports: [ButtonModule, CarouselModule, TagModule, SpeedDialModule, CommonModule],
+  imports: [ButtonModule, CarouselModule, TagModule, CommonModule],
   templateUrl: './liste-nouveaute.component.html',
   styleUrl: './liste-nouveaute.component.css',
   providers: []
 })
 export class ListeNouveauteComponent implements OnInit {
   nouveautes: NouveauteGetALL[] = [];
+  
   today: number = Date.now(); // Current timestamp in milliseconds
   isNewPublication(datePublication: string | null): boolean {
     if (!datePublication) return false;
@@ -40,30 +40,11 @@ export class ListeNouveauteComponent implements OnInit {
 
   showDetails(id: string | null): void {
     if (!id) return;
-    this.router.navigate(['/nouveaute', id]);
+    this.router.navigate(['/bibliothecaire/nouveaute/detail', id]);
   }
 
   onAjouter(): void {
     this.router.navigate(['/bibliothecaire/nouveaute/ajouter']);
-  }
-
-  getSpeedDialItems(id: string) {
-    return [
-      {
-        label: 'Modifier',
-        icon: 'pi pi-pencil',
-        command: () => this.onModifier(id)
-      },
-      {
-        label: 'Supprimer',
-        icon: 'pi pi-trash',
-        command: () => this.onSupprimer(id)
-      }
-    ];
-  }
-
-  onModifier(id: string): void {
-    this.router.navigate(['/nouveaute/edit', id]);
   }
 
   onSupprimer(id: string): void {
@@ -80,4 +61,22 @@ export class ListeNouveauteComponent implements OnInit {
       });
     }
   }
+  responsiveOptions = [
+  {
+    breakpoint: '1024px',
+    numVisible: 3,
+    numScroll: 1
+  },
+  {
+    breakpoint: '768px',
+    numVisible: 2,
+    numScroll: 1
+  },
+  {
+    breakpoint: '560px',
+    numVisible: 1,
+    numScroll: 1
+  }
+];
+
 }

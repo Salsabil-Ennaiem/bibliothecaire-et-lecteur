@@ -1,19 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { MembreService } from '../../../../Services/membre.service';
 import { CommonModule } from '@angular/common';
-import { MembreDto, StatutMemb, TypeMemb } from '../../../../model/membre.model';
-import { CardModule } from 'primeng/card';
+import { MembreDto, StatutMemb } from '../../../../model/membre.model';
+import { ButtonModule } from 'primeng/button';
+import { Router } from '@angular/router';
+import { SpeedDialModule } from 'primeng/speeddial';
+import { MenuItem } from 'primeng/api';
+import { InputTextModule } from 'primeng/inputtext';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { FormsModule } from '@angular/forms'; 
 
 
 @Component({
   selector: 'app-list-membre',
-  imports: [CommonModule, CardModule],
+  imports: [CommonModule,FormsModule ,ButtonModule ,SpeedDialModule ,InputIconModule ,InputIconModule ,InputTextModule , IconFieldModule],
   templateUrl: './list-membre.component.html',
   styleUrl: './list-membre.component.css'
 })
 export class ListMembreComponent implements OnInit {
 
-  constructor(private MemServ: MembreService) { }
+  constructor(private MemServ: MembreService,private router:Router) { }
   users: MembreDto[] = []
   ngOnInit(): void {
     this.loadMembres();
@@ -35,5 +42,73 @@ export class ListMembreComponent implements OnInit {
       return "🎓";
     else
       return "📚";
+  }
+    showSpeedDial: boolean = false;
+      toggleSpeedDial(event: Event, id: string) {
+      event.stopPropagation();
+      const emprunt = this.users.find(e => e.id_membre === id);
+      if (emprunt) {
+        this.showSpeedDial = !this.showSpeedDial;
+      }
+    }
+    createSpeedDialItems(empruntId: string): MenuItem[] {
+      return [
+        {
+          label: 'Modifier',
+          icon: 'pi pi-pencil',
+          command: () => this.modifier(empruntId)
+        },
+        {
+          label: 'Supprimer',
+          icon: 'pi pi-trash',
+          command: () => this.supprimer(empruntId)
+        }
+      ];
+    }
+    modifier(id: string) {
+    console.log(`Navigating to edit Membre ID: ${id}`);
+    this.router.navigate([`/bibliothecaire/membres/modifier/${id}`]);
+  }
+
+  supprimer(id: string):void {
+    console.log(`Delete Membre ID: ${id}`);
+    this.MemServ.delete(id).subscribe(
+{    next:() => console.log('Membre deleted successfully'),
+      error:(error) => console.error('Error deleting Membre:', error)}
+    );
+  }
+    //Recherche 
+      searchQuery = '';
+     isInputVisible = false;
+  @HostListener('document:click', ['$event'])
+  @HostListener('window:scroll', [])
+  handleOutsideEvents(event?: MouseEvent | KeyboardEvent) {
+    if (event instanceof MouseEvent) {
+      const clickedInside = this.isClickInside(event);
+      if (!clickedInside) {
+        this.isInputVisible = false;
+        this.searchQuery = '';
+      }
+    }  else {
+      this.isInputVisible = false;
+              this.searchQuery = '';
+
+    }
+  }
+  toggleInput() {
+    this.isInputVisible = true;
+  }
+  handleSearch(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchQuery = value;
+    this.MemServ.search(this.searchQuery).subscribe({
+      next: (data) => { this.users = data },
+      error: (err) => { console.error('Error searching livres:', err) }
+    }
+    );
+  }
+  isClickInside(event: MouseEvent): boolean {
+    const searchContainer = document.getElementById('search-container');
+    return searchContainer ? searchContainer.contains(event.target as Node) : false;
   }
 }

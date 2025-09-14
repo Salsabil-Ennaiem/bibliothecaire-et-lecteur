@@ -1,23 +1,22 @@
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { SpeedDialModule } from 'primeng/speeddial';
-import { SelectModule } from 'primeng/select';
 import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { InputTextModule } from 'primeng/inputtext';
+import { Router } from '@angular/router';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { EmpruntService } from '../../../../Services/emprunt.service';
-import { EmppruntDTO } from '../../../../model/emprunts.model';
-
+import { EmppruntDTO, Statut_emp } from '../../../../model/emprunts.model';
+import { BadgeModule } from 'primeng/badge';
+import { DatePickerModule } from 'primeng/datepicker';
+import { FormsModule } from '@angular/forms';
+import { InputText } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-liste-emprunts',
-  imports: [InputIconModule, IconFieldModule, InputTextModule,
-    ButtonModule, CardModule, SpeedDialModule, SelectModule, CommonModule, FormsModule, RouterLink],
+  imports: [InputIconModule, DatePickerModule,IconFieldModule, BadgeModule,
+    ButtonModule, SpeedDialModule, CommonModule, InputText, FormsModule],
   templateUrl: './liste-emprunts.component.html',
   styleUrls: ['./liste-emprunts.component.css']
 })
@@ -35,39 +34,40 @@ this.loadEmprunts();
       error: (err) => console.error('Erreur chargement Emp', err)
     });
   }
+  targetDate!: Date;
+  days = 0;
+  hours = 0;
 
-  isInputVisible = false;
-  searchQuery = '';
-  toggleInput() {
-    this.isInputVisible = true;
-  }
-
-  handleSearch(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchQuery = value;
-    this.EmpService.search(this.searchQuery).subscribe({
-      next:(data) => this.emprunts = data,
-      error:(error) => console.error('Error searching livres:', error)});
-  }
-
+  //Recherche 
+      searchQuery = '';
+     isInputVisible = false;
   @HostListener('document:click', ['$event'])
   @HostListener('window:scroll', [])
-  @HostListener('document:keydown', ['$event'])
   handleOutsideEvents(event?: MouseEvent | KeyboardEvent) {
     if (event instanceof MouseEvent) {
       const clickedInside = this.isClickInside(event);
       if (!clickedInside) {
         this.isInputVisible = false;
+        this.searchQuery = '';
       }
-    } else if (event instanceof KeyboardEvent) {
-      if (event.key === 'Escape') {
-        this.isInputVisible = false;
-      }
-    } else {
+    }  else {
       this.isInputVisible = false;
+              this.searchQuery = '';
+
     }
   }
-
+  toggleInput() {
+    this.isInputVisible = true;
+  }
+  handleSearch(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchQuery = value;
+    this.EmpService.search(this.searchQuery).subscribe({
+      next: (data) => { this.emprunts = data },
+      error: (err) => { console.error('Error searching livres:', err) }
+    }
+    );
+  }
   isClickInside(event: MouseEvent): boolean {
     const searchContainer = document.getElementById('search-container');
     return searchContainer ? searchContainer.contains(event.target as Node) : false;
@@ -100,19 +100,41 @@ this.loadEmprunts();
       }
     ];
   }
-    isFlipped: boolean = false;
-  toggleFlip(id: string) {
-    this.emprunts.forEach(emprunt => {
-      if (emprunt.id_emp !== id) {
-        this.isFlipped = false;
-      }
-    });
-    // Toggle the clicked card
-    const emprunt = this.emprunts.find(e => e.id_emp === id);
-    if (emprunt) {
-      this.isFlipped = !this.isFlipped;
-    }
+
+getSeverity(statut: number): 'info' | 'success' | 'warn' | 'danger' | 'secondary' | 'contrast' {
+  switch (statut) {
+    case 0:
+      return 'success';
+    case 1:
+      return 'warn';  // Use 'warn' here, not 'warning'
+    case 2:
+      return 'danger';
+    default:
+      return 'info';
   }
+}
+
+flippedIndex: number | null = null;
+
+toggleFlipoo(index: number) {
+  if (this.flippedIndex === index) {
+    this.flippedIndex = null; // unflip if clicking already flipped card
+  } else {
+    this.flippedIndex = index; // flip new card, reset others
+  }
+}
+
+    public Getvalue(value: number) {
+      return Statut_emp[value];
+    }
+    public IconTypeMem(value: number) {
+      if (value == 0)
+        return "👨‍🏫";
+      else if (value == 1)
+        return "🎓";
+      else
+        return "📚";
+    }
   
     modifier(id: string) {
     console.log(`Navigating to edit Emprunts ID: ${id}`);
@@ -131,9 +153,9 @@ this.loadEmprunts();
     );
   }
 
-  sanctionner(id: string) {
+  sanctionner(id: string ): void {
     console.log(`Navigating to edit Emprunts ID: ${id}`);
-    this.router.navigate([`/bibliothecaire/sanctions/ajouter/${id}`]);
+    this.router.navigate(['/bibliothecaire/sanctions/ajouter' ,id]);  
   }
 
 
