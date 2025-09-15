@@ -71,11 +71,12 @@ export class ListMembreComponent implements OnInit {
   }
 
   supprimer(id: string):void {
+    if (confirm('Voulez-vous vraiment supprimer cette nouveauté ?')){
     console.log(`Delete Membre ID: ${id}`);
     this.MemServ.delete(id).subscribe(
 {    next:() => console.log('Membre deleted successfully'),
       error:(error) => console.error('Error deleting Membre:', error)}
-    );
+    );}
   }
     //Recherche 
       searchQuery = '';

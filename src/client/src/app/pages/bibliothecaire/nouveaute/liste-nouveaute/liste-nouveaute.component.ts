@@ -61,6 +61,8 @@ export class ListeNouveauteComponent implements OnInit {
       });
     }
   }
+
+  
   responsiveOptions = [
   {
     breakpoint: '1024px',

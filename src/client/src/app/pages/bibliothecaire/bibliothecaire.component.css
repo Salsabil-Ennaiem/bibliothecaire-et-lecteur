@@ -31,10 +31,29 @@
   height: 50px;
   z-index: 1000;
 }
-
+.Right{
+  
+}
 .child-container {
   padding-top: 110px;
 }
 *{
   position: relative
+}
+
+@media (max-width: 822px) {
+  .desktop-menu {
+    display: none !important;
+  }
+  .mobile-menu-button {
+    display: inline-flex !important;
+  }
+}
+@media (min-width: 823px) {
+  .desktop-menu {
+    display: inline-flex !important;
+  }
+  .mobile-menu-button {
+    display: none !important;
+  }
 }

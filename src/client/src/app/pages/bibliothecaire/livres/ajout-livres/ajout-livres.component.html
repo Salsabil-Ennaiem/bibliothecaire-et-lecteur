@@ -14,13 +14,13 @@
                             <label for="cote" class="form-label">Cote Livre *</label>
                             <span class="w-100">
                                 <p-iconfield>
-                                    <p-inputicon class="pi pi-barcode" /> 
+                                    <p-inputicon class="pi pi-barcode" />
                                     <input pInputText id="cote" type="text" [(ngModel)]="livre.cote_liv" class="w-100"
-                                        name="cote" placeholder="Ex: A39-B12" [required]="true">
+                                        name="cote_liv" placeholder="Ex: A39-B12" [required]="true">
                                 </p-iconfield>
                             </span>
                         </div>
-                    
+
                         <!-- Auteur -->
                         <div class="mb-3">
                             <label for="auteur" class="form-label">Auteur</label>
@@ -33,16 +33,14 @@
                             </span>
                         </div>
 
-
-
                         <!-- Editeur -->
                         <div class="mb-3">
                             <label for="editeur" class="form-label">Éditeur *</label>
                             <span class="w-100">
                                 <p-iconfield>
                                     <p-inputicon class="pi pi-building" />
-                                    <input pInputText id="editeur" type="text" [(ngModel)]="livre.editeur"
-                                        class="w-100" name="editeur" placeholder="Ex: Gallimard" required>
+                                    <input pInputText id="editeur" type="text" [(ngModel)]="livre.editeur" class="w-100"
+                                        name="editeur" placeholder="Ex: Gallimard" required>
                                 </p-iconfield>
                             </span>
                         </div>
@@ -50,14 +48,10 @@
                         <!--Langue-->
                         <div class="mb-3">
                             <label for="langue" class="form-label">Langue</label>
-                            <span class="w-100">
-                                <p-iconfield>
-                                    <p-inputicon class="pi pi-language" /> <!-- Language icon -->
-                                    <input pInputText id="langue" type="text" [(ngModel)]="livre.Langue" class="w-100" name="langue" placeholder="Ex: Français">
-                                    </p-iconfield>
-                            </span>
-                                    </div>
-
+                            <p-select [options]="langues" [(ngModel)]="livre.Langue" optionLabel="label"
+                                name ="Langue" placeholder="Sélectionnez une langue" class="w-100" inputId="langue">
+                            </p-select>
+                        </div>
                     </div>
 
                     <!-- Right Column -->
@@ -69,14 +63,14 @@
                                 <p-iconfield>
                                     <p-inputicon class="pi pi-bookmark" /> <!-- Better for book title -->
                                     <input pInputText id="Titre" type="text" [(ngModel)]="livre.titre" class="w-100"
-                                        name="Titre" placeholder="Ex: Le Petit Prince"required>
+                                        name="titre" placeholder="Ex: Le Petit Prince" required>
                                 </p-iconfield>
                             </span>
                         </div>
 
                         <!-- ISBN & Inventaire (side by side) -->
-                        <div class="row"> 
-                            <div class="col-md-6 mb-3">  
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
                                 <label for="isbn" class="form-label">ISBN</label>
                                 <span class="w-100">
                                     <p-iconfield>
@@ -92,8 +86,8 @@
                                 <span class="w-100">
                                     <p-iconfield>
                                         <p-inputicon class="pi pi-list" /> <!-- Inventory number -->
-                                        <input pInputText id="inventaire" [(ngModel)]="livre.inventaire" type="text" class="w-100"
-                                            name="inventaire" placeholder="Ex: INV-2023-001">
+                                        <input pInputText id="inventaire" [(ngModel)]="livre.inventaire" type="text"
+                                            class="w-100" name="inventaire" placeholder="Ex: INV-2023-001">
                                     </p-iconfield>
                                 </span>
                             </div>
@@ -105,18 +99,18 @@
                             <span class="w-100">
                                 <p-iconfield>
                                     <p-inputicon class="pi pi-calendar" /> <!-- Calendar icon for date -->
-                                    <input pInputText id="date_edition" [(ngModel)]="livre.date_edition" type="text" class="w-100"
-                                        name="date_edition" placeholder="Ex: 2023"required>
+                                    <input pInputText id="date_edition" [(ngModel)]="livre.date_edition" type="text"
+                                        class="w-100" name="date_edition" placeholder="Ex: 2023" required>
                                 </p-iconfield>
                             </span>
                         </div>
-                          
-                                                <!-- Etat Livre -->
+
+                        <!-- Etat Livre -->
                         <div class="mb-3">
                             <label for="selectEtat_Livre" class="form-label">État du Livre</label>
-                            <p-select [options]="selectEtat_Livre" [(ngModel)]="livre.etat"
-                                optionLabel="label" placeholder="Sélectionnez un état" styleClass="w-100"
-                                name="selectEtat_Livre"></p-select>
+                            <p-select [options]="selectEtat_Livre" [(ngModel)]="livre.etat" optionLabel="label"
+                                placeholder="Sélectionnez un état" styleClass="w-100"
+                                name="etat"></p-select>
                         </div>
                     </div>
                 </div>
@@ -127,8 +121,9 @@
                         <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
                             <span class="w-100">
-                                <textarea pTextarea  pInputTextarea id="description" [(ngModel)]="livre.Description" class="w-100"
-                                    name="description" rows="3" placeholder="Résumé du livre..."></textarea>
+                                <textarea pTextarea pInputTextarea id="description" [(ngModel)]="livre.Description"
+                                    class="w-100" name="description" rows="3"
+                                    placeholder="Résumé du livre..."></textarea>
                             </span>
                         </div>
                     </div>
@@ -136,11 +131,10 @@
 
                 <!-- Buttons -->
                 <div class="d-flex justify-content-between mt-4">
-                    <p-button label="Annuler" icon="pi pi-times" styleClass="p-button-secondary" [raised]="true"
-                      routerLink="/bibliothecaire/livres"  ></p-button>
-                    <p-button label="Enregistrer" icon="pi pi-check" styleClass="p-button-success" [raised]="true"
-                    type="submit"
-                        ></p-button>
+                    <button pButton type="reset" label="Annuler" icon="pi pi-times" styleClass="p-button-secondary" [raised]="true"
+                        routerLink="/bibliothecaire/livres"></button>
+                    <button pButton label="Enregistrer" icon="pi pi-check" styleClass="p-button-success" [raised]="true"
+                        type="submit" ></button>
                 </div>
             </form>
         </div>

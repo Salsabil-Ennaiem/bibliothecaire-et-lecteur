@@ -17,7 +17,10 @@ export class SanctionService {
   getAll(): Observable<SanctionDTO[]> {
     return this.http.get<SanctionDTO[]>(`${this.apiUrl}/Getall`);
   }
-  create(Sanction: CreateSanctionRequest, id :string): Observable<SanctionDTO> {
+  create(Sanction: CreateSanctionRequest, id: string): Observable<SanctionDTO> {
     return this.http.post<SanctionDTO>(`${this.apiUrl}/Create/${id}`, Sanction);
+  }
+  modifier(id: string): Observable<any> {
+   return this.http.patch(`${this.apiUrl}/modifier/${id}`,null);
   }
 }

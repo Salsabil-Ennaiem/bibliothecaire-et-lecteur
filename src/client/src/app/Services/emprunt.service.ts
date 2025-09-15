@@ -33,7 +33,7 @@ export class EmpruntService {
   }
 
   update(id: string, Emp: UpdateEmppruntDTO): Observable<EmppruntDTO> {
-    return this.http.put<EmppruntDTO>(`${this.apiUrl}/Update/${id}`, Emp);
+    return this.http.patch<EmppruntDTO>(`${this.apiUrl}/Update/${id}`, Emp);
   }
 
   delete(id: string): Observable<void> {

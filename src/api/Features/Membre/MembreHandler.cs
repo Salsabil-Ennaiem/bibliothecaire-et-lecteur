@@ -39,9 +39,9 @@ public class MembreHandler
     public async Task<IEnumerable<MembreDto>> SearchAsync(string searchTerm)
     {
         var list = await GetAllMembAsync();
+                        if(searchTerm=="") { return list;}
         var query = list.Where(m=>(m.cin_ou_passeport != null && m.cin_ou_passeport.Contains(searchTerm))
                            || (m.email != null && m.email.Contains(searchTerm))
-                           || (m.id_membre != null && m.id_membre.Contains(searchTerm))
                            || (m.nom != null && m.nom.Contains(searchTerm))
                            || (m.prenom != null && m.prenom.Contains(searchTerm)));
         return query;

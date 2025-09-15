@@ -42,13 +42,13 @@ public class LivresController : ControllerBase
     }
 
 
-    [HttpPut("Update/{id}")]
+   /* [HttpPut("Update/{id}")]
     public async Task<IActionResult> Update(string id, [FromBody] UpdateLivreDTO livre)
     {
         var updated = await _livresHandler.UpdateAsync(id , livre);
         return Ok(updated);
     }
-
+*/
     [HttpDelete("Delete/{id}")]
     public async Task<IActionResult> Delete(string id)
     {

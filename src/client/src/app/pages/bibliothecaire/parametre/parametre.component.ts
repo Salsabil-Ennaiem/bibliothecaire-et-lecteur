@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DrawerModule } from 'primeng/drawer';
@@ -7,6 +7,8 @@ import { SliderModule } from 'primeng/slider';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { TextareaModule } from 'primeng/textarea';
+import { ParametreService } from '../../../Services/parametre.service';
+import { ParametreDTO } from '../../../model/parametre.model';
 
 @Component({
   selector: 'app-parametre',
@@ -14,7 +16,7 @@ import { TextareaModule } from 'primeng/textarea';
   templateUrl: './parametre.component.html',
   styleUrl: './parametre.component.css'
 })
-export class ParametreComponent {
+export class ParametreComponent implements OnInit{
 
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
@@ -24,7 +26,15 @@ export class ParametreComponent {
     this.visibleChange.emit(false);
     this.isEditing = false;
   }
- 
+  parmtre!:ParametreDTO;
+  constructor(private paramServ:ParametreService){}
+ ngOnInit(): void {
+   this.get();
+ }
+get():void{    this.paramServ.getById().subscribe({
+      next: (data) =>this.parmtre = data,
+      error: (error) => console.error('Error fetching livres:', error)
+    });}
   isEditing = false;
   emailTemplate = `Objet : Rappel de retour de livre en retard
 

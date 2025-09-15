@@ -23,11 +23,12 @@ export class ModifierLivresComponent {
   livreId: string | any;
   selectEtat_Livre: etat_liv[] = [];
   constructor(private livreService: LivreService) { }
-
+/*
   editLivre(livreId: string, updatedLivreDTO: UpdateLivreDTO): void {
     console.log(`Edit livre ID: ${livreId}`);
     this.livreService.update(livreId, updatedLivreDTO).subscribe({
       next: (LivreDTO: LivreDTO) => { console.log('Livre updated successfully', LivreDTO); },
       error: (err) => { console.error('Error updating livre:', err); }
     });}
+    */
 }

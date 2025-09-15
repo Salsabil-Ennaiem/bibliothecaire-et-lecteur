@@ -73,6 +73,10 @@ namespace Infrastructure.Repositries
                     Id_inv = s,
                     date_retour_prevu = DateTime.UtcNow.AddDays(Convert.ToDouble(delais))
                 };
+                var liv = await _LivresRepository.GetByIdAsync(nouveauEmp.Id_inv);
+                liv.statut = Statut_liv.emprunte;
+                var entity = liv.Adapt<Livres>();
+                _dbContext.Livres.Update(entity);
                 await _dbContext.Emprunts.AddAsync(nouveauEmp);
                 await _dbContext.SaveChangesAsync();
                 return empdto.Adapt<EmppruntDTO>();
@@ -179,6 +183,10 @@ namespace Infrastructure.Repositries
                     if (updateEmpReq.Statut_emp == Statut_emp.retourne)
                     {
                         empEntity.date_effectif = DateTime.Now;
+                        var liv = await _LivresRepository.GetByIdAsync(empEntity.Id_inv);
+                        liv.statut = Statut_liv.disponible;
+                        var entity = liv.Adapt<Livres>();
+                        _dbContext.Livres.Update(entity);
                     }
                 }
 
@@ -189,13 +197,7 @@ namespace Infrastructure.Repositries
 
                 _dbContext.Entry(empEntity).State = EntityState.Modified;
 
-                var affectedRows = await _dbContext.SaveChangesAsync();
-
-                if (affectedRows == 0)
-                {
-                    throw new Exception("No changes were saved to the database.");
-                }
-
+                await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 // Return updated DTO by reloading data with joins for enriched info

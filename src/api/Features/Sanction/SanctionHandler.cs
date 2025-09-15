@@ -7,7 +7,7 @@ namespace api.Features.Sanctions;
 
 public class SanctionHandler
 {
-    private readonly Repository<Sanction> _sanctionRepository;
+    private readonly IRepository<Sanction> _sanctionRepository;
 
 
     public SanctionHandler(Repository<Sanction> sanctionRepository)
@@ -36,14 +36,27 @@ public class SanctionHandler
     }
     public async Task<IEnumerable<SanctionDTO>> SearchAsync(string searchTerm)
     {
+
         var list = await GetAllAsync();
+        if (searchTerm == "") { return list; }
         var query = list.Where(s => (s.description != null && s.description.Contains(searchTerm))
-                           || s.date_sanction.ToString().Contains(searchTerm)
-                           || s.date_sanction.ToString().Contains(searchTerm)
-                           || (s.id_membre != null && s.id_membre.Contains(searchTerm))
-                           || (s.id_emp != null && s.id_emp.Contains(searchTerm)));
+                        || (s.raison != null && s.raison.Any(r => r.ToString().Contains(searchTerm)))
+                           || (s.email != null && s.email.Contains(searchTerm)));
 
         return query;
     }
+    public async Task ModifierAsync(string id)
+    {
+        try
+        {
+            var sanction = await _sanctionRepository.GetByIdAsync(id);
+            sanction.payement = true;
+            await _sanctionRepository.UpdateAsync(sanction, id);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error retrieving Livre with ID {id}: {ex.Message}", ex);
 
+        }
+    }
 }

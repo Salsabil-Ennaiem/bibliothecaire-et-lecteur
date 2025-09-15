@@ -173,7 +173,7 @@ namespace Infrastructure.Repositories
                 throw new Exception("Error creating book and inventory: " + ex.Message, ex);
             }
         }
-        public async Task<LivreDTO> UpdateAsync(string id, UpdateLivreDTO updatelivReq)
+   /*  public async Task<LivreDTO> UpdateAsync(string id, UpdateLivreDTO updatelivReq)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
@@ -233,7 +233,7 @@ namespace Infrastructure.Repositories
                 throw new Exception($"Error updating Livre with ID {id}: {ex.Message}", ex);
             }
 
-        }
+        }*/
         public async Task DeleteAsync(string id)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();

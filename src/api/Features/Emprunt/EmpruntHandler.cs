@@ -37,7 +37,7 @@ public class EmpruntHandler
     private async Task EnvoyerNotificationAsync(string userId, string message, string when)
     {
         // Ici userId doit être identifiant SignalR ou groupe auquel l'utilisateur appartient
-        await _hubContext.Clients.User(userId).SendAsync("ReceiveNotification", message,when);
+        await _hubContext.Clients.User(userId).SendAsync("ReceiveNotification", message, when);
     }
     private async Task SendEmailAsync(string userEmail, string subject, string body)
     {
@@ -128,7 +128,7 @@ public class EmpruntHandler
     {
         return await _empruntsRepository.GetByIdAsync(id);
     }
-    public async Task<EmppruntDTO> UpdateAsync(string id,UpdateEmppruntDTO emp)
+    public async Task<EmppruntDTO> UpdateAsync(string id, UpdateEmppruntDTO emp)
     {
         return await _empruntsRepository.UpdateAsync(id, emp);
     }
@@ -136,33 +136,21 @@ public class EmpruntHandler
     {
         await _empruntsRepository.DeleteAsync(id);
     }
-    //recherche strict 
     public async Task<IEnumerable<EmppruntDTO>> SearchAsync(string searchTerm)
     {
         var list = await _empruntsRepository.GetAllEmpAsync();
+                        if(searchTerm=="") { return list;}
         var query = list.Where(e => e.date_emp.ToString().Contains(searchTerm)
-                           || (e.id_inv != null && e.id_inv.Contains(searchTerm))
-                           || e.Statut_emp.ToString().Contains(searchTerm)
-                           || (e.note != null && e.note.Contains(searchTerm))
-                           || (e.cin_ou_passeport != null && e.cin_ou_passeport.Contains(searchTerm)));
-
-
+                            || (e.cote_liv != null && e.cote_liv.Contains(searchTerm))
+                            || (e.note != null && e.note.Contains(searchTerm))
+                            || (e.nom != null && e.nom.Contains(searchTerm))
+                            || (e.prenom != null && e.prenom.Contains(searchTerm))
+                            || (e.email != null && e.email.Contains(searchTerm))
+                           // || e.Statut_emp.ToString().Contains(searchTerm)
+                            || (e.titre != null && e.titre.Contains(searchTerm))
+                            || (e.cin_ou_passeport != null && e.cin_ou_passeport.Contains(searchTerm)));
         return query;
-    }
-    // Recherche non strict
-    /* public async Task<IEnumerable<EmppruntDTO>> SearchAsync(string searchTerm)
-   { var list = await _empruntsRepository.GetAllEmpAsync();
-
-       var query = list.Where(e =>
-           e.date_emp.ToString().IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) != -1
-           || (e.id_inv != null && e.id_inv.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) != -1)
-           || e.Statut_emp.ToString().IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) != -1
-           || (e.note != null && e.note.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) != -1)
-           || (e.cin_ou_passeport != null && e.cin_ou_passeport.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) != -1)
-       );
-
-       return query;
-   } */
+    }    
     private string GetCurrentUserId()
     {
         var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);

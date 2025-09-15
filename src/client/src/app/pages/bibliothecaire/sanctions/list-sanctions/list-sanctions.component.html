@@ -1,56 +1,62 @@
 <div class="container">
-<div class="top-controls d-flex justify-content-center align-items-center mb-4 gap-3 flex-wrap">
+  <div class="top-controls d-flex justify-content-center align-items-center mb-4 gap-3 flex-wrap">
     <h1 class="m-0">Liste des Sanction</h1>
     <button pButton icon="pi pi-plus" routerLink="ajouter" [rounded]="true" [raised]="true" [text]="true">
-        <span class="d-none d-md-inline"(click)="Ajouter()" >Ajouter</span>
+      <span class="d-none d-md-inline" (click)="Ajouter()">Ajouter</span>
     </button>
     <div id="search-container" class="position-relative w-100 d-md-inline " style="max-width: 20rem;">
-        <div *ngIf="isInputVisible; else buttonTemplate">
-            <p-iconfield>
-                <p-inputicon styleClass="pi pi-search" />
-                <input type="text" pInputText placeholder="Rechercher un livre..." [(ngModel)]="searchQuery"
-                    (input)="handleSearch($event)" class="w-100" />
-            </p-iconfield>
-        </div>
-        <ng-template #buttonTemplate>
-            <button pButton icon="pi pi-search" [rounded]="true" [text]="true" (click)="toggleInput()"></button>
-        </ng-template>
-    </div>
-</div>
-<div class="row justify-content-around g-4">
-  <div class="col-12 col-sm-6" *ngFor="let m of emprunts; let i = index">
-    <div class="cardcontainer p-4 text-center position-relative" [class.flipped]="flippedIndex === i" (click)="toggleFlipoo(i)">
-      <div class="inner-card" [ngStyle]="{
-    'background-color': m.active ? '#dff0d8' : '#f2dede'
-  }">
-        <div class="frontcard">
-              <button pButton icon="pi pi-pencil" (click)="modifier(m.id_sanc)" [rounded]="true" [raised]="true" [text]="true">
-    </button>
-          <div class="front-left">
-            <div class="countdown">
-              <div class="countdown-item">
-                <span class="countdown-number">{{ days }}</span>
-                <span class="countdown-label">days</span>
-              </div>
-              <div class="countdown-item">
-                <span class="countdown-number">{{ hours }}</span>
-                <span class="countdown-label">hours</span>
-              </div>
-            </div>
-          </div>
-          <div class="front-right">
-            <p><strong>Raison: </strong>{{ Getvalue(m.raison) }}</p>
-            <p><strong>Date Emprunt :</strong> {{ m.date_emp | date: 'yyyy/MM/dd'}}</p> 
-            <p><strong>Email :</strong> {{ m.email }}</p>
-            <p><strong>Monatnt :</strong> {{ m.montant }}</p>
-            <p><strong>Payement:</strong> {{ m.payement }}</p>
-          </div>
-        </div>
-        <div class="backcard">
-          <p><strong>Description:</strong> {{ m.description }}</p>
-        </div>
+      <div *ngIf="isInputVisible; else buttonTemplate">
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input type="text" pInputText placeholder="Rechercher un livre..." [(ngModel)]="searchQuery"
+            (input)="handleSearch($event)" class="w-100" />
+        </p-iconfield>
       </div>
+      <ng-template #buttonTemplate>
+        <button pButton icon="pi pi-search" [rounded]="true" [text]="true" (click)="toggleInput()"></button>
+      </ng-template>
     </div>
   </div>
-</div>
+
+  <div class="row justify-content-around g-4">
+    <div class="col-12 col-sm-6" *ngFor="let m of Sanctions; let i = index">
+      @if (!Sanctions) {<h2 class="text-center">No Sanctions </h2>}
+      @else {
+      <div class="cardcontainer p-4 text-center position-relative" [class.flipped]="flippedIndex === i"
+        (click)="toggleFlipoo(i)">
+        <div class="inner-card" [ngStyle]="{
+    'background-color': m.active ? '#dff0d8' : '#f2dede'
+  }">
+          <div class="frontcard">
+            @if (!m.payement) { <button pButton icon="pi pi-wallet" type="submit" (click)="modifier(m.id_sanc)"
+              [rounded]="true" [raised]="true" [text]="true">
+            </button>}
+
+            <div class="front-left">
+              <div class="countdown">
+                <div class="countdown-item">
+                  <span class="countdown-number">{{ days }}</span>
+                  <span class="countdown-label">days</span>
+                </div>
+                <div class="countdown-item">
+                  <span class="countdown-number">{{ hours }}</span>
+                  <span class="countdown-label">hours</span>
+                </div>
+              </div>
+            </div>
+            <div class="front-right">
+              <p><strong>Raison: </strong>{{ Getvalue(m.raison) }}</p>
+              <p><strong>Date Emprunt :</strong> {{ m.date_emp | date: 'yyyy/MM/dd'}}</p>
+              <p><strong>Email :</strong> {{ m.email }}</p>
+              <p><strong>Monatnt :</strong> {{ m.montant }}</p>
+            </div>
+          </div>
+          <div class="backcard">
+            <p><strong>Description:</strong> {{ m.description }}</p>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
 </div>

@@ -9,24 +9,26 @@ import { InputIcon } from 'primeng/inputicon';
 import { IconField } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
+import { HttpClient } from '@angular/common/http';
 
 
 
 @Component({
   selector: 'app-ajout-livres',
-  imports: [ RouterLink,InputIcon, IconField, InputTextModule, FormsModule, ButtonModule, SelectModule , TextareaModule  ],
+  imports: [RouterLink, InputIcon,ButtonModule,IconField, InputTextModule, FormsModule, ButtonModule, SelectModule, TextareaModule],
   templateUrl: './ajout-livres.component.html',
   styleUrl: './ajout-livres.component.css'
 })
 export class AjoutLivresComponent implements OnInit {
-     livre! : CreateLivreRequest ;// Le ! indique à TypeScript qu'on garantit l'initialisation
-    selectEtat_Livre: { label: string, value: etat_liv }[] = [];
+  langues: { label: string; value: string }[] = [];
 
-  
-  constructor(private livreService: LivreService) { }
+  livre!: CreateLivreRequest;
+  selectEtat_Livre: { label: string; value: etat_liv }[] = [];
 
-ngOnInit(): void {
-  this.livre= {
+  constructor(private livreService: LivreService, private http: HttpClient) {}
+
+  ngOnInit(): void {
+    this.livre = {
       cote_liv: '',
       auteur: '',
       editeur: '',
@@ -35,21 +37,30 @@ ngOnInit(): void {
       isbn: '',
       inventaire: '',
       date_edition: '',
-      etat: etat_liv.neuf, 
-      Description: '',
-      //couverture: ''
+      etat: etat_liv.neuf,
+      Description: ''
     };
-      // Initialize the dropdown options
+this.http.get<{code: string, name: string, native: string}[]>('langues.json').subscribe(data => {
+  this.langues = data.map(lang => ({
+    label: `${lang.name} (${lang.native})`,  
+    value: lang.code                        
+  }));
+});
+
+
+
+
     this.selectEtat_Livre = [
       { label: 'Neuf', value: etat_liv.neuf },
       { label: 'Moyen', value: etat_liv.moyen },
       { label: 'Mauvais', value: etat_liv.mauvais }
     ];
   }
-  Ajouter( livre: CreateLivreRequest):void {
-      this.livreService.create(livre).subscribe({
-        next :(data) => {
-           this.livre = {
+
+  Ajouter(livre: CreateLivreRequest): void {
+    this.livreService.create(livre).subscribe({
+      next: (data) => {
+        this.livre = {
           cote_liv: '',
           auteur: '',
           editeur: '',
@@ -59,50 +70,13 @@ ngOnInit(): void {
           inventaire: '',
           date_edition: '',
           etat: etat_liv.neuf,
-          Description: '',
-         // couverture: ''
+          Description: ''
         };
-      
-          console.log('Livre added successfully',data);},
-        error:(err) => {console.error('Error added livre:', err)}
-  });
-    }
-  /*
- Ajout - Edit :Formulaire
-  @Component({
-  selector: 'app-livre-form',
-  template: `
-    <form [formGroup]="livreForm" (ngSubmit)="onSubmit()">
-      <input formControlName="titre" placeholder="Titre" required />
-      <input formControlName="auteur" placeholder="Auteur" required />
-      <button type="submit">{{ isEdit ? 'Modifier' : 'Ajouter' }}</button>
-    </form>
-  `
-})
-export class LivreFormComponent implements OnInit {
-  @Input() livreInitial: Livre | null = null; // null pour ajout, objet pour modification
-  livreForm: FormGroup;
-  isEdit = false;
-
-  constructor(private fb: FormBuilder) {}
-
-  ngOnInit() {
-    this.isEdit = !!this.livreInitial;
-    this.livreForm = this.fb.group({
-      titre: [this.livreInitial?.titre || '', Validators.required],
-      auteur: [this.livreInitial?.auteur || '', Validators.required]
+        console.log('Livre added successfully', data);
+      },
+      error: (err) => {
+        console.error('Error adding livre:', err);
+      }
     });
   }
-
-  onSubmit() {
-    if (this.livreForm.valid) {
-      if (this.isEdit) {
-        // appeler API modifier
-      } else {
-        // appeler API ajouter
-      }
-    }
-  }
-}
-*/
 }

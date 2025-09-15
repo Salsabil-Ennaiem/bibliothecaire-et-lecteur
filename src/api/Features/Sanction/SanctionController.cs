@@ -35,5 +35,9 @@ public class SanctionController : ControllerBase
         var createdSanc = await _sanctionHandler.CreateAsync(createSanction , id);
         return Ok(createdSanc);
     }
-    
+        [HttpPatch("modifier/{id}")]
+    public async Task Modifier( string id)
+    {
+         await _sanctionHandler.ModifierAsync(id);
+    }
 }

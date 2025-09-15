@@ -17,22 +17,22 @@ import { SpeedDialModule } from 'primeng/speeddial';
 
 @Component({
   selector: 'app-list-sanctions',
-  imports: [ InputIconModule , IconFieldModule, InputTextModule,SpeedDialModule,RouterLink,
+  imports: [InputIconModule, IconFieldModule, InputTextModule, SpeedDialModule, RouterLink,
     ButtonModule, CardModule, SelectModule, CommonModule, FormsModule],
-      templateUrl: './list-sanctions.component.html',
+  templateUrl: './list-sanctions.component.html',
   styleUrl: './list-sanctions.component.css'
 })
 export class ListSanctionsComponent implements OnInit {
 
-    ngOnInit() {
-this.loadEmprunts();
+  ngOnInit() {
+    this.loadSanction();
   }
   constructor(private EmpService: SanctionService, private router: Router) { }
-  emprunts: SanctionDTO[] = [];
+  Sanctions: SanctionDTO[] = [];
 
-  loadEmprunts(): void {
+  loadSanction(): void {
     this.EmpService.getAll().subscribe({
-      next: (data) => this.emprunts = data,
+      next: (data) => this.Sanctions = data,
       error: (err) => console.error('Erreur chargement Emp', err)
     });
   }
@@ -41,8 +41,8 @@ this.loadEmprunts();
   hours = 0;
 
   //Recherche 
-      searchQuery = '';
-     isInputVisible = false;
+  searchQuery = '';
+  isInputVisible = false;
   @HostListener('document:click', ['$event'])
   @HostListener('window:scroll', [])
   handleOutsideEvents(event?: MouseEvent | KeyboardEvent) {
@@ -52,9 +52,9 @@ this.loadEmprunts();
         this.isInputVisible = false;
         this.searchQuery = '';
       }
-    }  else {
+    } else {
       this.isInputVisible = false;
-              this.searchQuery = '';
+      this.searchQuery = '';
 
     }
   }
@@ -65,7 +65,7 @@ this.loadEmprunts();
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery = value;
     this.EmpService.search(this.searchQuery).subscribe({
-      next: (data) => { this.emprunts = data },
+      next: (data) => { this.Sanctions = data },
       error: (err) => { console.error('Error searching livres:', err) }
     }
     );
@@ -76,30 +76,37 @@ this.loadEmprunts();
   }
 
 
-public Getvalue(value: number[]): string[] {
-  return value.map(element => Raison_sanction[element]);
-}
-
-flippedIndex: number | null = null;
-
-toggleFlipoo(index: number) {
-  if (this.flippedIndex === index) {
-    this.flippedIndex = null; // unflip if clicking already flipped card
-  } else {
-    this.flippedIndex = index; // flip new card, reset others
+  public Getvalue(value: number[]): string[] {
+    return value.map(element => Raison_sanction[element]);
   }
-}
 
-    modifier(id: string) {
-    console.log(`Navigating to edit Sanctions ID: ${id}`);
-    this.router.navigate([`/bibliothecaire/sanctions/modifier/${id}`]);
+  flippedIndex: number | null = null;
+
+  toggleFlipoo(index: number) {
+    if (this.flippedIndex === index) {
+      this.flippedIndex = null; // unflip if clicking already flipped card
+    } else {
+      this.flippedIndex = index; // flip new card, reset others
+    }
   }
-      Ajouter() {
+
+  modifier(id: string): void {
+    this.EmpService.modifier(id).subscribe({
+      next: (data: any) => {
+        this.Sanctions = data.p;
+    this.loadSanction();
+
+      },
+      error: (err: any) => console.error('Erreur chargement Emp', err)
+    });
+  }
+
+  Ajouter() {
     console.log(`Navigating to ajouter Emprunts`);
     this.router.navigate([`/bibliothecaire/sanctions/ajouter`]);
   }
 
- 
+
 
 
 

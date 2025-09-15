@@ -10,6 +10,8 @@
   <p-carousel [value]="nouveautes || []" [numVisible]="3" [numScroll]="1" [circular]="true" [autoplayInterval]="0"
     [showNavigators]="true" [showIndicators]="true" [responsiveOptions]="responsiveOptions">
       <ng-template let-nouv pTemplate="item">
+              @if (!nouveautes) {<h2 class="text-center">No Nouveaute </h2>}
+      @else {
         <div class="pub-card" style="position: relative; cursor: pointer;" (click)="showDetails(nouv.id_nouv)">
           <span class="badge" [ngClass]="{'bg-success': isNewPublication(nouv?.date_publication) }"> Nouveau</span>
 
@@ -26,7 +28,7 @@
           </footer>
 
 
-        </div>
+        </div>}
       </ng-template>
   </p-carousel>
 </div>

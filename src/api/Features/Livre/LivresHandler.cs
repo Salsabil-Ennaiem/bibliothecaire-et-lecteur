@@ -17,6 +17,7 @@ public class LivresHandler
         try
         {
             var list = await _livresRepository.GetAllLivresAsync();
+                            if(searchTerm=="") { return list;}
             var query = list.Where(l =>
               (l.titre != null && l.titre.Contains(searchTerm)) ||
               (l.auteur != null && l.auteur.Contains(searchTerm)) ||
@@ -50,11 +51,11 @@ public class LivresHandler
     
         return createdLivre.Adapt<LivreDTO>();
     }
-    public async Task<LivreDTO> UpdateAsync(string id , UpdateLivreDTO UpdateLivreDTO)
+   /* public async Task<LivreDTO> UpdateAsync(string id , UpdateLivreDTO UpdateLivreDTO)
     {
         var update = await _livresRepository.UpdateAsync(id , UpdateLivreDTO);
         return update.Adapt<LivreDTO>();
-    }
+    }*/
     public async Task DeleteAsync(string id)
     {
         await _livresRepository.DeleteAsync(id);

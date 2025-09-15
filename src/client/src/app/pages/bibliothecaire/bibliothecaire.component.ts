@@ -5,11 +5,12 @@ import { ButtonModule } from 'primeng/button';
 import { ParametreComponent } from './parametre/parametre.component';
 import { ProfilComponent } from './profil/profil.component';
 import { NotificationComponent } from './notification/notification.component';
+import { DrawerModule } from 'primeng/drawer';
 
 
 @Component({
   selector: 'app-bibliothecaire',
-  imports: [RouterOutlet, ButtonModule, CommonModule,RouterLink , ParametreComponent , ProfilComponent , NotificationComponent] ,
+  imports: [RouterOutlet,DrawerModule,ButtonModule, CommonModule,RouterLink , ParametreComponent , ProfilComponent , NotificationComponent] ,
   templateUrl: './bibliothecaire.component.html',
   styleUrl: './bibliothecaire.component.css'
 })
@@ -21,8 +22,14 @@ export class BibliothecaireComponent {
     this.notificationComponent.open(event);
   }
 
-    
-  
+    drawerVisible = false;
+  sidebarVisible = false;
+   @HostListener('window:scroll', ['$event'])
+  onWindowScroll() {
+    if (this.drawerVisible) {
+      this.drawerVisible = false;
+    }
+  }
   showParametre = false;
   showParametres() {
     this.showParametre= true;
