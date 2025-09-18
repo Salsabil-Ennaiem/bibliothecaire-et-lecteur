@@ -24,14 +24,18 @@
     <!-- Right side -->
     <div class="position-absolute  end-0 ">
       <button pButton icon="pi pi-cog" class="w-full p-button-text " (click)="showParametres()"></button>
-      <button pButton icon="pi pi-bell" rounded="true" class="p-button-text" (click)="onBellClick($event)"></button>
+<button pButton icon="pi pi-bell" rounded="true" class="p-button-text" (click)="onBellClick($event)">
+  <span *ngIf="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
+</button>
+
+
       <button pButton icon="pi pi-sign-out" severity="danger" class="p-button-text"
         [ngClass]="{'p-button-sm': isSticky}" routerLink="/"></button>
     </div>
   </div>
 </header>
 
-<app-notification></app-notification>
+<app-notification  #notificationComp (unreadCountChange)="onUnreadCountChange($event)"></app-notification>
 <app-parametre [(visible)]="showParametre"></app-parametre>
 <app-profil [(visible)]="showProfil"></app-profil>
 

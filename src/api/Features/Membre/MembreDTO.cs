@@ -21,5 +21,4 @@ public class UpdateMembreDto
     public string? prenom { get; set; }
     public required string email { get; set; }
     public string? telephone { get; set; }
-    public required string cin_ou_passeport { get; set; }
 }

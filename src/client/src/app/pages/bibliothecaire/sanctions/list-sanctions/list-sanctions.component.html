@@ -34,14 +34,7 @@
 
             <div class="front-left">
               <div class="countdown">
-                <div class="countdown-item">
-                  <span class="countdown-number">{{ days }}</span>
-                  <span class="countdown-label">days</span>
-                </div>
-                <div class="countdown-item">
-                  <span class="countdown-number">{{ hours }}</span>
-                  <span class="countdown-label">hours</span>
-                </div>
+                {{ getTimeDisplay(m) }}
               </div>
             </div>
             <div class="front-right">

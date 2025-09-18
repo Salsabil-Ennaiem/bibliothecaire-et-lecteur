@@ -53,71 +53,70 @@ public class EmpruntHandler
         await client.SendAsync(emailMessage);
         await client.DisconnectAsync(true);
     }
-    public async Task GererAlertesEtNotificationsAsync()
+public async Task GererAlertesEtNotificationsAsync()
+{
+    var allemprunts = await _empruntsRepository.GetAllEmpAsync();
+    var emprunts = allemprunts.Where(e => e.Statut_emp == Statut_emp.en_cours);
+    var dateNow = DateTime.UtcNow.Date;
+    var param = await _parametreRepository.GetParam();
+
+    foreach (var emp in emprunts)
     {
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            var allemprunts = await _empruntsRepository.GetAllEmpAsync();
-            var emprunts = allemprunts.Where(e => e.Statut_emp == Statut_emp.en_cours);
-            var dateNow = DateTime.UtcNow.Date;
-            var param = await _parametreRepository.GetParam();
+            var emailBody = param.Modele_Email_Retard ??
+                $"URGENT : {emp.prenom} {emp.nom} Votre Emprunts avec ID {emp.id_emp} est passé la date prévue : {emp.date_retour_prevu:d}. Donc votre livre {emp.titre} est en retard, merci de le retourner rapidement.";
 
+            emailBody = emailBody.Replace("Id Emprunt", emp.id_emp.ToString(), StringComparison.OrdinalIgnoreCase)
+                                 .Replace("Date Emprunt", emp.date_emp.ToString("d"), StringComparison.OrdinalIgnoreCase)
+                                 .Replace("Titre", emp.titre, StringComparison.OrdinalIgnoreCase)
+                                 .Replace("nom", emp.nom, StringComparison.OrdinalIgnoreCase)
+                                 .Replace("prenom", emp.prenom, StringComparison.OrdinalIgnoreCase)
+                                 .Replace("Date", emp.date_retour_prevu.ToString("d"), StringComparison.OrdinalIgnoreCase);
 
-            foreach (var emp in emprunts)
+            string messageNotif = $"{emp.prenom} {emp.nom} qui est {emp.cin_ou_passeport} emprunte Livre '{emp.titre}' doit le rendre.";
+            var datePrevu = emp.date_retour_prevu;
+
+            if (datePrevu == dateNow.AddDays(1))
             {
-                var emailBody = param.Modele_Email_Retard ??
-                    $"URGENT : {emp.prenom} {emp.nom} Votre Emprunts avec ID {emp.id_emp} est passé la date prévue : {emp.date_retour_prevu:d}. Donc votre livre {emp.titre} est en retard, merci de le retourner rapidement.";
-
-                emailBody = Regex.Replace(emailBody, @"Id\s*Emprunt", emp.id_emp, RegexOptions.IgnoreCase);
-                emailBody = Regex.Replace(emailBody, @"Date\s*Emprunt", emp.date_emp.ToString("d"), RegexOptions.IgnoreCase);
-                emailBody = Regex.Replace(emailBody, @"Titre", emp.titre, RegexOptions.IgnoreCase);
-                emailBody = Regex.Replace(emailBody, @"nom", emp.nom, RegexOptions.IgnoreCase);
-                emailBody = Regex.Replace(emailBody, @"prenom", emp.prenom, RegexOptions.IgnoreCase);
-                emailBody = Regex.Replace(emailBody, @"Date", emp.date_retour_prevu.ToString("d"), RegexOptions.IgnoreCase);
-
-                string messageNotif = $"{emp.prenom} {emp.nom} qui est {emp.cin_ou_passeport} emprnte Livre '{emp.titre}' doit le rendre .";
-                var datePrevu = emp.date_retour_prevu;
-
-                if (datePrevu == dateNow.AddDays(1))
-                {
-                    // Notification simple (badge)
-                    await EnvoyerNotificationAsync(emp.id_emp, messageNotif, "demain");
-                }
-                else if (datePrevu == dateNow)
-                {
-                    // Notification + Email
-                    await EnvoyerNotificationAsync(emp.id_emp, messageNotif, "aujourd'hui");
-                    await SendEmailAsync(emp.email, "Retour de livre Aujourd'hui", emailBody);
-
-                }
-
-                else if (datePrevu < dateNow.AddDays(7))
-                {
-                    //Email
-                    await SendEmailAsync(emp.email, "Retour de livre en retard", emailBody);
-                }
-                else if (datePrevu < dateNow.AddYears(1))
-                {
-                    // Blocage + état perdu
-                    emp.Statut = StatutMemb.block;
-                    emp.Statut_emp = Statut_emp.perdu;
-                    var Inventaires = await _dbContext.Inventaires.FirstOrDefaultAsync(l => l.id_inv == emp.id_inv);
-                    Inventaires.statut = Statut_liv.perdu;
-                    await _dbContext.SaveChangesAsync();
-                }
-                await transaction.CommitAsync();
+                await EnvoyerNotificationAsync(emp.id_emp, messageNotif, "demain");
             }
+            else if (datePrevu == dateNow)
+            {
+                await EnvoyerNotificationAsync(emp.id_emp, messageNotif, "aujourd'hui");
+                // Separate email sending from transaction
+                await SendEmailAsync(emp.email, "Retour de livre Aujourd'hui", emailBody);
+            }
+            else if (datePrevu < dateNow)
+            {
+                await SendEmailAsync(emp.email, "Retour de livre en retard", emailBody);
+            }
+            else if (datePrevu < dateNow.AddYears(1))
+            {
+                emp.Statut = StatutMemb.block;
+                emp.Statut_emp = Statut_emp.perdu;
+                var inventaire = await _dbContext.Inventaires.FirstOrDefaultAsync(l => l.id_inv == emp.id_inv);
+                if (inventaire != null)
+                {
+                    inventaire.statut = Statut_liv.perdu;
+                }
+            }
+
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
+            // Log exception as needed but avoid swallowing it
             throw new Exception("Error notification: " + ex.Message, ex);
         }
     }
-    public async Task<EmppruntDTO> CreateAsync(CreateEmpRequest empdto)
+}
+   public async Task<EmppruntDTO> CreateAsync(string id, CreateEmpRequest empdto)
     {
-        return await _empruntsRepository.CreateAsync(empdto);
+        return await _empruntsRepository.CreateAsync(id, empdto);
 
     }
     public async Task<IEnumerable<EmppruntDTO>> GetAllAsync()
@@ -139,18 +138,18 @@ public class EmpruntHandler
     public async Task<IEnumerable<EmppruntDTO>> SearchAsync(string searchTerm)
     {
         var list = await _empruntsRepository.GetAllEmpAsync();
-                        if(searchTerm=="") { return list;}
-        var query = list.Where(e => e.date_emp.ToString().Contains(searchTerm)
+        if (searchTerm == "") { return list; }
+        var query = list.Where(e => (e.id_membre == searchTerm)
                             || (e.cote_liv != null && e.cote_liv.Contains(searchTerm))
                             || (e.note != null && e.note.Contains(searchTerm))
                             || (e.nom != null && e.nom.Contains(searchTerm))
                             || (e.prenom != null && e.prenom.Contains(searchTerm))
                             || (e.email != null && e.email.Contains(searchTerm))
-                           // || e.Statut_emp.ToString().Contains(searchTerm)
+                            || e.date_emp.ToString().Contains(searchTerm)
                             || (e.titre != null && e.titre.Contains(searchTerm))
                             || (e.cin_ou_passeport != null && e.cin_ou_passeport.Contains(searchTerm)));
         return query;
-    }    
+    }
     private string GetCurrentUserId()
     {
         var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);

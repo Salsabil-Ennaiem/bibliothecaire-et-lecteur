@@ -56,7 +56,7 @@ namespace Infrastructure.Repositries
                 {
                     var paramEntity = entity.Adapt<Parametre>();
                     paramEntity.id_param = Guid.NewGuid().ToString();
-                    paramEntity.date_modification = DateTime.Now;
+                    paramEntity.date_modification = DateTime.UtcNow;
                     if (paramEntity.Delais_Emprunt_Autre == null)
                     {
                         paramEntity.Delais_Emprunt_Autre = existingParam.Delais_Emprunt_Autre;

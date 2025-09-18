@@ -67,7 +67,7 @@
                                 {{ Getstautvalue(livre.statut)}}
                             </span>
                         </div>
-                        <p-speeddial *ngIf="!isHosted" class="speed-dial" [model]="getSpeedDialItems(livre.id_inv)"
+                        <p-speeddial *ngIf="!isHosted" class="speed-dial" [model]="getSpeedDialItems(livre.id_inv, livre.statut)"
                             direction="down" showIcon="pi pi-ellipsis-v" (click)="$event.stopPropagation()" />
                     </div>
                 </div>}

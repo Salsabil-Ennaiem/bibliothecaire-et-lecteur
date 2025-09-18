@@ -1,96 +1,61 @@
-<p-drawer header="Parametre" [(visible)]="visible" position="right" [dismissible]="true">
-  <!--<p-drawer header="Parametre" [(visible)]="visible" position="right" (onHide)="onDrawerHide()">-->
-  <ng-template pTemplate="header">
+<p-drawer header="Parametre" [(visible)]="visible" position="right" [dismissible]="true" (onHide)="onDrawerHide()">
+
+  <div class="header">
     <div class="flex align-items-center gap-2">
       <i class="pi pi-cog pi-spin"></i>
-    </div>
-  </ng-template>
-
-  <div class="p-4 d-flex flex-column gap-4">
-    <div class="field">
-      <label class="block mb-2 font-medium">Modèle d'email retard</label>
-      @if (!isEditing) {
-      <div class="view-mode p-3 ">
-        <textarea pTextarea disabled="true" [(ngModel)]="emailTemplate" rows="9" class="m-0"> </textarea>
-      </div>
-      }
-      @else {
-      <textarea pTextarea [(ngModel)]="editableTemplate" rows="10" class="w-full">
-        </textarea>
-      }
-    </div>
-
-
-
-
-    <div class="field">
-      <label class="block mb-2 font-medium">Délai d'emprunt professeur (jours)</label>
-      @if (!isEditing) {
-      <div class="flex align-items-center gap-3">
-        <p-slider [(ngModel)]="delai_emp_prof" disabled="true" [min]="1" [max]="30" [step]="1" styleClass="w-full">
-        </p-slider>
-        <span class="p-tag p-tag-primary">{{ editableDelai_emp_prof }}</span>
-      </div>
-      } @else {
-      <div class="flex align-items-center gap-3">
-        <p-slider [(ngModel)]="editableDelai_emp_prof" [min]="1" [max]="30" [step]="1" styleClass="w-full">
-        </p-slider>
-        <span class="p-tag p-tag-primary">{{ editableDelai_emp_prof }}</span>
-      </div>
-      }
-    </div>
-
-
-    <div class="field">
-      <label class="block mb-2 font-medium">Délai d'emprunt étudiant (jours)</label>
-      @if (!isEditing) {
-      <div class="flex align-items-center gap-3">
-        <p-slider [(ngModel)]="delai_emp_etu" disabled="true" [min]="1" [max]="30" [step]="1" styleClass="w-full">
-        </p-slider>
-        <span class="p-tag p-tag-primary">{{ editableDelai_emp_etu }}</span>
-      </div>
-
-      }
-      @else {
-      <div class="flex align-items-center gap-3">
-        <p-slider [(ngModel)]="editableDelai_emp_etu" [min]="1" [max]="30" [step]="1" styleClass="w-full">
-        </p-slider>
-        <span class="p-tag p-tag-primary">{{ editableDelai_emp_etu }}</span>
-      </div>
-      }
+      <span>Paramètres</span>
     </div>
   </div>
 
-  <div class="field">
-    <label class="block mb-2 font-medium">Délai d'emprunt autre type de Membre (jours)</label>
-    @if (!isEditing) {
-    <div class="flex align-items-center gap-3">
-      <p-slider [(ngModel)]="delai_emp_autre" disabled="true" [min]="1" [max]="30" [step]="1" styleClass="w-full">
-      </p-slider>
-      <span class="p-tag p-tag-primary">{{ editableDelai_emp_autre }}</span>
-    </div>
-    } @else {
-    <div class="flex align-items-center gap-3">
-      <p-slider [(ngModel)]="editableDelai_emp_autre" [min]="1" [max]="30" [step]="1" styleClass="w-full">
-      </p-slider>
-      <span class="p-tag p-tag-primary">{{ editableDelai_emp_autre }}</span>
-    </div>
-    }
-  </div>
+  <form #formEmprunt="ngForm" (ngSubmit)="modifier()" autocomplete="off" novalidate>
+    <div class="p-4 d-flex flex-column gap-4">
 
-  <ng-template pTemplate="footer">
-    <div class="d-flex justify-content-between">
-      @if (!isEditing) {
-      <button pButton label="Modifier" icon="pi pi-pencil" (click)="startEditing()">
-      </button>
-      } @else {
-      <div class="d-flex gap-2">
-        <button pButton label="Annuler" severity="secondary" (click)="cancelEditing()">
-        </button>
-        <button pButton label="Enregistrer" (click)="saveChanges()">
-        </button>
+      <div class="field">
+        <label class="block mb-2 font-medium">Modèle d'email retard</label>
+
+        <textarea *ngIf="!isEditing" pTextarea disabled [(ngModel)]="parmtre.modele_Email_Retard" name="modeleEmailRetardView" rows="9" class="m-0"></textarea>
+        <textarea *ngIf="isEditing" pTextarea [(ngModel)]="uparam.modele_Email_Retard" name="modeleEmailRetardEdit" rows="10" class="w-full"></textarea>
       </div>
-      }
+
+      <div class="field">
+        <label class="block mb-2 font-medium">Délai d'emprunt professeur (jours)</label>
+        <div class="flex align-items-center gap-3">
+          <p-slider *ngIf="!isEditing" [(ngModel)]="parmtre.delais_Emprunt_Enseignant" name="delais_Emprunt_EnseignantV"  disabled [min]="1" [max]="30" [step]="1" styleClass="w-full"></p-slider>
+          <p-slider *ngIf="isEditing" [(ngModel)]="uparam.delais_Emprunt_Enseignant" name="delais_Emprunt_EnseignantE" [min]="1" [max]="30" [step]="1" styleClass="w-full"></p-slider>
+          <span class="p-tag p-tag-primary">{{ isEditing ? uparam.delais_Emprunt_Enseignant : parmtre.delais_Emprunt_Enseignant }}</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="block mb-2 font-medium">Délai d'emprunt étudiant (jours)</label>
+        <div class="flex align-items-center gap-3">
+          <p-slider *ngIf="!isEditing" [(ngModel)]="parmtre.delais_Emprunt_Etudiant"name="delais_Emprunt_EtudiantE"  disabled [min]="1" [max]="30" [step]="1" styleClass="w-full"></p-slider>
+          <p-slider *ngIf="isEditing" [(ngModel)]="uparam.delais_Emprunt_Etudiant" name="delais_Emprunt_EtudiantE"  [min]="1" [max]="30" [step]="1" styleClass="w-full"></p-slider>
+          <span class="p-tag p-tag-primary">{{ isEditing ? uparam.delais_Emprunt_Etudiant : parmtre.delais_Emprunt_Etudiant }}</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="block mb-2 font-medium">Délai d'emprunt autre type de Membre (jours)</label>
+        <div class="flex align-items-center gap-3">
+          <p-slider *ngIf="!isEditing" [(ngModel)]="parmtre.delais_Emprunt_Autre" name="delais_Emprunt_AutreV"  disabled [min]="1" [max]="30" [step]="1" styleClass="w-full"></p-slider>
+          <p-slider *ngIf="isEditing" [(ngModel)]="uparam.delais_Emprunt_Autre" name="delais_Emprunt_AutreE" [min]="1" [max]="30" [step]="1" styleClass="w-full"></p-slider>
+          <span class="p-tag p-tag-primary">{{ isEditing ? uparam.delais_Emprunt_Autre : parmtre.delais_Emprunt_Autre }}</span>
+        </div>
+      </div>
+
     </div>
-  </ng-template>
+
+<div class="footer">
+  <div class="d-flex justify-content-between">
+    <button *ngIf="!isEditing" pButton label="Modifier" icon="pi pi-pencil" type="button" (click)="startEditing()"></button>
+
+    <div *ngIf="isEditing" class="d-flex gap-2">
+      <button pButton label="Annuler" severity="secondary" type="button" (click)="cancelEditing()" ></button>
+      <button pButton label="Enregistrer" type="submit"></button>
+    </div>
+  </div>
+</div>
+
+  </form>
 </p-drawer>

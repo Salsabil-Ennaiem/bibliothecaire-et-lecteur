@@ -1,1 +1,16 @@
+    <div class="theme-toggle-container">
+  <div pRipple class="theme-toggle d-flex align-items-center justify-content-between px-2"
+    (click)="toggleTheme()">
+    <span class="theme-icon" [ngClass]="{'active': !isDarkMode}">
+      <i class="pi pi-sun"></i>
+    </span>
+    <span class="theme-icon" [ngClass]="{'active': isDarkMode}">
+      <i class="pi pi-moon"></i>
+    </span>
+    <span class="slider" [ngClass]="{'dark': isDarkMode}"></span>
+  </div>
+</div>
 <router-outlet></router-outlet>
+    <p-toast></p-toast>
+
+

@@ -69,7 +69,7 @@ export const routes: Routes = [
         path: 'emprunts', component: EmpruntsComponent,
         children: [
           { path: '', component: ListeEmpruntsComponent },
-          { path: 'ajouter', component: AjoutEmpruntsComponent },
+          { path: 'ajouter/:id', component: AjoutEmpruntsComponent },
           { path: 'modifier/:id', component: ModifierEmpruntsComponent },
         ]
       },

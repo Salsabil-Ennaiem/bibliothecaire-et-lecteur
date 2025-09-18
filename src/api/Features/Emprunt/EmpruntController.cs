@@ -19,10 +19,10 @@ public class EmpruntController : ControllerBase
         var livres = await _empruntHundler.GetAllAsync();
         return Ok(livres);
     }
-    [HttpPost("Create")]
-    public async Task<IActionResult> Create([FromBody] CreateEmpRequest emp)
+    [HttpPost("Create/{id}")]
+    public async Task<IActionResult> Create([FromBody] CreateEmpRequest emp , string id)
     {
-        var createdLivre = await _empruntHundler.CreateAsync(emp);
+        var createdLivre = await _empruntHundler.CreateAsync(id , emp);
         return Ok(createdLivre);
     }
     [HttpGet("Get/{id}")]

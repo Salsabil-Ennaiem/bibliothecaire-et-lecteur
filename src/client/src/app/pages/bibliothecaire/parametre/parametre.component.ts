@@ -7,84 +7,94 @@ import { SliderModule } from 'primeng/slider';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { TextareaModule } from 'primeng/textarea';
+import { MessageService } from 'primeng/api';
+
 import { ParametreService } from '../../../Services/parametre.service';
-import { ParametreDTO } from '../../../model/parametre.model';
+import { ParametreDTO, UpdateParametreDTO } from '../../../model/parametre.model';
 
 @Component({
   selector: 'app-parametre',
-  imports: [  TextareaModule , InputTextModule, SliderModule, TagModule ,DrawerModule , FormsModule ,CommonModule  , SliderModule, ButtonModule],
+  standalone: true,
+  imports: [
+    TextareaModule,
+    InputTextModule,
+    SliderModule,
+    TagModule,
+    DrawerModule,
+    FormsModule,
+    CommonModule,
+    ButtonModule,
+  ],
   templateUrl: './parametre.component.html',
-  styleUrl: './parametre.component.css'
+  styleUrls: ['./parametre.component.css']
 })
-export class ParametreComponent implements OnInit{
+export class ParametreComponent implements OnInit {
 
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
-  
-  onDrawerHide() {
+
+  isEditing = false;
+
+  parmtre: ParametreDTO = {
+    delais_Emprunt_Autre: 0,
+    delais_Emprunt_Enseignant: 0,
+    delais_Emprunt_Etudiant: 0,
+    modele_Email_Retard: ''
+  };
+
+  uparam: UpdateParametreDTO = {
+    delais_Emprunt_Autre: 0,
+    delais_Emprunt_Enseignant: 0,
+    delais_Emprunt_Etudiant: 0,
+    modele_Email_Retard: ''
+  };
+
+  constructor(private paramServ: ParametreService, private messageService: MessageService) { }
+
+  ngOnInit(): void {
+    this.get();
+  }
+
+  get(): void {
+    this.paramServ.getById().subscribe({
+      next: (data) => {
+        this.parmtre = data;
+        this.uparam = { ...data }; // copy after fetch to avoid stale/empty values
+      },
+      error: (error) => console.error('Error fetching Parametre:', error)
+    });
+
+  }
+
+  modifier(): void {
+    if (this.isEditing) {
+      this.paramServ.modifier(this.uparam).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Paramètre modifié' });
+          this.parmtre = { ...this.uparam };
+          this.isEditing = false;
+        },
+        error: err => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la modification : ' + err.message })
+      });
+    } else {
+      this.messageService.add({ severity: 'warn', summary: 'Attention', detail: 'Veuillez passer en mode édition pour modifier.' });
+    }
+  }
+
+  startEditing(): void {
+    this.isEditing = true;
+    this.uparam = { ...this.parmtre }; // reset editing copy
+  }
+
+  cancelEditing(): void {
+    this.isEditing = false;
+        this.uparam = { ...this.parmtre }; // reset editing copy
+
+  }
+
+  onDrawerHide(): void {
     this.visible = false;
     this.visibleChange.emit(false);
-    this.isEditing = false;
-  }
-  parmtre!:ParametreDTO;
-  constructor(private paramServ:ParametreService){}
- ngOnInit(): void {
-   this.get();
- }
-get():void{    this.paramServ.getById().subscribe({
-      next: (data) =>this.parmtre = data,
-      error: (error) => console.error('Error fetching livres:', error)
-    });}
-  isEditing = false;
-  emailTemplate = `Objet : Rappel de retour de livre en retard
-
-Bonjour [Nom du Membre],
-
-Nous vous rappelons que vous avez dépassé la date limite de retour pour le livre suivant :
-
-Titre du livre : [Titre du Livre]
-Date de retour prévue : [Date de Retour]
-
-Nous vous serions reconnaissants de bien vouloir rapporter ce livre dans les plus brefs délais afin d’éviter toute pénalité supplémentaire.
-
-
-Merci de votre compréhension.
-
-Cordialement`;
-  editableTemplate = '';
-  delai_emp_prof=3;
-  editableDelai_emp_prof=3;
-  delai_emp_etu= 10;
-  editableDelai_emp_etu= 10;
-   delai_emp_autre= 10;
-  editableDelai_emp_autre= 10;
-
-
-
-  onSlideEnd(event: any) {
-    this.delai_emp_prof = this.editableDelai_emp_prof;
-    this.delai_emp_etu = this.editableDelai_emp_etu;
-    this.delai_emp_autre = this.editableDelai_emp_autre;
-  }
-
-
-  startEditing() {
-    this.editableTemplate = this.emailTemplate;
-    this.editableDelai_emp_prof = this.delai_emp_prof;
-    this.editableDelai_emp_etu = this.delai_emp_etu;
-    this.editableDelai_emp_autre = this.delai_emp_autre;
-    this.isEditing = true;
-  }
-
-  cancelEditing() {
-    this.isEditing = false;
-  }
-
-  saveChanges() {
-    this.emailTemplate = this.editableTemplate;
-    this.delai_emp_prof = this.editableDelai_emp_prof;
-    this.delai_emp_etu = this.editableDelai_emp_etu;
-    this.delai_emp_autre = this.editableDelai_emp_autre;
-    this.isEditing = false;
+    this.cancelEditing();
   }
 }

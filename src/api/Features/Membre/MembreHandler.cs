@@ -1,4 +1,6 @@
+using api.Features.Emprunt;
 using domain.Entity;
+using domain.Entity.Enum;
 using domain.Interfaces;
 using Mapster;
 
@@ -7,6 +9,7 @@ namespace api.Features.Membres;
 public class MembreHandler
 {
     private readonly IRepository<Membre> _MembreRepository;
+    private readonly EmpruntHandler _EmpruntHandler;
     public MembreHandler(IRepository<Membre> MembreRepository)
     {
         _MembreRepository = MembreRepository;
@@ -34,13 +37,20 @@ public class MembreHandler
     }
     public async Task DeleteAsync(string id)
     {
-        await _MembreRepository.DeleteAsync(id);
+        var memb = await _MembreRepository.GetByIdAsync(id);
+        var emp = await _EmpruntHandler.SearchAsync(id);
+        var statut = emp.First().Statut_emp;
+        bool estEnCours = statut == Statut_emp.en_cours;
+        if (memb.Statut == StatutMemb.actif && !estEnCours)
+        { await _MembreRepository.DeleteAsync(id); }
+        else throw new Exception("seulment mebre non des emprunt en cours  et sont active  ");
+
     }
     public async Task<IEnumerable<MembreDto>> SearchAsync(string searchTerm)
     {
         var list = await GetAllMembAsync();
-                        if(searchTerm=="") { return list;}
-        var query = list.Where(m=>(m.cin_ou_passeport != null && m.cin_ou_passeport.Contains(searchTerm))
+        if (searchTerm == "") { return list; }
+        var query = list.Where(m => (m.cin_ou_passeport != null && m.cin_ou_passeport == searchTerm)
                            || (m.email != null && m.email.Contains(searchTerm))
                            || (m.nom != null && m.nom.Contains(searchTerm))
                            || (m.prenom != null && m.prenom.Contains(searchTerm)));

@@ -8,6 +8,7 @@ public class EmppruntDTO
     public string editeur { get; set; }
     public string cote_liv { get; set; }
     public string id_inv { get; set; }
+    public string id_membre { get; set; }
     public string date_edition { get; set; }
     public string titre { get; set; }
     public DateTime date_emp { get; set; }
@@ -32,7 +33,6 @@ public class UpdateEmppruntDTO
 public class CreateEmpRequest
 {
     public string? note { get; set; }
-    public string cote_liv { get; set; }
     public TypeMemb TypeMembre { get; set; }
     public string? nom { get; set; }
     public string? prenom { get; set; }

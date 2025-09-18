@@ -4,9 +4,6 @@
   <!--  <p-select [options]="s" [(ngModel)]="selectedFilter" optionLabel="label" optionValue="value"
                 placeholder="Filtrer par statut" styleClass="w-auto" (onChange)="applyFilter()">
       </p-select> -->
-  <button pButton icon="pi pi-plus" routerLink="ajouter" [rounded]="true" [raised]="true" [text]="true">
-    <span class="d-none d-md-inline" (click)="Ajouter()">Ajouter</span>
-  </button>
  <!-- <button pButton icon="pi pi-upload" (click)="importer()" [rounded]="true" [text]="true">
     <span class="d-none d-md-inline">Importer</span>
     <input #fileInput type="file" accept=".xlsx,.xls" (change)="handleFileUpload($event)" style="display: none;" />
@@ -43,15 +40,9 @@
             </div>
             <div class="front-left">
               <div class="countdown">
-                <div class="countdown-item">
-                  <span class="countdown-number">{{ days }}</span>
-                  <span class="countdown-label">days</span>
-                </div>
-                <div class="countdown-item">
-                  <span class="countdown-number">{{ hours }}</span>
-                  <span class="countdown-label">hours</span>
-                </div>
-              </div>
+    {{ getTimeDisplay(m) }}
+  </div>
+
             </div>
             <div class="front-right">
               <h3><strong>{{ IconTypeMem(m.typeMembre) }} {{ m.prenom }} {{ m.nom }}</strong></h3>

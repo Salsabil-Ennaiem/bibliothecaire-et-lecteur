@@ -33,7 +33,7 @@ public class SanctionSeeder
                 id_emp = emprunts[2].id_emp,
                 raison = [Raison_sanction.perte],
                 date_sanction = DateTime.UtcNow.AddDays(-100),
-                date_fin_sanction = null, // Pas de fin tant que pas retourne le livre ou payer 
+                date_fin_sanction = DateTime.UtcNow.AddDays(10), // Pas de fin tant que pas retourne le livre ou payer 
                 montant = 45.00m, // Amende de 45dt pour livre perdu
                 payement = false,
                 active = true,

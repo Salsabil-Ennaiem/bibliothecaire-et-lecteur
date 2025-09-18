@@ -173,67 +173,67 @@ namespace Infrastructure.Repositories
                 throw new Exception("Error creating book and inventory: " + ex.Message, ex);
             }
         }
-   /*  public async Task<LivreDTO> UpdateAsync(string id, UpdateLivreDTO updatelivReq)
-        {
-            using var transaction = await _dbContext.Database.BeginTransactionAsync();
-            try
-            {
+        /*  public async Task<LivreDTO> UpdateAsync(string id, UpdateLivreDTO updatelivReq)
+             {
+                 using var transaction = await _dbContext.Database.BeginTransactionAsync();
+                 try
+                 {
 
-                var inventaire = await GetInventaireByIdAsync(id);
-                var livre = inventaire.Livre;
+                     var inventaire = await GetInventaireByIdAsync(id);
+                     var livre = inventaire.Livre;
 
-                if (updatelivReq.titre is not null)
-                    livre.titre = updatelivReq.titre;
+                     if (updatelivReq.titre is not null)
+                         livre.titre = updatelivReq.titre;
 
-                if (updatelivReq.auteur is not null)
-                    livre.auteur = updatelivReq.auteur;
+                     if (updatelivReq.auteur is not null)
+                         livre.auteur = updatelivReq.auteur;
 
-                if (updatelivReq.cote_liv is not null)
-                    inventaire.cote_liv = updatelivReq.cote_liv;
+                     if (updatelivReq.cote_liv is not null)
+                         inventaire.cote_liv = updatelivReq.cote_liv;
 
-                if (updatelivReq.couverture is not null)
-                {
-                    var idcouv = livre.couverture;
-                    var couvEntity = updatelivReq.couverture.Adapt<Fichier>();
-                    livre.couverture = await _FichierRepository.UploadImageAsync(couvEntity);
-                    await _FichierRepository.DeleteFileByIdAsync(idcouv);
-                }
+                     if (updatelivReq.couverture is not null)
+                     {
+                         var idcouv = livre.couverture;
+                         var couvEntity = updatelivReq.couverture.Adapt<Fichier>();
+                         livre.couverture = await _FichierRepository.UploadImageAsync(couvEntity);
+                         await _FichierRepository.DeleteFileByIdAsync(idcouv);
+                     }
 
-                if (updatelivReq.date_edition is not null)
-                    livre.date_edition = updatelivReq.date_edition;
+                     if (updatelivReq.date_edition is not null)
+                         livre.date_edition = updatelivReq.date_edition;
 
-                if (updatelivReq.Description is not null)
-                    livre.Description = updatelivReq.Description;
+                     if (updatelivReq.Description is not null)
+                         livre.Description = updatelivReq.Description;
 
-                if (updatelivReq.editeur is not null)
-                    livre.editeur = updatelivReq.editeur;
+                     if (updatelivReq.editeur is not null)
+                         livre.editeur = updatelivReq.editeur;
 
-                if (updatelivReq.etat is not null)
-                    inventaire.etat = updatelivReq.etat;
+                     if (updatelivReq.etat is not null)
+                         inventaire.etat = updatelivReq.etat;
 
-                if (updatelivReq.isbn is not null)
-                    livre.isbn = updatelivReq.isbn;
+                     if (updatelivReq.isbn is not null)
+                         livre.isbn = updatelivReq.isbn;
 
-                if (updatelivReq.Langue is not null)
-                    livre.Langue = updatelivReq.Langue;
+                     if (updatelivReq.Langue is not null)
+                         livre.Langue = updatelivReq.Langue;
 
-                if (updatelivReq.statut != Statut_liv.disponible)
-                    inventaire.statut = updatelivReq.statut;
+                     if (updatelivReq.statut != Statut_liv.disponible)
+                         inventaire.statut = updatelivReq.statut;
 
-                if (updatelivReq.inventaire is not null)
-                    inventaire.inventaire = updatelivReq.inventaire;
+                     if (updatelivReq.inventaire is not null)
+                         inventaire.inventaire = updatelivReq.inventaire;
 
-                await _dbContext.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return await GetByIdAsync(id);
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                throw new Exception($"Error updating Livre with ID {id}: {ex.Message}", ex);
-            }
+                     await _dbContext.SaveChangesAsync();
+                     await transaction.CommitAsync();
+                     return await GetByIdAsync(id);
+                 }
+                 catch (Exception ex)
+                 {
+                     await transaction.RollbackAsync();
+                     throw new Exception($"Error updating Livre with ID {id}: {ex.Message}", ex);
+                 }
 
-        }*/
+             }*/
         public async Task DeleteAsync(string id)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
@@ -242,28 +242,32 @@ namespace Infrastructure.Repositories
 
                 var inventaire = await GetInventaireByIdAsync(id);
                 var livreId = inventaire.id_liv;
-
-                // Remove this physical book (Inventaire)
-                _dbContext.Inventaires.Remove(inventaire);
-
-                // Check if any other Inventaire references the same Livres
-                bool hasOtherCopies = await _dbContext.Inventaires
-                                 .AnyAsync(i => i.id_liv == livreId && i.id_inv != id);
-
-                // If no other copies, remove the Livres itself
-                if (!hasOtherCopies)
+                var empExists = _dbContext.Emprunts.Any(e => e.Id_inv == id);
+                if (!empExists)
                 {
-                    var livre = await _dbContext.Livres.FindAsync(livreId);
-                    if (livre != null)
-                    {
-                        await _FichierRepository.DeleteFileByIdAsync(livre.couverture);
-                        _dbContext.Livres.Remove(livre);
-                    }
-                }
-                await _dbContext.SaveChangesAsync();
-                await transaction.CommitAsync();
+                    // Remove this physical book (Inventaire)
+                    _dbContext.Inventaires.Remove(inventaire);
 
-                Console.WriteLine($"Livre with ID {id} deleted successfully.");
+                    // Check if any other Inventaire references the same Livres
+                    bool hasOtherCopies = await _dbContext.Inventaires
+                                     .AnyAsync(i => i.id_liv == livreId && i.id_inv != id);
+
+                    // If no other copies, remove the Livres itself
+                    if (!hasOtherCopies)
+                    {
+                        var livre = await _dbContext.Livres.FindAsync(livreId);
+                        if (livre != null)
+                        {
+                            await _FichierRepository.DeleteFileByIdAsync(livre.couverture);
+                            _dbContext.Livres.Remove(livre);
+                        }
+                    }
+                    await _dbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    Console.WriteLine($"Livre with ID {id} deleted successfully.");
+                }
+                else { throw new Exception($"Error deleting Livre with ID {id}: le livre doit etre non emprunte par quelqu mem si perdu "); }
             }
             catch (Exception ex)
             {

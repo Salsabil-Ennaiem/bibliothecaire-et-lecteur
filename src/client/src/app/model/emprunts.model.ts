@@ -33,11 +33,10 @@ export interface UpdateEmppruntDTO {
  
 export interface CreateEmpRequest {
   note?: string | null;
-  cote_liv: string;
   typeMembre: TypeMemb;
   nom?: string | null;
   prenom?: string | null;
   email?: string | null;
   telephone?: string | null;
-  cin_ou_passeport?: string | null;
+  cin_ou_passeport: string ;
 }

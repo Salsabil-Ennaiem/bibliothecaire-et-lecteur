@@ -21,6 +21,12 @@ export class BibliothecaireComponent {
   onBellClick(event: Event) {
     this.notificationComponent.open(event);
   }
+  unreadCount = 0;
+
+
+  onUnreadCountChange(count: number) {
+    this.unreadCount = count;
+  }
 
     drawerVisible = false;
   sidebarVisible = false;

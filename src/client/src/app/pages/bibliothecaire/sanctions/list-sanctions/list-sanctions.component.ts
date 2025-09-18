@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SelectModule } from 'primeng/select';
@@ -22,10 +22,15 @@ import { SpeedDialModule } from 'primeng/speeddial';
   templateUrl: './list-sanctions.component.html',
   styleUrl: './list-sanctions.component.css'
 })
-export class ListSanctionsComponent implements OnInit {
-
+export class ListSanctionsComponent implements OnInit, OnDestroy {
+  intervalId?: any;
   ngOnInit() {
-    this.loadSanction();
+    this.loadSanction(); this.intervalId = setInterval(() => {
+      // Forcer Angular à rafraîchir en mettant à jour un compteur dummy ou en changeant état
+    }, 60000);//1mn=60000ms
+  }
+  ngOnDestroy() {
+    if (this.intervalId) clearInterval(this.intervalId);
   }
   constructor(private EmpService: SanctionService, private router: Router) { }
   Sanctions: SanctionDTO[] = [];
@@ -36,10 +41,36 @@ export class ListSanctionsComponent implements OnInit {
       error: (err) => console.error('Erreur chargement Emp', err)
     });
   }
-  targetDate!: Date;
-  days = 0;
-  hours = 0;
+  getTimeDisplay(Sanction?: SanctionDTO): string {
+    if (!Sanction) return 'desoli';
 
+    const now = new Date();
+
+    if (Sanction.active === true) {
+      if (!Sanction.date_fin_sanction) return '';
+      const retour = new Date(Sanction.date_fin_sanction);
+      const diffMs = retour.getTime() - now.getTime();
+      const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      const diffHours = Math.floor((diffMs % (1000 * 60)) / (1000 * 60 * 60));
+      const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+      const signe = diffMs < 0 ? '-' : '';
+      const absHours = Math.abs(diffHours);
+      const absMinutes = Math.abs(diffMinutes);
+      const absJours = Math.abs(diffDays);
+
+      return `Temps restant : ${signe}${absJours}j ${absHours}h ${absMinutes}m`;
+    }
+    else if (Sanction.active === false) { // Cas "retourné"
+      if (!Sanction.date_sanction || !Sanction.date_fin_sanction) return '';
+      const dateSanc = new Date(Sanction.date_sanction);
+      const datefin = new Date(Sanction.date_fin_sanction);
+      const diffDays = Math.round((datefin.getTime() - dateSanc.getTime()) / (1000 * 60 * 60 * 24));
+      return `Duree de Sanction ${diffDays} j`;
+    }
+
+    return '';
+  }
   //Recherche 
   searchQuery = '';
   isInputVisible = false;
@@ -91,17 +122,17 @@ export class ListSanctionsComponent implements OnInit {
   }
 
   modifier(id: string): void {
+    if (confirm('Voulez-vous vraiment supprimer cette nouveauté ?')) {
     this.EmpService.modifier(id).subscribe({
       next: (data: any) => {
         this.Sanctions = data.p;
-    this.loadSanction();
-
+        this.loadSanction();
       },
       error: (err: any) => console.error('Erreur chargement Emp', err)
     });
-  }
+  }}
 
-  Ajouter() {
+  Ajouter() { 
     console.log(`Navigating to ajouter Emprunts`);
     this.router.navigate([`/bibliothecaire/sanctions/ajouter`]);
   }

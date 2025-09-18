@@ -1,4 +1,5 @@
 using api.Features.Emprunt;
+using api.Features.Membres;
 using Data;
 using domain.Entity;
 using domain.Entity.Enum;
@@ -12,11 +13,12 @@ namespace Infrastructure.Repositries
     public class EmpruntsRepository : IEmpruntsRepository
     {
         private readonly BiblioDbContext _dbContext;
-        private readonly IRepository<Membre> _membreRepository;
+        private readonly MembreHandler _membreRepository;
         private readonly ILivresRepository _LivresRepository;
         private readonly IParametreRepository _ParametreRepository;
 
-        public EmpruntsRepository(BiblioDbContext dbContext, IParametreRepository ParametreRepository, IRepository<Membre> membreRepository, ILivresRepository LivresRepository)
+
+        public EmpruntsRepository(BiblioDbContext dbContext, IParametreRepository ParametreRepository, MembreHandler membreRepository, ILivresRepository LivresRepository)
 
         {
             _dbContext = dbContext;
@@ -24,16 +26,16 @@ namespace Infrastructure.Repositries
             _ParametreRepository = ParametreRepository;
             _LivresRepository = LivresRepository;
         }
-        public async Task<EmppruntDTO> CreateAsync(CreateEmpRequest empdto)
+        public async Task<EmppruntDTO> CreateAsync(string id_inv, CreateEmpRequest empdto)
         {
             try
             {
-                if (string.IsNullOrEmpty(empdto.cote_liv) || string.IsNullOrEmpty(empdto.cin_ou_passeport) || string.IsNullOrEmpty(empdto.email))
+                if (string.IsNullOrEmpty(empdto.cin_ou_passeport) || string.IsNullOrEmpty(empdto.email))
                 {
-                    throw new Exception("cote , CIN , email doit etre remplir au minimum");
+                    throw new Exception(" CIN , email doit etre remplir au minimum");
                 }
                 // 1. Recherche du membre existant via le repository générique
-                var allMembres = await _membreRepository.GetAllAsync();
+                var allMembres = await _membreRepository.GetAllMembAsync();
                 var membreExistant = allMembres.FirstOrDefault(m =>
                     (!string.IsNullOrEmpty(empdto.cin_ou_passeport) && m.cin_ou_passeport == empdto.cin_ou_passeport) ||
                     (!string.IsNullOrEmpty(empdto.email) && m.email == empdto.email)
@@ -51,32 +53,40 @@ namespace Infrastructure.Repositries
                 // 2. Création du membre si inexistant
                 else if (membreExistant == null)
                 {
-                    var nouveauMembre = new Membre
+                    var cin = _membreRepository.SearchAsync(empdto.cin_ou_passeport);
+                    var email = _membreRepository.SearchAsync(empdto.email);
+                    if (cin == null && email == null)
                     {
-                        id_membre = Guid.NewGuid().ToString(),
-                        nom = empdto.nom,
-                        prenom = empdto.prenom,
-                        cin_ou_passeport = empdto.cin_ou_passeport,
-                        email = empdto.email,
-                        telephone = empdto.telephone,
-                        TypeMembre = empdto.TypeMembre
-                    };
-                    membreExistant = await _membreRepository.CreateAsync(nouveauMembre);
+                        var nouveauMembre = new Membre
+                        {
+                            id_membre = Guid.NewGuid().ToString(),
+                            nom = empdto.nom,
+                            prenom = empdto.prenom,
+                            cin_ou_passeport = empdto.cin_ou_passeport,
+                            email = empdto.email,
+                            telephone = empdto.telephone,
+                            TypeMembre = empdto.TypeMembre
+                        };
+                        await _dbContext.Membres.AddAsync(nouveauMembre);
+
+                        membreExistant = nouveauMembre.Adapt<MembreDto>();
+                    }
+                    else throw new Exception("cin ou email deja existe ");
+
                 }
-                var s = _LivresRepository.RechercheCote(empdto.cote_liv);
                 var delais = await _ParametreRepository.GetDelais(empdto.TypeMembre);
 
                 var nouveauEmp = new Emprunts
                 {
                     id_emp = Guid.NewGuid().ToString(),
                     id_membre = membreExistant.id_membre,
-                    Id_inv = s,
+                    Id_inv = id_inv,
                     date_retour_prevu = DateTime.UtcNow.AddDays(Convert.ToDouble(delais))
                 };
-                var liv = await _LivresRepository.GetByIdAsync(nouveauEmp.Id_inv);
+                var liv = await _LivresRepository.GetByIdAsync(id_inv);
                 liv.statut = Statut_liv.emprunte;
-                var entity = liv.Adapt<Livres>();
-                _dbContext.Livres.Update(entity);
+                var entity = liv.Adapt<Inventaire>();
+                _dbContext.Inventaires.Update(entity);
                 await _dbContext.Emprunts.AddAsync(nouveauEmp);
                 await _dbContext.SaveChangesAsync();
                 return empdto.Adapt<EmppruntDTO>();
@@ -218,15 +228,20 @@ namespace Infrastructure.Repositries
             try
             {
                 var emprunts = await GetEmpByIdAsync(id);
-                var MembreId = emprunts.id_membre;
-                if (emprunts.Statut_emp != Statut_emp.retourne)
+                if (emprunts.Statut_emp == Statut_emp.retourne)
                 {
-                    throw new Exception("Vous n'avez pas le droit de supprimer un emprunt en cours ou perdu");
+                    var MembreId = emprunts.id_membre;
+                    if (emprunts.Statut_emp != Statut_emp.retourne)
+                    {
+                        throw new Exception("Vous n'avez pas le droit de supprimer un emprunt en cours ou perdu");
+                    }
+                    _dbContext.Emprunts.Remove(emprunts);
+                    await _dbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    Console.WriteLine($"Emprunts with ID {id} deleted successfully.");
                 }
-                _dbContext.Emprunts.Remove(emprunts);
-                await _dbContext.SaveChangesAsync();
-                await transaction.CommitAsync();
-                Console.WriteLine($"Emprunts with ID {id} deleted successfully.");
+                else { throw new Exception($"Error deleting Emprunts with ID {id}: l'emprunts  doit etre retourne  "); }
+
             }
             catch (Exception ex)
             {

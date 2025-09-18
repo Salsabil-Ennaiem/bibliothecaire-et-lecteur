@@ -100,28 +100,33 @@ export class ListeLivresComponent {
   }
  
 
-  getSpeedDialItems(livreId: string): MenuItem[] {
-    return [
+getSpeedDialItems(livreId: string, statut: Statut_liv): MenuItem[] {
+  const items: MenuItem[] = [
+    {
+      label: 'Modifier',
+      icon: 'pi pi-pencil',
+      command: () => this.editLivre(livreId)
+    },
+    {
+      label: 'Supprimer',
+      icon: 'pi pi-trash',
+      command: () => this.deleteLivre(livreId)
+    }
+  ];
 
-      {
-        label: 'Modifier',
-        icon: 'pi pi-pencil',
-        command: () => this.editLivre(livreId)
-      },
-      {
-        label: 'Supprimer',
-        icon: 'pi pi-trash',
-        command: () => this.deleteLivre(livreId)
-      },
-      {
-        label: 'Emprunte',
-        icon: 'pi pi-id-card',
-        command: () => this.Emprunter(livreId)
-      }
-    ];
+  if (statut === Statut_liv.disponible) {
+    items.push({
+      label: 'Emprunte',
+      icon: 'pi pi-id-card',
+      command: () => this.Emprunter(livreId)
+    });
   }
 
-        Ajouter() {
+  return items;
+}
+
+
+        Ajouter(id :string) {
     console.log(`Navigating to ajouter Livre`);
     this.router.navigate([`/bibliothecaire/livres/ajouter`]);
   }
@@ -132,7 +137,7 @@ export class ListeLivresComponent {
   }
   Emprunter(livreId: string) {
     console.log(`Navigating to emprunte livre ID: ${livreId}`);
-    this.router.navigate([`/bibliothecaire/emprunts/ajouter`]);
+    this.router.navigate([`/bibliothecaire/emprunts/ajouter/${livreId}`]);
   }
 
   deleteLivre(livreId: string) {

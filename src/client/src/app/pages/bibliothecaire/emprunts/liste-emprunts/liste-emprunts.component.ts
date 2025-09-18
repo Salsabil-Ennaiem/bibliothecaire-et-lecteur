@@ -1,8 +1,8 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { SpeedDialModule } from 'primeng/speeddial';
 import { MenuItem } from 'primeng/api';
-import { CommonModule } from '@angular/common';
+import { CommonModule, formatDate } from '@angular/common';
 import { Router } from '@angular/router';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -11,7 +11,7 @@ import { EmppruntDTO, Statut_emp } from '../../../../model/emprunts.model';
 import { BadgeModule } from 'primeng/badge';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
-import {  InputTextModule } from 'primeng/inputtext';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-liste-emprunts',
@@ -20,10 +20,17 @@ import {  InputTextModule } from 'primeng/inputtext';
   templateUrl: './liste-emprunts.component.html',
   styleUrls: ['./liste-emprunts.component.css']
 })
-export class ListeEmpruntsComponent implements OnInit {
+export class ListeEmpruntsComponent implements OnInit, OnDestroy {
+  intervalId?: any;
 
   ngOnInit() {
     this.loadEmprunts();
+    this.intervalId = setInterval(() => {
+      // Forcer Angular à rafraîchir en mettant à jour un compteur dummy ou en changeant état
+    }, 60000);//1mn=60000ms
+  }
+  ngOnDestroy() {
+    if (this.intervalId) clearInterval(this.intervalId);
   }
   constructor(private EmpService: EmpruntService, private router: Router) { }
   emprunts: EmppruntDTO[] = [];
@@ -34,17 +41,51 @@ export class ListeEmpruntsComponent implements OnInit {
       error: (err) => console.error('Erreur chargement Emp', err)
     });
   }
-  targetDate!: Date;
-  days = 0;
-  hours = 0;
+  getTimeDisplay(emprunt?: EmppruntDTO): string {
+    if (!emprunt) return 'desoli';
+
+    const now = new Date();
+
+    if (emprunt.statut_emp === 0) {
+      if (!emprunt.date_retour_prevu) return '';
+      const retour = new Date(emprunt.date_retour_prevu);
+      const diffMs = retour.getTime() - now.getTime();
+      const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      const diffHours = Math.floor((diffMs % (1000 * 60)) / (1000 * 60 * 60));
+      const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+      const signe = diffMs < 0 ? '-' : '';
+      const absHours = Math.abs(diffHours);
+      const absMinutes = Math.abs(diffMinutes);
+      const absJours = Math.abs(diffDays);
+
+      return `Temps restant : ${signe}${absJours}j ${absHours}h ${absMinutes}m`;
+    }
+    else if (emprunt.statut_emp === 1) { // Cas "retourné"
+      if (!emprunt.date_retour_prevu || !emprunt.date_effectif) return '';
+      const datePrev = new Date(emprunt.date_retour_prevu);
+      const dateEff = new Date(emprunt.date_effectif);
+      const diffDays = Math.round((dateEff.getTime() - datePrev.getTime()) / (1000 * 60 * 60 * 24));
+      if (diffDays>0){return `Retourne avant délais ${diffDays} j`;}
+      else{return`Retard aprés le délais ${diffDays} j` }
+    }
+    else if (emprunt.statut_emp === 2) { // Cas "perdu"
+      if (!emprunt.date_emp) return '';
+      const dateEmp = new Date(emprunt.date_emp);
+      return `Date emprunt : ${dateEmp.toLocaleDateString()}`;
+    }
+    return '';
+  }
+
+
 
   //Recherche 
   searchQuery = '';
   isInputVisible = false;
   @HostListener('document:click', ['$event'])
   @HostListener('window:scroll', [])
-  handleOutsideEvents(event?: MouseEvent | KeyboardEvent ) {
-    if (event instanceof MouseEvent ) {
+  handleOutsideEvents(event?: MouseEvent | KeyboardEvent) {
+    if (event instanceof MouseEvent) {
       const clickedInside = this.isClickInside(event);
       if (!clickedInside) {
         this.isInputVisible = false;
@@ -106,7 +147,7 @@ export class ListeEmpruntsComponent implements OnInit {
       case 0:
         return 'success';
       case 1:
-        return 'warn';  
+        return 'warn';
       case 2:
         return 'danger';
       default:
@@ -118,9 +159,9 @@ export class ListeEmpruntsComponent implements OnInit {
 
   toggleFlipoo(index: number) {
     if (this.flippedIndex === index) {
-      this.flippedIndex = null; 
+      this.flippedIndex = null;
     } else {
-      this.flippedIndex = index; 
+      this.flippedIndex = index;
     }
   }
 
@@ -140,20 +181,16 @@ export class ListeEmpruntsComponent implements OnInit {
     console.log(`Navigating to edit Emprunts ID: ${id}`);
     this.router.navigate([`/bibliothecaire/emprunts/modifier/${id}`]);
   }
-  Ajouter() {
-    console.log(`Navigating to ajouter Emprunts`);
-    this.router.navigate([`/bibliothecaire/emprunts/ajouter`]);
-  }
-
   supprimer(id: string): void {
-    if (confirm('Voulez-vous vraiment supprimer cette nouveauté ?')){
-    console.log(`Delete Emprunts ID: ${id}`);
-    this.EmpService.delete(id).subscribe(
-      {
-        next: () => console.log('Emprunts deleted successfully'),
-        error: (error) => console.error('Error deleting Emprunts:', error)
-      }
-    );}
+    if (confirm('Voulez-vous vraiment supprimer cette nouveauté ?')) {
+      console.log(`Delete Emprunts ID: ${id}`);
+      this.EmpService.delete(id).subscribe(
+        {
+          next: () => console.log('Emprunts deleted successfully'),
+          error: (error) => console.error('Error deleting Emprunts:', error)
+        }
+      );
+    }
   }
 
   sanctionner(id: string): void {
@@ -163,24 +200,24 @@ export class ListeEmpruntsComponent implements OnInit {
 
 
 
- /* @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-  importer() {
-    this.fileInput.nativeElement.click();
-  }
- handleFileUpload(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-    if (!file.type.match(/application\/(vnd.ms-excel|vnd.openxmlformats-officedocument.spreadsheetml.sheet)/)) {
-      console.log('Selected file:', file.name, file.type, file.size);
-      alert('Veuillez sélectionner un fichier Excel (.xls ou .xlsx).');
-      return;
-    }
-     this.EmpService.import(file).subscribe(
-          response => console.log('Import successful:', response),
-          error => console.error('Error importing file:', error)
-        );
-  }*/
+  /* @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+   importer() {
+     this.fileInput.nativeElement.click();
+   }
+  handleFileUpload(event: Event) {
+     const input = event.target as HTMLInputElement;
+     const file = input.files?.[0];
+     if (!file) return;
+     if (!file.type.match(/application\/(vnd.ms-excel|vnd.openxmlformats-officedocument.spreadsheetml.sheet)/)) {
+       console.log('Selected file:', file.name, file.type, file.size);
+       alert('Veuillez sélectionner un fichier Excel (.xls ou .xlsx).');
+       return;
+     }
+      this.EmpService.import(file).subscribe(
+           response => console.log('Import successful:', response),
+           error => console.error('Error importing file:', error)
+         );
+   }*/
   /*exporter() {
     this.EmpService.export().subscribe(
       blob => {

@@ -12,9 +12,10 @@ export class EmpruntService {
 
   constructor(private http: HttpClient) { }
 
-  notifcation(): Observable<void> {
-    return this.http.get<void>(`${this.apiUrl}/Notification`);
-  }
+notifcation(): Observable<{ message: string; isRead: boolean }[]> {
+  return this.http.get<{ message: string; isRead: boolean }[]>(`${this.apiUrl}/Notification`);
+}
+
 
   search(term: string): Observable<EmppruntDTO[]> {
     return this.http.get<EmppruntDTO[]>(`${this.apiUrl}/search/${term}`);
@@ -28,8 +29,8 @@ export class EmpruntService {
     return this.http.get<EmppruntDTO>(`${this.apiUrl}/Get/${id}`);
   }
 
-  create(Emp: CreateEmpRequest): Observable<EmppruntDTO> {
-    return this.http.post<EmppruntDTO>(`${this.apiUrl}/Create`, Emp);
+  create(id :string ,Emp: CreateEmpRequest): Observable<EmppruntDTO> {
+    return this.http.post<EmppruntDTO>(`${this.apiUrl}/Create/${id}`, Emp);
   }
 
   update(id: string, Emp: UpdateEmppruntDTO): Observable<EmppruntDTO> {

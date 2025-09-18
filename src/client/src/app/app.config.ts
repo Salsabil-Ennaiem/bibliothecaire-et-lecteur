@@ -2,14 +2,20 @@ import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
-import Aura  from '@primeng/themes/aura';
-
+import { MessageService } from 'primeng/api';
 import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
+import MyAuraPreset from './my-aura-preset';
 
 export const appConfig: ApplicationConfig = {
-  providers: [ 
-  provideZoneChangeDetection({eventCoalescing: true}),provideRouter(routes),provideHttpClient() ,
-  provideAnimationsAsync(), providePrimeNG({theme: {preset:Aura}})
+  providers: [provideRouter(routes), MessageService,
+  provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideHttpClient(),
+  provideAnimationsAsync(), providePrimeNG({  theme: {
+        preset: MyAuraPreset,
+        options: {
+          darkModeSelector: '.dark-theme'  // classe CSS activant le mode sombre
+        }
+      }})
+
   ]
 };
