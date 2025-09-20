@@ -13,17 +13,16 @@ public class UserSeeder
             var userManager = serviceProvider.GetRequiredService<UserManager<Bibliothecaire>>();
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            // Check if roles exist
-            var roleExists = await roleManager.RoleExistsAsync("Membre") && await roleManager.RoleExistsAsync("Bibliothecaire");
+            // Check if role exist
+            var roleExists = await roleManager.RoleExistsAsync("Bibliothecaire");
             if (!roleExists)
             {
                 await roleManager.CreateAsync(new IdentityRole("Bibliothecaire"));
-                await roleManager.CreateAsync(new IdentityRole("Membre"));
-                Console.WriteLine("✅ Created 'Bibliothecaire , Membre' roles");
+                Console.WriteLine("✅ Created 'Bibliothecaire role");
             }
             else
             {
-                Console.WriteLine("ℹ️ Roles already exist");
+                Console.WriteLine("ℹ️ Role already exist");
             }
 
             var existingUsersCount = await userManager.Users.CountAsync();
@@ -37,9 +36,8 @@ public class UserSeeder
             var users = new List<(string email, string password, string nom, string prenom)>
             {
 
-                ("ennaiemsalsabil@gmail.com", "Membre@123", "Membre", "User"),
-                ("salsabinaim15@gmail.com", "Biblio@123", "Salsabil", "Naim"),
-                                ("salsabinaim15@gmail.com", "Biblio@123", "Salsabil", "Naim")
+                ("salsabilnaim15@gmail.com", "Membre@123", "Membre", "User"),
+                ("ennaiemsalsabil@gmail.com", "Biblio@123", "biblio", "isgs")
 
 
             };
@@ -51,15 +49,17 @@ public class UserSeeder
                 var user = await userManager.FindByEmailAsync(email);
                 if (user == null)
                 {
+
                     var newUser = new Bibliothecaire
                     {
-                        UserName = email,
+                        // required fields :UserName, Email, normalized fields, and security-related data (PasswordHash) .
                         Email = email,
-                       // EmailConfirmed = true,
                         nom = nom,
-                        prenom = prenom
+                        prenom = prenom,
+                        UserName = email,
+                        NormalizedEmail = email
                     };
-
+                    //hash passeword
                     var result = await userManager.CreateAsync(newUser, password);
 
                     if (result.Succeeded)
@@ -76,7 +76,7 @@ public class UserSeeder
                 }
             }
 
-            if (createdUserIds.Count >= 3)
+            if (createdUserIds.Count >= 2)
             {
                 await DataSeeder.SeedAllDataAsync(serviceProvider);
             }

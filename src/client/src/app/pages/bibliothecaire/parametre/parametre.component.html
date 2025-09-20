@@ -1,13 +1,12 @@
 <p-drawer header="Parametre" [(visible)]="visible" position="right" [dismissible]="true" (onHide)="onDrawerHide()">
 
-  <div class="header">
-    <div class="flex align-items-center gap-2">
-      <i class="pi pi-cog pi-spin"></i>
-      <span>Paramètres</span>
-    </div>
-  </div>
 
-  <form #formEmprunt="ngForm" (ngSubmit)="modifier()" autocomplete="off" novalidate>
+  <ng-template pTemplate="header">
+    <div class="d-flex align-items-center gap-2">
+      <i class="pi pi-cog pi-spin"></i>
+    </div>
+  </ng-template>
+  <form #formParametre="ngForm" (ngSubmit)="modifier()" autocomplete="off" novalidate>
     <div class="p-4 d-flex flex-column gap-4">
 
       <div class="field">

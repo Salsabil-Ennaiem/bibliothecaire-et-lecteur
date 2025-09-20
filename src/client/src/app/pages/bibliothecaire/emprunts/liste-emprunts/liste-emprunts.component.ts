@@ -1,7 +1,7 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { SpeedDialModule } from 'primeng/speeddial';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { CommonModule, formatDate } from '@angular/common';
 import { Router } from '@angular/router';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -32,13 +32,16 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.intervalId) clearInterval(this.intervalId);
   }
-  constructor(private EmpService: EmpruntService, private router: Router) { }
+  constructor(private EmpService: EmpruntService, private router: Router , private messageService :MessageService) { }
   emprunts: EmppruntDTO[] = [];
 
   loadEmprunts(): void {
     this.EmpService.getAll().subscribe({
       next: (data) => this.emprunts = data,
-      error: (err) => console.error('Erreur chargement Emp', err)
+      error: (err) => {console.error('Erreur chargement Emp', err);
+                   this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error get Emprunts:' });
+
+      }
     });
   }
   getTimeDisplay(emprunt?: EmppruntDTO): string {
@@ -77,10 +80,8 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
     return '';
   }
 
-
-
   //Recherche 
-  searchQuery = '';
+  searchQuery = "";
   isInputVisible = false;
   @HostListener('document:click', ['$event'])
   @HostListener('window:scroll', [])
@@ -89,11 +90,11 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
       const clickedInside = this.isClickInside(event);
       if (!clickedInside) {
         this.isInputVisible = false;
-        this.searchQuery = '';
+        this.searchQuery = null!;
       }
     } else {
       this.isInputVisible = false;
-      this.searchQuery = '';
+      this.searchQuery = null!;
 
     }
   }
@@ -103,11 +104,17 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
   handleSearch(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery = value;
-    this.EmpService.search(this.searchQuery).subscribe({
+    if(value!="")
+    {this.EmpService.search(this.searchQuery).subscribe({
       next: (data) => { this.emprunts = data },
-      error: (err) => { console.error('Error searching livres:', err) }
+      error: (err) => {                   
+           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error searching Emprunts:' });
+
+         console.error('Error searching Emprunts:', err) }
+    });}
+    else{
+      this.loadEmprunts();
     }
-    );
   }
   isClickInside(event: MouseEvent): boolean {
     const searchContainer = document.getElementById('search-container');
@@ -186,8 +193,16 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
       console.log(`Delete Emprunts ID: ${id}`);
       this.EmpService.delete(id).subscribe(
         {
-          next: () => console.log('Emprunts deleted successfully'),
-          error: (error) => console.error('Error deleting Emprunts:', error)
+          next: () =>{ console.log('Emprunts deleted successfully');
+            this.loadEmprunts();
+                      this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Emprunt Supprimer' });
+
+          },
+          error: (error) => {console.error('Error deleting Emprunts:', error);
+                       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error deliting Emprunts:' });
+
+          }
+
         }
       );
     }
@@ -195,7 +210,7 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
 
   sanctionner(id: string): void {
     console.log(`Navigating to edit Emprunts ID: ${id}`);
-    this.router.navigate(['/bibliothecaire/sanctions/ajouter', id]);
+    this.router.navigate(['/bibliothecaire/sanctions/ajouter',id]);
   }
 
 

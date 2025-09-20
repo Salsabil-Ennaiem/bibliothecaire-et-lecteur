@@ -5,7 +5,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { SpeedDialModule } from 'primeng/speeddial';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Router, RouterLink } from '@angular/router';
 import { LivreService } from '../../../../Services/livre.service';
 import { etat_liv, LivreDTO, Statut_liv } from '../../../../model/livres.model';
@@ -39,21 +39,24 @@ export class ListeLivresComponent {
   @Input() isHosted: boolean = false;
   livres: LivreDTO[] = [];
 
-  constructor(private livreService: LivreService, private router: Router) { };
+  constructor(private livreService: LivreService, private router: Router, private messageserv: MessageService) { };
   ngOnInit() {
     this.getBooks();
   }
 
   getBooks(): void {
     this.livreService.getAllLiv().subscribe({
-      next: (data) =>this.livres = data,
-      error: (error) => console.error('Error fetching livres:', error)
+      next: (data) => this.livres = data,
+      error: (error) =>{ console.error('Error fetching livres:', error);
+                   this.messageserv.add({ severity: 'error', summary: 'Error', detail: 'Error get books:' });
+
+      }
     });
   }
 
   //Recherche 
-      searchQuery = '';
-     isInputVisible = false;
+  searchQuery = '';
+  isInputVisible = false;
   @HostListener('document:click', ['$event'])
   @HostListener('window:scroll', [])
   handleOutsideEvents(event?: MouseEvent | KeyboardEvent) {
@@ -63,9 +66,9 @@ export class ListeLivresComponent {
         this.isInputVisible = false;
         this.searchQuery = '';
       }
-    }  else {
+    } else {
       this.isInputVisible = false;
-              this.searchQuery = '';
+      this.searchQuery = '';
 
     }
   }
@@ -75,11 +78,15 @@ export class ListeLivresComponent {
   handleSearch(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery = value;
-    this.livreService.search(this.searchQuery).subscribe({
+        if(value!="")
+   { this.livreService.search(this.searchQuery).subscribe({
       next: (data) => { this.livres = data },
-      error: (err) => { console.error('Error searching livres:', err) }
-    }
-    );
+      error: (err) => { console.error('Error searching livres:', err) ;
+                   this.messageserv.add({ severity: 'error', summary: 'Error', detail: 'Error searching livres:' });
+
+      }
+    });}
+    else{this.getBooks();}
   }
   isClickInside(event: MouseEvent): boolean {
     const searchContainer = document.getElementById('search-container');
@@ -94,39 +101,39 @@ export class ListeLivresComponent {
     if (this.isOpen.has(livreId)) {
       this.isOpen.delete(livreId);
     } else {
-      this.isOpen.clear(); 
+      this.isOpen.clear();
       this.isOpen.add(livreId);
     }
   }
- 
 
-getSpeedDialItems(livreId: string, statut: Statut_liv): MenuItem[] {
-  const items: MenuItem[] = [
-    {
-      label: 'Modifier',
-      icon: 'pi pi-pencil',
-      command: () => this.editLivre(livreId)
-    },
-    {
-      label: 'Supprimer',
-      icon: 'pi pi-trash',
-      command: () => this.deleteLivre(livreId)
+
+  getSpeedDialItems(livreId: string, statut: Statut_liv): MenuItem[] {
+    const items: MenuItem[] = [
+      {
+        label: 'Modifier',
+        icon: 'pi pi-pencil',
+        command: () => this.editLivre(livreId)
+      },
+      {
+        label: 'Supprimer',
+        icon: 'pi pi-trash',
+        command: () => this.deleteLivre(livreId)
+      }
+    ];
+
+    if (statut === Statut_liv.disponible) {
+      items.push({
+        label: 'Emprunte',
+        icon: 'pi pi-id-card',
+        command: () => this.Emprunter(livreId)
+      });
     }
-  ];
 
-  if (statut === Statut_liv.disponible) {
-    items.push({
-      label: 'Emprunte',
-      icon: 'pi pi-id-card',
-      command: () => this.Emprunter(livreId)
-    });
+    return items;
   }
 
-  return items;
-}
 
-
-        Ajouter(id :string) {
+  Ajouter(id: string) {
     console.log(`Navigating to ajouter Livre`);
     this.router.navigate([`/bibliothecaire/livres/ajouter`]);
   }
@@ -145,9 +152,13 @@ getSpeedDialItems(livreId: string, statut: Statut_liv): MenuItem[] {
       this.livreService.delete(livreId).subscribe({
         next: () => {
           this.getBooks();
+          this.messageserv.add({ severity: 'success', summary: 'Succès', detail: 'Livres Supprimer' });
+
         },
         error: (err) => {
           console.error(err);
+                     this.messageserv.add({ severity: 'error', summary: 'Error', detail: 'Error supprimer Livres:' });
+
         }
 
       });

@@ -2,9 +2,8 @@
     <div class="rounded-4 shadow p-5"
         style="background-color: rgba(195, 242, 191, 0.188); width: 100%; max-width: 800px;">
         <h1 class="text-center fw-bold mb-4">Ajouter Emprunt</h1>
-        <form #formEmprunt="ngForm" (ngSubmit)="Ajouter()" autocomplete="off" novalidate>
+        <form #formEmprunt="ngForm" (ngSubmit)="Ajouter()"  novalidate>
 
-            <!-- Ligne 1 : CIN ou Passeport -->
             <div class="row mb-3">
                 <div class="col-12">
                     <label for="cin" class="form-label font-bold mb-2">CIN ou Passeport *</label>
@@ -15,8 +14,9 @@
                     </div>
                 </div>
             </div>
+
+
             <div *ngIf="emprunt.cin_ou_passeport.length>=6">
-                <!-- Ligne 2 : Type Emprunteur à gauche (6 colonnes), Nom + Prénom à droite (chaque 3 colonnes) -->
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="typeEmprunteur" class="form-label">Type d'Emprunteur *</label>
@@ -47,7 +47,6 @@
                     </div>
                 </div>
 
-                <!-- Ligne 3 : Email à gauche (6 colonnes) et Téléphone à droite (6 colonnes) -->
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="email" class="form-label">Email d'Emprunteur *</label>
@@ -69,7 +68,8 @@
                     </div>
                 </div>
             </div>
-            <!-- Ligne 4 : Notes pleine largeur -->
+
+
             <div class="row mb-3">
                 <div class="col-12">
                     <label for="notes" class="form-label">Notes</label>
@@ -78,9 +78,8 @@
                 </div>
             </div>
 
-            <!-- Boutons d'action -->
             <div class="d-flex justify-content-between mt-4">
-                <button type="reset" pButton label="Annuler" icon="pi pi-times" class="p-button-secondary"
+                <button type="button" pButton label="Annuler" icon="pi pi-times" class="p-button-secondary"
                     routerLink="/bibliothecaire/livres"></button>
                 <button type="submit" pButton label="Enregistrer" icon="pi pi-check" class="p-button-success"
                     [disabled]="formEmprunt.invalid"></button>

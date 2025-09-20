@@ -7,28 +7,29 @@
     </div>
   </div>
 
-  <p-carousel [value]="nouveautes || []" [numVisible]="3" [numScroll]="1" [circular]="true" [autoplayInterval]="0"
-    [showNavigators]="true" [showIndicators]="true" [responsiveOptions]="responsiveOptions">
-      <ng-template let-nouv pTemplate="item">
-              @if (!nouveautes) {<h2 class="text-center">No Nouveaute </h2>}
+  <p-carousel [value]="nouveautes || []" [numVisible]="3" [numScroll]="1" [circular]="true" [showNavigators]="true"
+    [showIndicators]="true" [responsiveOptions]="responsiveOptions">
+    <ng-template let-nouv pTemplate="item">
+      @if (!nouveautes) {<h2 class="text-center">No Nouveaute </h2>}
       @else {
-        <div class="pub-card" style="position: relative; cursor: pointer;" (click)="showDetails(nouv.id_nouv)">
-          <span class="badge" [ngClass]="{'bg-success': isNewPublication(nouv?.date_publication) }"> Nouveau</span>
+      <div class="pub-card" style="position: relative; cursor: pointer;" (click)="showDetails(nouv.id_nouv)">
+        <span class="badge" [ngClass]="{'bg-success': isNewPublication(nouv?.date_publication) }"> Nouveau</span>
 
-          <div class="image-container position-relative">
-            <img [src]="nouv.couverture " [alt]=" nouv.titre " class="pub-image" />
+<div class="image-container position-relative">
+    <img [src]="getSafeImage(nouv.CouvertureFile)" [alt]="nouv.titre " class="pub-image" *ngIf="nouv.CouvertureFile" />
+    <div class="pub-image" *ngIf="!nouv.CouvertureFile">Aucune image disponible</div>
+    <!-- Title overlay -->
+    <div class="image-title-overlay">{{ nouv.titre }}</div>
+  </div>
+        <footer class="d-flex align-items-center justify-content-between position-relative">
+          <div class="d-flex align-items-center gap-2">
+            <div class="pub-date">{{ nouv.date_publication | date:'mediumDate' }}</div>
           </div>
+          <button pButton type="button" *ngIf="!isHosted" icon="pi pi-trash" (click)="onSupprimer(nouv.id_nouv)" [rounded]="true"
+            severity="danger" [text]="true" class="trash-btn"></button>
+        </footer>
 
-          <footer class="d-flex align-items-center justify-content-between position-relative">
-            <div class="d-flex align-items-center gap-2">
-              <div class="pub-date">{{ nouv.date_publication | date:'mediumDate' }}</div>
-            </div>
-            <button pButton *ngIf="!isHosted" icon="pi pi-trash" (click)="onSupprimer(nouv.id_nouv)" [rounded]="true"
-              severity="danger" [text]="true" class="trash-btn"></button>
-          </footer>
-
-
-        </div>}
-      </ng-template>
+      </div>}
+    </ng-template>
   </p-carousel>
 </div>

@@ -6,10 +6,13 @@ namespace api.Features.Livre;
 public class LivresHandler
 {
     private readonly ILivresRepository _livresRepository;
-    public LivresHandler(ILivresRepository livresRepository)
+            private readonly IFichierRepository _FichierRepository;
+
+    public LivresHandler(ILivresRepository livresRepository,IFichierRepository FichierRepository)
 
     {
         _livresRepository = livresRepository;
+        _FichierRepository = FichierRepository;
     }
   
     public async Task<IEnumerable<LivreDTO>> SearchAsync(string searchTerm)
@@ -37,7 +40,16 @@ public class LivresHandler
     public async Task<IEnumerable<LivreDTO>> GetAllAsync()
     {
         var entities = await _livresRepository.GetAllLivresAsync();
-        return entities.Adapt<IEnumerable<LivreDTO>>();
+        var dtos=entities.Adapt<IEnumerable<LivreDTO>>();
+           foreach (var dto in dtos)
+            {
+                if (!string.IsNullOrWhiteSpace(dto.couverture))
+                {
+                    var fichierDto = await _FichierRepository.GetFullFileInfoAsync(dto.couverture);
+                    dto.CouvertureFile = fichierDto;
+                }
+            }
+        return dtos;
 
     }
     public async Task<LivreDTO> GetByIdAsync(string id)
@@ -61,8 +73,7 @@ public class LivresHandler
         await _livresRepository.DeleteAsync(id);
     }
   
-   /*
-    public async Task ImportAsync(Stream excelStream)
+   /* public async Task ImportAsync(Stream excelStream)
     {
         var workbook = new XSSFWorkbook(excelStream);
         var sheet = workbook.GetSheetAt(0);

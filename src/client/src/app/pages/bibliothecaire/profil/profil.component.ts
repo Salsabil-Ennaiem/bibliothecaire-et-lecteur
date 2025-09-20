@@ -1,10 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild, ElementRef , EventEmitter, Input, Output } from '@angular/core';
+import { Component, ViewChild, ElementRef, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DrawerModule } from 'primeng/drawer';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
+import { ProfileDTO, UpdateProfileDto } from '../../../model/bibliothecaire.model';
+import { ProfileService } from '../../../Services/profile.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-profil',
@@ -19,93 +22,98 @@ import { TextareaModule } from 'primeng/textarea';
   templateUrl: './profil.component.html',
   styleUrls: ['./profil.component.css'],
 })
-export class ProfilComponent {
+export class ProfilComponent implements OnInit {
+
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
 
-  nom = "Hedi";
-  prenom = "Aicha";
-  email = "email@example.com";
-  telephone = "+216 34 567 289";
-  description = "bibliothècaire full-stack avec 5 ans d'expérience";
-  password = "admin";
-  imageUrl = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.dDKYQqVBsG1tIt2uJzEJHwHaHa%26pid%3DApi&f=1&ipt=3ee187c8639dd106acc8f406950f7c47b184a1a01a46a471e70dcd53890bb3d8&ipo=images";
-
   isEditing = false;
-  editableNom = this.nom;
-  editablePrenom = this.prenom;
-  editableEmail = this.email;
-  editableTelephone = this.telephone;
-  editableDescription = this.description;
-  oldpassword = "";
-  editablePassword = "";
-  newImagePreview = this.imageUrl;
 
+  profile: ProfileDTO = {
+    id_biblio: '',
+    nom: '',
+    prenom: '',
+    email: '',
+    telephone: ''
+  };
 
-  onDrawerHide() {
-    this.visible = false;
-    this.cancelEditing();
-    this.visibleChange.emit(false);
+  uprofil: UpdateProfileDto = {
+    nom: '',
+    prenom: '',
+    email: '',
+    telephone: '',
+    ancienMotDePasse: '',
+    nouveauMotDePasse: ''
+  };
+
+  constructor(private ProfileServ: ProfileService, private messageService: MessageService) { }
+
+  ngOnInit(): void {
+    this.get();
   }
 
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-  triggerFileInput() {
-    this.fileInput.nativeElement.click();
-  }
+get(): void {
+  this.ProfileServ.get().subscribe({
+    next: (data) => {
+      this.profile = data;
+      this.uprofil = {
+        nom: data.nom,
+        prenom: data.prenom,
+        email: data.email,
+        telephone: data.telephone,
+        ancienMotDePasse: '',
+        nouveauMotDePasse: ''
+      };
+    },
+    error: (error) => console.error('Error fetching profile:', error)
+  });
+}
 
-  handleFileUpload(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
 
-    if (!file.type.match(/image\/*/)) {
-      console.log('Selected file:', file.name, file.type, file.size);
-      alert('Veuillez sélectionner une image valide.');
-      return;
+  modifier(): void {
+    if (this.isEditing) {
+      this.ProfileServ.Modifier(this.uprofil).subscribe({
+        next: (updatedProfile) => {
+          this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Profil modifié' });
+          this.profile = { ...updatedProfile };
+          this.isEditing = false;
+        },
+
+        error: err => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la modification : ' + err.message })
+      });
+    } else {
+      this.messageService.add({ severity: 'warn', summary: 'Attention', detail: 'Veuillez passer en mode édition pour modifier.' });
     }
-
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      this.newImagePreview = e.target.result;
-    };
-    reader.readAsDataURL(file);
   }
 
-  startEditing() {
-    this.editableNom = this.nom;
-    this.editablePrenom = this.prenom;
-    this.editableEmail = this.email;
-    this.editableTelephone = this.telephone;
-    this.editableDescription = this.description;
-    this.newImagePreview = this.imageUrl;
+  startEditing(): void {
     this.isEditing = true;
+    this.uprofil = {
+      nom: this.profile.nom,
+      prenom: this.profile.prenom,
+      email: this.profile.email,
+      telephone: this.profile.telephone,
+      ancienMotDePasse: '',
+      nouveauMotDePasse: ''
+    };
   }
 
-  cancelEditing() {
-    this.isEditing = false;
-  }
+cancelEditing(): void {
+  this.isEditing = false;
+  this.uprofil = {
+    nom: this.profile.nom,
+    prenom: this.profile.prenom,
+    email: this.profile.email,
+    telephone: this.profile.telephone,
+    ancienMotDePasse: '',
+    nouveauMotDePasse: ''
+  };
+}
 
-  saveChanges() {
-    this.nom = this.editableNom;
-    this.prenom = this.editablePrenom;
-    this.email = this.editableEmail;
-    this.telephone = this.editableTelephone;
-    this.description = this.editableDescription;
 
-    if (this.fileInput) {
-      this.imageUrl = this.newImagePreview;
-      
-    }
-
-    if (this.oldpassword == this.password && this.editablePassword !== "") {
-      this.password = this.editablePassword;
-      this.oldpassword= '';
-      this.editablePassword = "";
-
-    }
-    
-    this.newImagePreview = "";
-    this.isEditing = false;
-
+  onDrawerHide(): void {
+    this.visible = false;
+    this.visibleChange.emit(false);
+    this.cancelEditing();
   }
 }

@@ -1,15 +1,15 @@
 import { FichierDto } from "./fichier.model";
 
 export enum Statut_liv {
-  disponible ,
-  emprunte ,
-  perdu 
+  disponible,
+  emprunte,
+  perdu
 }
 
 export enum etat_liv {
-  neuf ,
-  moyen ,
-  mauvais 
+  neuf,
+  moyen,
+  mauvais
 }
 
 export interface LivreDTO {
@@ -25,25 +25,15 @@ export interface LivreDTO {
 
   couverture?: string | null;
   cote_liv: string;
-  etat: etat_liv ;
+  etat: etat_liv;
   statut: Statut_liv;
   inventaire?: string | null;
+  CouvertureFile?: FichierDto | null
+
 }
 
 export interface UpdateLivreDTO {
-  date_edition?: string | null;
-  titre?: string | null;
-  auteur?: string | null;
-  isbn?: string | null;
-
-  editeur?: string | null;
-  Description?: string | null;
-  Langue?: string | null;
-  couverture?: FichierDto | null;
-  cote_liv?: string | null;
   etat?: etat_liv | null;
-  statut: Statut_liv;
-  inventaire?: string | null;
 }
 
 export interface CreateLivreRequest {

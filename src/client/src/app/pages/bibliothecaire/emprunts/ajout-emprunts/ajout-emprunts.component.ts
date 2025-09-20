@@ -50,7 +50,7 @@ export class AjoutEmpruntsComponent implements OnInit {
       { label: 'Autre', value: TypeMemb.Autre }
     ];
   }
-isCinInvalid = true;
+  isCinInvalid = true;
 
   onCinChange(value: string) {
     this.isCinInvalid = !(value && value.length >= 6);

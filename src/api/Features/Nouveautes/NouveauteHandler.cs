@@ -1,3 +1,4 @@
+using api.Common;
 using domain.Entity;
 using domain.Interfaces;
 using Mapster;
@@ -16,41 +17,71 @@ namespace api.Features.Nouveautes
 
         public async Task<IEnumerable<NouveauteGetALL>> GetAllNouvAsync()
         {
-            var rt = await _nouveauteRepository.GetAllAsync();
-            return rt.Adapt<IEnumerable<NouveauteGetALL>>();
+            var nouveautes = await _nouveauteRepository.GetAllAsync();
 
+            var dtos = nouveautes.Adapt<IEnumerable<NouveauteGetALL>>().ToList();
+
+            foreach (var dto in dtos)
+            {
+                if (!string.IsNullOrWhiteSpace(dto.couverture))
+                {
+                    var fichierDto = await _FichierRepository.GetFullFileInfoAsync(dto.couverture);
+                    dto.CouvertureFile = fichierDto;
+                }
+            }
+
+            return dtos;
         }
-        public async Task<NouveauteDTO> GetByIdAsync(string id)
+        public async Task<NouveauteDTO?> GetByIdAsync(string id)
         {
-            var entity = await _nouveauteRepository.GetByIdAsync(id);
-            return entity.Adapt<NouveauteDTO>();
+            var nouveaute = await _nouveauteRepository.GetByIdAsync(id);
+            if (nouveaute == null) return null;
+
+            var dto = nouveaute.Adapt<NouveauteDTO>();
+
+            if (!string.IsNullOrWhiteSpace(dto.couverture))
+            {
+                dto.CouvertureFile = await _FichierRepository.GetFullFileInfoAsync(dto.couverture);
+            }
+
+            var fichiers = await _FichierRepository.GetByNouveauteIdAsync(id);
+            dto.Fichiers = fichiers.Adapt<List<FichierDto>>();
+
+            return dto;
         }
         public async Task<NouveauteDTO> CreateAsync(CreateNouveauteRequestWithFiles createdNouveauteDto)
         {
-                var nouv = createdNouveauteDto.Adapt<Nouveaute>();
-                var file = createdNouveauteDto.Adapt<List<Fichier>>();
-            var couv = createdNouveauteDto.Adapt<Fichier>();
+            var nouv = createdNouveauteDto.Adapt<Nouveaute>();
+            nouv.id_nouv = Guid.NewGuid().ToString();
+            var files = (createdNouveauteDto.File != null)
+     ? createdNouveauteDto.File.Adapt<List<Fichier>>()
+     : new List<Fichier>();
+
+            var couverture = (createdNouveauteDto.Couv != null)
+                ? createdNouveauteDto.Couv.Adapt<Fichier>()
+                : null;
             if (!await ExistenceNouv(nouv.titre))
             {
                 var id = nouv.id_nouv;
 
-                if (file != null)
+                if (files.Any())
                 {
 
-                    if (file.Count() == 1)
+                    if (files.Count() == 1)
                     {
-                        var filecree = await _FichierRepository.UploadF(file, id);
+                        var filecree = await _FichierRepository.UploadF(files, id);
                         nouv.fichier = filecree.IdFichier;
                     }
                     else
                     {
-                        await _FichierRepository.UploadF(file, id);
+                        await _FichierRepository.UploadF(files, id);
                     }
 
                 }
-                if (couv != null)
+
+                if (couverture != null)
                 {
-                    var filecree = await _FichierRepository.UploadImageAsync(couv);
+                    var filecree = await _FichierRepository.UploadImageAsync(couverture);
                     nouv.couverture = filecree;
                 }
                 var created = await _nouveauteRepository.CreateAsync(nouv);
@@ -59,21 +90,11 @@ namespace api.Features.Nouveautes
             }
             throw new Exception("Alredy exist");
         }
-        public async Task<NouveauteDTO> UpdateAsync(UpdateNouveauteRequest nouveaute, string id)
-        {
-            if (!await ExistenceNouv(nouveaute.titre))
-            {
-                var entity = nouveaute.Adapt<Nouveaute>();
-                var Updated = await _nouveauteRepository.UpdateAsync(entity, id);
-                return Updated.Adapt<NouveauteDTO>();
-            } 
-            throw new Exception("Alredy exist");
-        }
         public async Task DeleteAsync(string id)
         {
             var nouv = await GetByIdAsync(id);
-            await _FichierRepository.DeleteFileByIdAsync(nouv.couverture);
-            await _FichierRepository.DeleteFileByIdAsync(nouv.fichier);
+            if (nouv.couverture!=null) await _FichierRepository.DeleteFileByIdAsync(nouv.couverture);
+            if (nouv.fichier!=null) await _FichierRepository.DeleteFileByIdAsync(nouv.fichier);
             await _FichierRepository.DeleteFileListAsync(id);
             await _nouveauteRepository.DeleteAsync(id);
         }

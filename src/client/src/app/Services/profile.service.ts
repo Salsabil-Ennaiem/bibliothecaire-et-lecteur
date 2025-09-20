@@ -16,6 +16,6 @@ export class ProfileService {
   }
 
   Modifier(Profile: UpdateProfileDto): Observable<ProfileDTO> {
-    return this.http.post<ProfileDTO>(`${this.apiUrl}/put`, Profile);
+    return this.http.put<ProfileDTO>(`${this.apiUrl}/put`, Profile);
   }
 }

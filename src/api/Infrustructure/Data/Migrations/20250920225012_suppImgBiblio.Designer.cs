@@ -13,8 +13,8 @@ using domain.Entity.Enum;
 namespace api.Migrations
 {
     [DbContext(typeof(BiblioDbContext))]
-    [Migration("20250908183414_BD")]
-    partial class BD
+    [Migration("20250920225012_suppImgBiblio")]
+    partial class suppImgBiblio
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,47 +31,6 @@ namespace api.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "statut_memb", new[] { "actif", "sanctionne", "block" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "type_memb", new[] { "etudiant", "enseignant", "autre" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("domain.Entity.Fichier", b =>
-                {
-                    b.Property<string>("IdFichier")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text");
-
-                    b.Property<string>("CheminFichier")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ContentHash")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<byte[]>("ContenuFichier")
-                        .HasColumnType("bytea");
-
-                    b.Property<DateTime>("DateCreation")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("NomFichier")
-                        .HasColumnType("text");
-
-                    b.Property<string>("NouveauteId")
-                        .HasColumnType("text");
-
-                    b.Property<long>("TailleFichier")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("TypeFichier")
-                        .HasColumnType("text");
-
-                    b.HasKey("IdFichier");
-
-                    b.HasIndex("ContentHash")
-                        .IsUnique();
-
-                    b.HasIndex("NouveauteId");
-
-                    b.ToTable("Fichier", (string)null);
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -250,9 +209,6 @@ namespace api.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Photo")
-                        .HasColumnType("text");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
@@ -286,9 +242,6 @@ namespace api.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.HasIndex("Photo")
-                        .IsUnique();
-
                     b.ToTable("Bibliothecaires", (string)null);
                 });
 
@@ -314,7 +267,7 @@ namespace api.Migrations
                     b.Property<DateTime>("date_emp")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValue(new DateTime(2025, 9, 8, 18, 34, 12, 449, DateTimeKind.Utc).AddTicks(8870));
+                        .HasDefaultValue(new DateTime(2025, 9, 20, 22, 50, 11, 901, DateTimeKind.Utc).AddTicks(932));
 
                     b.Property<DateTime>("date_retour_prevu")
                         .HasColumnType("timestamp with time zone");
@@ -338,6 +291,52 @@ namespace api.Migrations
                     b.HasIndex("id_membre");
 
                     b.ToTable("Emprunts", (string)null);
+                });
+
+            modelBuilder.Entity("domain.Entity.Fichier", b =>
+                {
+                    b.Property<string>("IdFichier")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BibliothecaireId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CheminFichier")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("ContenuFichier")
+                        .HasColumnType("bytea");
+
+                    b.Property<DateTime>("DateCreation")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NomFichier")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NouveauteId")
+                        .HasColumnType("text");
+
+                    b.Property<long>("TailleFichier")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("TypeFichier")
+                        .HasColumnType("text");
+
+                    b.HasKey("IdFichier");
+
+                    b.HasIndex("BibliothecaireId");
+
+                    b.HasIndex("ContentHash")
+                        .IsUnique();
+
+                    b.HasIndex("NouveauteId");
+
+                    b.ToTable("Fichier", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entity.Inventaire", b =>
@@ -391,16 +390,14 @@ namespace api.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Langue")
-                        .HasMaxLength(13)
-                        .HasColumnType("character varying(13)");
+                        .HasColumnType("text");
 
                     b.Property<string>("auteur")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
                     b.Property<string>("couverture")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("text");
 
                     b.Property<string>("date_edition")
                         .HasMaxLength(10)
@@ -415,8 +412,7 @@ namespace api.Migrations
                         .HasColumnType("character varying(18)");
 
                     b.Property<string>("titre")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("text");
 
                     b.HasKey("id_livre");
 
@@ -492,10 +488,7 @@ namespace api.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("couverture")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasDefaultValue("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Favf.asso.fr%2Famboise%2Fwp-content%2Fuploads%2Fsites%2F171%2F2021%2F03%2FLogo-Nouveau.jpg&f=1&nofb=1&ipt=fdbaaa07e45eb9aa0e1f8802a963c3259485319662623816e07adf250d84f1f9");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("date_publication")
                         .ValueGeneratedOnAdd()
@@ -513,8 +506,7 @@ namespace api.Migrations
 
                     b.Property<string>("titre")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("text");
 
                     b.HasKey("id_nouv");
 
@@ -545,9 +537,7 @@ namespace api.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Modele_Email_Retard")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("date_modification")
                         .HasColumnType("timestamp with time zone");
@@ -652,15 +642,6 @@ namespace api.Migrations
                     b.ToTable("Statistiques", (string)null);
                 });
 
-            modelBuilder.Entity("domain.Entity.Fichier", b =>
-                {
-                    b.HasOne("domain.Entity.Nouveaute", "ficherNouv")
-                        .WithMany("Fichiers")
-                        .HasForeignKey("NouveauteId");
-
-                    b.Navigation("ficherNouv");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -712,15 +693,6 @@ namespace api.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("domain.Entity.Bibliothecaire", b =>
-                {
-                    b.HasOne("domain.Entity.Fichier", "Fichier")
-                        .WithOne("Bibliothecaire")
-                        .HasForeignKey("domain.Entity.Bibliothecaire", "Photo");
-
-                    b.Navigation("Fichier");
-                });
-
             modelBuilder.Entity("domain.Entity.Emprunts", b =>
                 {
                     b.HasOne("domain.Entity.Inventaire", "Inventaire")
@@ -744,6 +716,21 @@ namespace api.Migrations
                     b.Navigation("Inventaire");
 
                     b.Navigation("Membre");
+                });
+
+            modelBuilder.Entity("domain.Entity.Fichier", b =>
+                {
+                    b.HasOne("domain.Entity.Bibliothecaire", "Bibliothecaire")
+                        .WithMany()
+                        .HasForeignKey("BibliothecaireId");
+
+                    b.HasOne("domain.Entity.Nouveaute", "ficherNouv")
+                        .WithMany("Fichiers")
+                        .HasForeignKey("NouveauteId");
+
+                    b.Navigation("Bibliothecaire");
+
+                    b.Navigation("ficherNouv");
                 });
 
             modelBuilder.Entity("domain.Entity.Inventaire", b =>
@@ -838,15 +825,6 @@ namespace api.Migrations
                     b.Navigation("Parametre");
                 });
 
-            modelBuilder.Entity("domain.Entity.Fichier", b =>
-                {
-                    b.Navigation("Bibliothecaire");
-
-                    b.Navigation("Livre");
-
-                    b.Navigation("couvertureNouv");
-                });
-
             modelBuilder.Entity("domain.Entity.Bibliothecaire", b =>
                 {
                     b.Navigation("Emprunts");
@@ -865,6 +843,13 @@ namespace api.Migrations
             modelBuilder.Entity("domain.Entity.Emprunts", b =>
                 {
                     b.Navigation("Sanctions");
+                });
+
+            modelBuilder.Entity("domain.Entity.Fichier", b =>
+                {
+                    b.Navigation("Livre");
+
+                    b.Navigation("couvertureNouv");
                 });
 
             modelBuilder.Entity("domain.Entity.Inventaire", b =>

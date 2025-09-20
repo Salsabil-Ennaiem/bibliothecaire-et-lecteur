@@ -12,8 +12,8 @@ export class EmpruntService {
 
   constructor(private http: HttpClient) { }
 
-notifcation(): Observable<{ message: string; isRead: boolean }[]> {
-  return this.http.get<{ message: string; isRead: boolean }[]>(`${this.apiUrl}/Notification`);
+notifcation(): Observable<string> {
+return this.http.get(this.apiUrl, { responseType: 'text' });
 }
 
 

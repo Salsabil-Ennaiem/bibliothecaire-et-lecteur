@@ -11,6 +11,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { SanctionService } from '../../../../Services/sanction.service';
 import { Raison_sanction, SanctionDTO } from '../../../../model/sanction.model';
 import { SpeedDialModule } from 'primeng/speeddial';
+import { MessageService } from 'primeng/api';
 
 
 
@@ -32,13 +33,17 @@ export class ListSanctionsComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.intervalId) clearInterval(this.intervalId);
   }
-  constructor(private EmpService: SanctionService, private router: Router) { }
+  constructor(private EmpService: SanctionService, private router: Router, private messageService: MessageService) { }
   Sanctions: SanctionDTO[] = [];
 
   loadSanction(): void {
     this.EmpService.getAll().subscribe({
       next: (data) => this.Sanctions = data,
-      error: (err) => console.error('Erreur chargement Emp', err)
+      error: (err) => {
+        console.error('Erreur chargement Emp', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error get Sanction:' });
+
+      }
     });
   }
   getTimeDisplay(Sanction?: SanctionDTO): string {
@@ -95,11 +100,17 @@ export class ListSanctionsComponent implements OnInit, OnDestroy {
   handleSearch(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery = value;
-    this.EmpService.search(this.searchQuery).subscribe({
-      next: (data) => { this.Sanctions = data },
-      error: (err) => { console.error('Error searching livres:', err) }
+    if (value != "") {
+      this.EmpService.search(this.searchQuery).subscribe({
+        next: (data) => { this.Sanctions = data },
+        error: (err) => {
+          console.error('Error searching livres:', err);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error searching Sanction:' });
+
+        }
+      });
     }
-    );
+    else { this.loadSanction(); }
   }
   isClickInside(event: MouseEvent): boolean {
     const searchContainer = document.getElementById('search-container');
@@ -122,20 +133,22 @@ export class ListSanctionsComponent implements OnInit, OnDestroy {
   }
 
   modifier(id: string): void {
-    if (confirm('Voulez-vous vraiment supprimer cette nouveauté ?')) {
-    this.EmpService.modifier(id).subscribe({
-      next: (data: any) => {
-        this.Sanctions = data.p;
-        this.loadSanction();
-      },
-      error: (err: any) => console.error('Erreur chargement Emp', err)
-    });
-  }}
+    if (confirm('Voulez-vous vraiment Marque Comme payé?')) {
+      this.EmpService.modifier(id).subscribe({
+        next: (data: any) => {
+          this.Sanctions = data;
+          this.loadSanction();
+          this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Sanction Payé ' });
+        },
+        error: (err: any) => {
+          console.error('Erreur chargement Emp', err);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error Modifier Sanction:' });
 
-  Ajouter() { 
-    console.log(`Navigating to ajouter Emprunts`);
-    this.router.navigate([`/bibliothecaire/sanctions/ajouter`]);
+        }
+      });
+    }
   }
+
 
 
 

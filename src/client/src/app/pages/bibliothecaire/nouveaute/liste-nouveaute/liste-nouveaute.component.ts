@@ -6,6 +6,9 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NouveauteService } from '../../../../Services/nouveaute.service';
 import { NouveauteGetALL } from '../../../../model/nouveaute.model';
+import { FichierDto } from '../../../../model/fichier.model';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { MessageService } from 'primeng/api';
 
 
 @Component({
@@ -17,7 +20,7 @@ import { NouveauteGetALL } from '../../../../model/nouveaute.model';
 })
 export class ListeNouveauteComponent implements OnInit {
   nouveautes: NouveauteGetALL[] = [];
-  
+
   today: number = Date.now(); // Current timestamp in milliseconds
   isNewPublication(datePublication: string | null): boolean {
     if (!datePublication) return false;
@@ -30,11 +33,14 @@ export class ListeNouveauteComponent implements OnInit {
   ngOnInit(): void {
     this.loadNouveautes();
   }
-  constructor(private router: Router, private nouveauteService: NouveauteService) { }
+  constructor(private router: Router, private nouveauteService: NouveauteService , private messageService :MessageService ,private sanitizer: DomSanitizer) { }
   loadNouveautes(): void {
     this.nouveauteService.getAllNouv().subscribe({
       next: (data) => this.nouveautes = data,
-      error: (err) => console.error('Erreur chargement nouveautés', err)
+      error: (err) => {console.error('Erreur chargement nouveautés', err);
+                   this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error get Nouveautes' });
+
+      }
     });
   }
 
@@ -51,8 +57,9 @@ export class ListeNouveauteComponent implements OnInit {
     if (confirm('Voulez-vous vraiment supprimer cette nouveauté ?')) {
       this.nouveauteService.delete(id).subscribe({
         next: () => {
-          // Rafraîchir la liste après suppression
-          this.nouveautes = this.nouveautes.filter(n => n.id_nouv !== id);
+          this.loadNouveautes();
+                    this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Nouvete Supprimer' });
+
         },
         error: (err) => {
           console.error('Erreur suppression nouveauté', err);
@@ -61,24 +68,54 @@ export class ListeNouveauteComponent implements OnInit {
       });
     }
   }
+toImageSrc(file: FichierDto | null | undefined): SafeUrl | null {
+  if (!file?.contenuFichier) return null;
 
-  
-  responsiveOptions = [
-  {
-    breakpoint: '1024px',
-    numVisible: 3,
-    numScroll: 1
-  },
-  {
-    breakpoint: '768px',
-    numVisible: 2,
-    numScroll: 1
-  },
-  {
-    breakpoint: '560px',
-    numVisible: 1,
-    numScroll: 1
+  const bytes = file.contenuFichier;
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
   }
-];
+  const base64String = window.btoa(binary);
+  const mimeType = file.typeFichier ?? 'image/png';
+
+  const objectURL = `data:${mimeType};base64,${base64String}`;
+  return this.sanitizer.bypassSecurityTrustUrl(objectURL);
+}
+
+getSafeImage(file?: FichierDto | null): SafeUrl | null {
+    if (!file?.contenuFichier) return null;
+
+    // Convert binary content to base64
+    const bytes = new Uint8Array(file.contenuFichier);
+    let binary = '';
+    bytes.forEach(b => binary += String.fromCharCode(b));
+    const base64String = window.btoa(binary);
+
+    // Compose full data URL
+    const objectURL = `data:${file.typeFichier ?? 'image/png'};base64,${base64String}`;
+
+    // Bypass security and return safe URL
+    return this.sanitizer.bypassSecurityTrustUrl(objectURL);
+  }
+
+
+  responsiveOptions = [
+    {
+      breakpoint: '1024px',
+      numVisible: 3,
+      numScroll: 1
+    },
+    {
+      breakpoint: '768px',
+      numVisible: 2,
+      numScroll: 1
+    },
+    {
+      breakpoint: '560px',
+      numVisible: 1,
+      numScroll: 1
+    }
+  ];
 
 }

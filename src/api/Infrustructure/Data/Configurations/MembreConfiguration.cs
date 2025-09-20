@@ -47,7 +47,6 @@ public class MembreConfiguration : IEntityTypeConfiguration<Membre>
             .HasDefaultValue(StatutMemb.actif)
             .IsRequired();
 
-
         entity.HasIndex(e => e.cin_ou_passeport)
             .IsUnique();
 

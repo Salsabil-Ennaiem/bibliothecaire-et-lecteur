@@ -3,6 +3,7 @@ using System;
 using Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using domain.Entity.Enum;
@@ -12,9 +13,11 @@ using domain.Entity.Enum;
 namespace api.Migrations
 {
     [DbContext(typeof(BiblioDbContext))]
-    partial class BiblioDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250919094131_BD")]
+    partial class BD
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -206,6 +209,9 @@ namespace api.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Photo")
+                        .HasColumnType("text");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
@@ -239,6 +245,9 @@ namespace api.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
+                    b.HasIndex("Photo")
+                        .IsUnique();
+
                     b.ToTable("Bibliothecaires", (string)null);
                 });
 
@@ -264,7 +273,7 @@ namespace api.Migrations
                     b.Property<DateTime>("date_emp")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValue(new DateTime(2025, 9, 20, 22, 50, 11, 901, DateTimeKind.Utc).AddTicks(932));
+                        .HasDefaultValue(new DateTime(2025, 9, 19, 9, 41, 29, 759, DateTimeKind.Utc).AddTicks(5631));
 
                     b.Property<DateTime>("date_retour_prevu")
                         .HasColumnType("timestamp with time zone");
@@ -296,9 +305,6 @@ namespace api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("text");
 
-                    b.Property<string>("BibliothecaireId")
-                        .HasColumnType("text");
-
                     b.Property<string>("CheminFichier")
                         .HasColumnType("text");
 
@@ -325,8 +331,6 @@ namespace api.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("IdFichier");
-
-                    b.HasIndex("BibliothecaireId");
 
                     b.HasIndex("ContentHash")
                         .IsUnique();
@@ -690,6 +694,15 @@ namespace api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("domain.Entity.Bibliothecaire", b =>
+                {
+                    b.HasOne("domain.Entity.Fichier", "Fichier")
+                        .WithOne("Bibliothecaire")
+                        .HasForeignKey("domain.Entity.Bibliothecaire", "Photo");
+
+                    b.Navigation("Fichier");
+                });
+
             modelBuilder.Entity("domain.Entity.Emprunts", b =>
                 {
                     b.HasOne("domain.Entity.Inventaire", "Inventaire")
@@ -717,15 +730,9 @@ namespace api.Migrations
 
             modelBuilder.Entity("domain.Entity.Fichier", b =>
                 {
-                    b.HasOne("domain.Entity.Bibliothecaire", "Bibliothecaire")
-                        .WithMany()
-                        .HasForeignKey("BibliothecaireId");
-
                     b.HasOne("domain.Entity.Nouveaute", "ficherNouv")
                         .WithMany("Fichiers")
                         .HasForeignKey("NouveauteId");
-
-                    b.Navigation("Bibliothecaire");
 
                     b.Navigation("ficherNouv");
                 });
@@ -844,6 +851,8 @@ namespace api.Migrations
 
             modelBuilder.Entity("domain.Entity.Fichier", b =>
                 {
+                    b.Navigation("Bibliothecaire");
+
                     b.Navigation("Livre");
 
                     b.Navigation("couvertureNouv");

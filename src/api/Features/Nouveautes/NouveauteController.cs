@@ -35,13 +35,6 @@ namespace api.Features.Nouveautes
             return Ok(createdNouveaute); 
         }
 
-        [HttpPut("Update/{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] UpdateNouveauteRequest request)
-        {
-            var updated = await _nouveauteHandler.UpdateAsync(request, id);
-            return Ok(updated);
-        }
-
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(string id)
         {

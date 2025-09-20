@@ -17,6 +17,8 @@ export interface MembreDto {
   telephone?: string | null;
   date_inscription: Date;
   statut: StatutMemb;
+    cin_ou_passeport: string;
+
 }
 
 export interface UpdateMembreDto {

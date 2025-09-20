@@ -18,16 +18,16 @@ public class ProfileController : ControllerBase
     }
 
     [HttpGet("Get")]
-    public async Task<ActionResult<ProfileDTO>> GetProfile(CancellationToken cancellationToken)
+    public async Task<ActionResult<ProfileDTO>> GetProfile()
     {
-        var profile = await _profileHandler.GetProfileAsync(cancellationToken);
+        var profile = await _profileHandler.GetProfileAsync();
         return Ok(profile);
     }
 
     [HttpPut("put")]
-    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
     {
-        await _profileHandler.UpdateProfileAsync(dto, cancellationToken);
+        await _profileHandler.UpdateProfileAsync(dto);
         return NoContent();
     }
 }

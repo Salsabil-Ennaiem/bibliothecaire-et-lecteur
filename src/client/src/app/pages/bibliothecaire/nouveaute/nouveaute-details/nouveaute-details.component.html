@@ -1,6 +1,10 @@
 <div class="page-container p-d-flex p-jc-center p-ai-center">
     <div class="content-container">
-        <img src="cover.jpg" alt="Couverture" class="cover-image" />
+<div *ngIf="nouv.CouvertureFile">
+  Base64 Length: {{ nouv.CouvertureFile.contenuFichier?.length }}
+  <img [src]="toImageSrc(nouv.CouvertureFile)" alt="Couverture" />
+</div>
+<div *ngIf="!nouv.CouvertureFile">Aucune couverture disponible</div>
 
         <div class="title">{{nouv.titre}}</div>
 
@@ -10,14 +14,16 @@
            {{nouv.description}}.
         </p>
 
-        <div class="files-wrapper p-d-flex p-ai-center">
-            <div class="files-list" [ngClass]="{'collapsed': collapsed}">
-                <a *ngFor="let file of files" [href]="file.url" target="_blank" download
-                    class="p-link">{{file.name}}</a>
-            </div>
-            <button pButton type="button" class="toggle-btn p-button-rounded p-button-text" (click)="toggleFiles()"
-                [icon]="collapsed ? 'pi pi-ellipsis-h' : 'pi pi-angle-up'" aria-label="Toggle files"></button>
+<!--<div class="files-wrapper p-d-flex p-ai-center" *ngIf="nouv.Fichiers?.length > 0">
+  <div class="files-list" [ngClass]="{'collapsed': collapsed}">
+    <a *ngFor="let file of nouv.Fichiers"
+       [href]="toImageSrc(file) || '#'"
+       target="_blank" download
+       class="p-link">{{ file.nomFichier || 'Télécharger' }}</a>
+  </div>
+  <button pButton type="button" class="toggle-btn p-button-rounded p-button-text" (click)="toggleFiles()"
+    [icon]="collapsed ? 'pi pi-ellipsis-h' : 'pi pi-angle-up'" aria-label="Toggle files"></button>
+</div>-->
 
-        </div>
     </div>
 </div>

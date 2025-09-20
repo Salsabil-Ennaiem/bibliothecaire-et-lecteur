@@ -28,6 +28,14 @@ export class AuthService {
     );
   }
 
+    getToken(): string | null {
+    const currentUser = this.currentUserSubject.value;
+    return currentUser ? currentUser.token : null;
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.getToken();
+  }
   logout(): void {
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
@@ -41,12 +49,5 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}/ForgotPassword/reset-password`, request);
   }
 
-  getToken(): string | null {
-    const currentUser = this.currentUserSubject.value;
-    return currentUser ? currentUser.token : null;
-  }
 
-  isLoggedIn(): boolean {
-    return !!this.getToken();
-  }
 }

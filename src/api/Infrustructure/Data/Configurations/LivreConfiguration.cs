@@ -14,30 +14,21 @@ public class LivreConfiguration : IEntityTypeConfiguration<Livres>
         entity.Property(e => e.id_livre)
             .ValueGeneratedOnAdd();
 
-        entity.Property(e => e.titre)
-            .HasMaxLength(200);
-
         entity.Property(e => e.editeur)
             .HasMaxLength(100);
 
         entity.Property(e => e.date_edition)
             .HasMaxLength(10);
 
-
         entity.Property(e => e.isbn)
             .HasMaxLength(18);
 
-        entity.Property(e => e.couverture)
-            .HasMaxLength(200);
-
         entity.Property(e => e.auteur)
             .HasMaxLength(100);
-       
-        entity.Property(e => e.Langue)
-            .HasMaxLength(13);
 
+        entity.Property(e => e.Description)
+     .HasColumnType("text");
 
-            
 
         entity.HasOne(e => e.Fichiers)
             .WithOne(b => b.Livre)

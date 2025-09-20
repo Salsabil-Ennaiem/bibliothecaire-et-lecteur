@@ -38,7 +38,6 @@ public class EmpruntConfiguration : IEntityTypeConfiguration<Emprunts>
         entity.Property(e => e.Statut_emp)
             .HasDefaultValue(Statut_emp.en_cours)
             .HasColumnType("statut_emp")
-            //.HasConversion<string>()
             .IsRequired();
 
         entity.Property(e => e.note)

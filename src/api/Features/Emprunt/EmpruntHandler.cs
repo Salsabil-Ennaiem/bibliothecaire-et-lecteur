@@ -138,7 +138,7 @@ public async Task GererAlertesEtNotificationsAsync()
     public async Task<IEnumerable<EmppruntDTO>> SearchAsync(string searchTerm)
     {
         var list = await _empruntsRepository.GetAllEmpAsync();
-        if (searchTerm == "") { return list; }
+        if (searchTerm ==null) { return list; }
         var query = list.Where(e => (e.id_membre == searchTerm)
                             || (e.cote_liv != null && e.cote_liv.Contains(searchTerm))
                             || (e.note != null && e.note.Contains(searchTerm))

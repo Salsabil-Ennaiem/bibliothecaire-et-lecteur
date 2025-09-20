@@ -5,7 +5,21 @@
         </div>
 
         <div class="p-5 pt-0">
-            <form id="AjouterLiv" (ngSubmit)="Ajouter(livre)">
+            <form #AjouterLiv (ngSubmit)="Ajouter(livre)" novalidate>
+                <div class="row">
+                    <!-- Upload couverture image -->
+                    <div class="p-field p-col-12 p-md-6">
+                        <label class="p-label p-text-bold">Couverture (Image)</label>
+                        <p-fileUpload name="couverture" maxFileSize="10000000" [(ngModel)]="livre.couverture" [auto]="false" mode="advanced"
+                            chooseLabel="Choisir" cancelLabel="Annuler" (onSelect)="onSelectCover($event)"
+                            (onClear)="onClearCover()" [showCancelButton]="true" [showUploadButton]="false"
+                            accept="image/*" [maxFileSize]="10000000">
+                        </p-fileUpload>
+                        <div *ngIf="coverPreview" class="cover-preview">
+                            <img [src]="coverPreview" alt="Aperçu couverture" />
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <!-- Left Column -->
                     <div class="col-md-6">
@@ -16,9 +30,12 @@
                                 <p-iconfield>
                                     <p-inputicon class="pi pi-barcode" />
                                     <input pInputText id="cote" type="text" [(ngModel)]="livre.cote_liv" class="w-100"
-                                        name="cote_liv" placeholder="Ex: A39-B12" [required]="true">
+                                        name="cote_liv" placeholder="Ex: A39-B12" #cote="ngModel" required>
                                 </p-iconfield>
                             </span>
+                            <div *ngIf="cote.invalid && cote.touched" class="text-danger small mt-1">
+                                champs Cote requis
+                            </div>
                         </div>
 
                         <!-- Auteur -->
@@ -40,16 +57,19 @@
                                 <p-iconfield>
                                     <p-inputicon class="pi pi-building" />
                                     <input pInputText id="editeur" type="text" [(ngModel)]="livre.editeur" class="w-100"
-                                        name="editeur" placeholder="Ex: Gallimard" required>
+                                        name="editeur" placeholder="Ex: Gallimard" required #editeur="ngModel">
                                 </p-iconfield>
                             </span>
+                            <div *ngIf="editeur.invalid && editeur.touched" class="text-danger small mt-1">
+                                champs editeur requis
+                            </div>
                         </div>
 
                         <!--Langue-->
                         <div class="mb-3">
                             <label for="langue" class="form-label">Langue</label>
-                            <p-select [options]="langues" [(ngModel)]="livre.Langue" optionLabel="label"
-                                name ="Langue" placeholder="Sélectionnez une langue" class="w-100" inputId="langue">
+                            <p-select [options]="langues" [(ngModel)]="livre.Langue" optionLabel="label" name="Langue"
+                                placeholder="Sélectionnez une langue" class="w-100" inputId="langue">
                             </p-select>
                         </div>
                     </div>
@@ -63,9 +83,12 @@
                                 <p-iconfield>
                                     <p-inputicon class="pi pi-bookmark" /> <!-- Better for book title -->
                                     <input pInputText id="Titre" type="text" [(ngModel)]="livre.titre" class="w-100"
-                                        name="titre" placeholder="Ex: Le Petit Prince" required>
+                                        name="titre" placeholder="Ex: Le Petit Prince" required #titre="ngModel">
                                 </p-iconfield>
                             </span>
+                            <div *ngIf="titre.invalid && titre.touched" class="text-danger small mt-1">
+                                champs title requis
+                            </div>
                         </div>
 
                         <!-- ISBN & Inventaire (side by side) -->
@@ -100,17 +123,20 @@
                                 <p-iconfield>
                                     <p-inputicon class="pi pi-calendar" /> <!-- Calendar icon for date -->
                                     <input pInputText id="date_edition" [(ngModel)]="livre.date_edition" type="text"
-                                        class="w-100" name="date_edition" placeholder="Ex: 2023" required>
+                                        class="w-100" name="date_edition" placeholder="Ex: 2023" required
+                                        #dateed="ngModel">
                                 </p-iconfield>
                             </span>
+                            <div *ngIf="dateed.invalid && dateed.touched" class="text-danger small mt-1">
+                                champs date Edition requis
+                            </div>
                         </div>
 
                         <!-- Etat Livre -->
                         <div class="mb-3">
                             <label for="selectEtat_Livre" class="form-label">État du Livre</label>
                             <p-select [options]="selectEtat_Livre" [(ngModel)]="livre.etat" optionLabel="label"
-                                placeholder="Sélectionnez un état" styleClass="w-100"
-                                name="etat"></p-select>
+                                placeholder="Sélectionnez un état" styleClass="w-100" name="etat"></p-select>
                         </div>
                     </div>
                 </div>
@@ -131,10 +157,10 @@
 
                 <!-- Buttons -->
                 <div class="d-flex justify-content-between mt-4">
-                    <button pButton type="reset" label="Annuler" icon="pi pi-times" styleClass="p-button-secondary" [raised]="true"
-                        routerLink="/bibliothecaire/livres"></button>
+                    <button pButton type="button" label="Annuler" icon="pi pi-times" styleClass="p-button-secondary"
+                        [raised]="true" routerLink="/bibliothecaire/livres"></button>
                     <button pButton label="Enregistrer" icon="pi pi-check" styleClass="p-button-success" [raised]="true"
-                        type="submit" ></button>
+                        type="submit"></button>
                 </div>
             </form>
         </div>

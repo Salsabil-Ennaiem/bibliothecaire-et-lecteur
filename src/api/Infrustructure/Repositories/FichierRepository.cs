@@ -111,25 +111,35 @@ public class FichierRepository : IFichierRepository
 
         return couverture.IdFichier;
     }
-    public async Task<(Stream? ContentStream, string ContentType, string FileName)?> GetFileByIdAsync(string id)
+    public async Task<(Stream ContentStream, string ContentType, string FileName)?> GetFileByIdAsync(string id)
     {
         var fichier = await _context.Set<Fichier>().FindAsync(id);
         if (fichier == null)
-            throw new Exception("not found");
+            throw new KeyNotFoundException($"File with id '{id}' not found.");
+
         if (!string.IsNullOrEmpty(fichier.CheminFichier) && File.Exists(fichier.CheminFichier))
         {
-            // Stream file from file system
-            var stream = File.OpenRead(fichier.CheminFichier);
-            return (stream, fichier.TypeFichier ?? "application/octet-stream", fichier.NomFichier ?? "file");
+            try
+            {
+                // Stream file from file system.
+                // Note: Caller is responsible for disposing the returned Stream to avoid file handle leaks.
+                var stream = File.OpenRead(fichier.CheminFichier);
+                return (stream, fichier.TypeFichier ?? "application/octet-stream", fichier.NomFichier ?? "file");
+            }
+            catch (IOException ex)
+            {
+                throw new IOException($"Error opening file at path '{fichier.CheminFichier}'.", ex);
+            }
         }
         else if (fichier.ContenuFichier != null && fichier.ContenuFichier.Length > 0)
         {
+            // Return a memory stream from DB blob content
             var ms = new MemoryStream(fichier.ContenuFichier);
             return (ms, fichier.TypeFichier ?? "application/octet-stream", fichier.NomFichier ?? "file");
         }
         else
         {
-            throw new Exception("not found");
+            throw new InvalidOperationException($"File content for id '{id}' not found in file path or database.");
         }
     }
     public async Task<FichierDto?> GetFullFileInfoAsync(string fileId)
@@ -139,14 +149,20 @@ public class FichierRepository : IFichierRepository
             return null;
 
         var dto = fichier.Adapt<FichierDto>();
+
         if (!string.IsNullOrEmpty(fichier.CheminFichier) && File.Exists(fichier.CheminFichier))
         {
-            // Load file content from path
-            dto.ContenuFichier = await File.ReadAllBytesAsync(fichier.CheminFichier);
+            try
+            {
+                dto.ContenuFichier = await File.ReadAllBytesAsync(fichier.CheminFichier);
+            }
+            catch (IOException ex)
+            {
+                throw new IOException($"Error reading file content at path '{fichier.CheminFichier}'.", ex);
+            }
         }
         else if (fichier.ContenuFichier != null && fichier.ContenuFichier.Length > 0)
         {
-            // Load content from DB
             dto.ContenuFichier = fichier.ContenuFichier;
         }
         else
@@ -155,6 +171,23 @@ public class FichierRepository : IFichierRepository
         }
 
         return dto;
+    }
+    public async Task<IEnumerable<FichierDto>> GetByNouveauteIdAsync(string nouveauteId)
+    {
+        var fichiers = await _context.Fichiers
+            .Where(f => f.NouveauteId == nouveauteId)
+            .ToListAsync();
+
+        if (!fichiers.Any())
+            return Enumerable.Empty<FichierDto>();
+
+        var dtos = fichiers.Adapt<List<FichierDto>>();
+
+        var fullDtos = await Task.WhenAll(
+            dtos.Select(async dto => await GetFullFileInfoAsync(dto.IdFichier) ?? dto)
+        );
+
+        return fullDtos;
     }
     public async Task DeleteFileByIdAsync(string fileId)
     {
@@ -181,7 +214,7 @@ public class FichierRepository : IFichierRepository
             bool isUsedElsewhere = await IsFileUsedElsewhereAsync(fichier.IdFichier, nouveauteId);
             if (!isUsedElsewhere)
             {
-                _context.Set<Fichier>().Remove(fichier);
+                _context.Fichiers.Remove(fichier);
             }
             else
             {

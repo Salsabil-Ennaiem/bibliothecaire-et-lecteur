@@ -48,9 +48,7 @@ public class BibliothecaireConfiguration : IEntityTypeConfiguration<Bibliothecai
             .HasForeignKey(l => l.id_biblio)
             .OnDelete(DeleteBehavior.SetNull);
 
-        builder.HasOne(f => f.Fichier)
-        .WithOne(b => b.Bibliothecaire)
-        .HasForeignKey<Bibliothecaire>(f => f.Photo);
+
 
     }
 }

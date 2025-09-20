@@ -5,22 +5,22 @@ import { MembreDto, StatutMemb } from '../../../../model/membre.model';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { SpeedDialModule } from 'primeng/speeddial';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { FormsModule } from '@angular/forms'; 
+import { FormsModule } from '@angular/forms';
 
 
 @Component({
   selector: 'app-list-membre',
-  imports: [CommonModule,FormsModule ,ButtonModule ,SpeedDialModule ,InputIconModule ,InputIconModule ,InputTextModule , IconFieldModule],
+  imports: [CommonModule, FormsModule, ButtonModule, SpeedDialModule, InputIconModule, InputIconModule, InputTextModule, IconFieldModule],
   templateUrl: './list-membre.component.html',
   styleUrl: './list-membre.component.css'
 })
 export class ListMembreComponent implements OnInit {
 
-  constructor(private MemServ: MembreService,private router:Router) { }
+  constructor(private MemServ: MembreService, private router: Router, private messgserv: MessageService) { }
   users: MembreDto[] = []
   ngOnInit(): void {
     this.loadMembres();
@@ -43,45 +43,53 @@ export class ListMembreComponent implements OnInit {
     else
       return "📚";
   }
-    showSpeedDial: boolean = false;
-      toggleSpeedDial(event: Event, id: string) {
-      event.stopPropagation();
-      const emprunt = this.users.find(e => e.id_membre === id);
-      if (emprunt) {
-        this.showSpeedDial = !this.showSpeedDial;
+  showSpeedDial: boolean = false;
+  toggleSpeedDial(event: Event, id: string) {
+    event.stopPropagation();
+    const emprunt = this.users.find(e => e.id_membre === id);
+    if (emprunt) {
+      this.showSpeedDial = !this.showSpeedDial;
+    }
+  }
+  createSpeedDialItems(empruntId: string): MenuItem[] {
+    return [
+      {
+        label: 'Modifier',
+        icon: 'pi pi-pencil',
+        command: () => this.modifier(empruntId)
+      },
+      {
+        label: 'Supprimer',
+        icon: 'pi pi-trash',
+        command: () => this.supprimer(empruntId)
       }
-    }
-    createSpeedDialItems(empruntId: string): MenuItem[] {
-      return [
-        {
-          label: 'Modifier',
-          icon: 'pi pi-pencil',
-          command: () => this.modifier(empruntId)
-        },
-        {
-          label: 'Supprimer',
-          icon: 'pi pi-trash',
-          command: () => this.supprimer(empruntId)
-        }
-      ];
-    }
-    modifier(id: string) {
+    ];
+  }
+  modifier(id: string) {
     console.log(`Navigating to edit Membre ID: ${id}`);
     this.router.navigate([`/bibliothecaire/membres/modifier/${id}`]);
   }
 
-  supprimer(id: string):void {
-    if (confirm('Voulez-vous vraiment supprimer cette nouveauté ?')){
-    console.log(`Delete Membre ID: ${id}`);
-    this.loadMembres();
-    this.MemServ.delete(id).subscribe(
-{    next:() => console.log('Membre deleted successfully'),
-      error:(error) => console.error('Error deleting Membre:', error)}
-    );}
+  supprimer(id: string): void {
+    if (confirm('Voulez-vous vraiment supprimer cette nouveauté ?')) {
+      console.log(`Delete Membre ID: ${id}`);
+      this.loadMembres();
+      this.MemServ.delete(id).subscribe(
+        {
+          next: () => {
+            console.log('Membre deleted successfully');
+            this.loadMembres();
+            this.messgserv.add({ severity: 'success', summary: 'Succès', detail: 'Membre Supprimer' });
+
+          },
+          error: (error) => console.error('Error deleting Membre:', error)
+        }
+      );
+    }
   }
-    //Recherche 
-      searchQuery = '';
-     isInputVisible = false;
+  //Recherche 
+  searchQuery = '';
+  isInputVisible = false;
   @HostListener('document:click', ['$event'])
   @HostListener('window:scroll', [])
   handleOutsideEvents(event?: MouseEvent | KeyboardEvent) {
@@ -91,9 +99,9 @@ export class ListMembreComponent implements OnInit {
         this.isInputVisible = false;
         this.searchQuery = '';
       }
-    }  else {
+    } else {
       this.isInputVisible = false;
-              this.searchQuery = '';
+      this.searchQuery = '';
 
     }
   }
@@ -103,11 +111,12 @@ export class ListMembreComponent implements OnInit {
   handleSearch(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery = value;
-    this.MemServ.search(this.searchQuery).subscribe({
+        if(value!="")
+    {this.MemServ.search(this.searchQuery).subscribe({
       next: (data) => { this.users = data },
       error: (err) => { console.error('Error searching livres:', err) }
-    }
-    );
+    });}
+    else{this.loadMembres();}
   }
   isClickInside(event: MouseEvent): boolean {
     const searchContainer = document.getElementById('search-container');

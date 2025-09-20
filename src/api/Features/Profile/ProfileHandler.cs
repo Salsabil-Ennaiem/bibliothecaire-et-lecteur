@@ -51,7 +51,7 @@ public class ProfileHandler
         }
     }
 
-    public async Task<ProfileDTO> GetProfileAsync(CancellationToken cancellationToken)
+    public async Task<ProfileDTO> GetProfileAsync()
     {
         try
         {
@@ -71,7 +71,7 @@ public class ProfileHandler
         }
     }
 
-    public async Task UpdateProfileAsync(UpdateProfileDto dto, CancellationToken cancellationToken)
+    public async Task UpdateProfileAsync(UpdateProfileDto dto)
     {
         try
         {

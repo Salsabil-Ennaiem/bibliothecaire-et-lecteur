@@ -21,20 +21,19 @@ export class NotificationComponent implements OnInit, OnDestroy {
   private subscription?: Subscription;
 
   constructor(private empruntService: EmpruntService) {}
-
+//10s=1000ms*10
   ngOnInit() {
-    // Example polling every 10 seconds to fetch notifications
-    this.subscription = timer(0, 10000).subscribe(() => {
-      this.empruntService.notifcation().subscribe({
-        next: (data: { message: string; isRead: boolean }[]) => {
-          this.notifications = data;
-          this.updateUnreadCount();
-        },
-        error: (err) => {
-          // Handle error
-          console.error('Failed to load notifications', err);
-        }
-      });
+    this.subscription = timer(0, 60000).subscribe(() => {
+this.empruntService.notifcation().subscribe({
+  next: (response: string) => {
+    console.log('Backend response:', response);
+    // If you want to trigger UI updates or notifications, do it here
+  },
+  error: (err) => {
+    console.error('Failed to load notifications', err);
+  }
+});
+
     });
   }
 

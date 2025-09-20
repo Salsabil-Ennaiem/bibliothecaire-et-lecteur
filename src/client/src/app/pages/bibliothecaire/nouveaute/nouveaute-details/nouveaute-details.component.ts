@@ -4,6 +4,8 @@ import { ButtonModule } from 'primeng/button';
 import { NouveauteService } from '../../../../Services/nouveaute.service';
 import { NouveauteDTO } from '../../../../model/nouveaute.model';
 import { ActivatedRoute } from '@angular/router';
+import { FichierDto } from '../../../../model/fichier.model';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-nouveaute-details',
@@ -12,7 +14,7 @@ import { ActivatedRoute } from '@angular/router';
   styleUrl: './nouveaute-details.component.css'
 })
 export class NouveauteDetailsComponent implements OnInit {
-    constructor(private nouvSer: NouveauteService, private route :ActivatedRoute) { }
+    constructor(private nouvSer: NouveauteService, private route :ActivatedRoute,private msgserv:MessageService) { }
 
 id: string | null = null;
   ngOnInit(): void {
@@ -29,22 +31,38 @@ if (this.id) {
     fichier: '',
     description: '',
     date_publication: new Date,
-    couverture: ''
+ couverture: null,
+  CouvertureFile: null,
+  Fichiers: []
+  };
+toImageSrc(file: FichierDto | null | undefined): string | null {
+  if (!file || !file.contenuFichier) {
+    console.warn('No content for file', file);
+    return null;
   }
+  const base64String = btoa(String.fromCharCode(...new Uint8Array(file.contenuFichier)));
+  return `data:${file.typeFichier ?? 'image/png'};base64,${base64String}`;
+}
+
 
   getId(id: string) {
-    this.nouvSer.getById(id).subscribe(
-      {
-        next: (data) => this.nouv = data,
-        error: (err) => console.error('Erreur chargement nouveautés', err)
-      }); 
+    this.nouvSer.getById(id).subscribe({
+  next: (data) => {
+    console.log('Nouveaute loaded:', data);
+    this.nouv = data;
+    console.log('CouvertureFile:', this.nouv.CouvertureFile);
+  },
+  error: (err) => {console.error('Erreur chargement nouveautés', err);
+               this.msgserv.add({ severity: 'error', summary: 'Error', detail: 'Error detail Nouv:' });
+
   }
+});
+
+  }
+
+  
   collapsed = true;
-  files = [
-    { name: 'file1.pdf', url: 'file1.pdf' },
-    { name: 'file2.pdf', url: 'file2.pdf' },
-    { name: 'file3.pdf', url: 'file3.pdf' }
-  ];
+  
 
   toggleFiles() {
     this.collapsed = !this.collapsed;

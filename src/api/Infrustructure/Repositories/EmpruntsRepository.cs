@@ -34,7 +34,7 @@ namespace Infrastructure.Repositries
                 {
                     throw new Exception(" CIN , email doit etre remplir au minimum");
                 }
-                // 1. Recherche du membre existant via le repository générique
+                // 1. Recherche du membre existant
                 var allMembres = await _membreRepository.GetAllMembAsync();
                 var membreExistant = allMembres.FirstOrDefault(m =>
                     (!string.IsNullOrEmpty(empdto.cin_ou_passeport) && m.cin_ou_passeport == empdto.cin_ou_passeport) ||
@@ -44,7 +44,6 @@ namespace Infrastructure.Repositries
                 {
                     if (membreExistant.Statut == StatutMemb.sanctionne)
                     {
-                        //add serach sanction how time he gonna be wait until he finish that
                         throw new Exception("this membre not allowed to get any book right now ");
                     }
                     else
@@ -71,7 +70,7 @@ namespace Infrastructure.Repositries
 
                         membreExistant = nouveauMembre.Adapt<MembreDto>();
                     }
-                    else throw new Exception("cin ou email deja existe ");
+                    else  throw new Exception("cin ou email deja existe soit changer le ou ecriver tous donne correcte");
 
                 }
                 var delais = await _ParametreRepository.GetDelais(empdto.TypeMembre);
@@ -170,7 +169,6 @@ namespace Infrastructure.Repositries
                 throw new Exception($"Error retrieving Empprunt with ID {id}: {ex.Message}", ex);
             }
         }
-
         public async Task<EmppruntDTO> UpdateAsync(string id, UpdateEmppruntDTO updateEmpReq)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
@@ -221,7 +219,6 @@ namespace Infrastructure.Repositries
                 throw new Exception($"Error updating Empprunt with ID {id}: {ex.Message}", ex);
             }
         }
-
         public async Task DeleteAsync(string id)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();

@@ -1,138 +1,71 @@
 <div class="d-flex justify-content-center align-items-center min-vh-100 p-3">
     <div class="rounded-4 shadow" style="background-color: rgba(195, 242, 191, 0.188); width: 100%; max-width: 800px;">
         <div class="header p-5 pb-4 border-bottom-0">
-            <h1 class="text-center fw-bold">Ajouter Emprunt</h1>
+            <h1 class="text-center fw-bold">Ajouter Sanction</h1>
         </div>
 
         <div class="p-5 pt-0">
-            <form id="AjouterEmp" (ngSubmit)="Ajouter()">
+            <form #ajouterSanction (ngSubmit)="Ajouter()" >
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="raison" class="w-100 form-label font-bold mb-2">Raison *</label>
+                        <p-multiSelect id="raison" class="w-100" [options]="selectRaison" [(ngModel)]="Sanction.raison"
+                            name="raison" optionLabel="label" optionValue="value" placeholder="Select raisons"
+                            #raison="ngModel">
+                            <div *ngIf="raison.invalid && raison.touched" class="text-danger small mt-1">
+                                Raison est obligatoire
+                            </div>
+                        </p-multiSelect>
+                    </div>
+                </div>
                 <div class="row">
                     <!-- Left Column -->
-                    <div class="col-md-6">
-                        <!-- Livre Information -->
-                        <div class="mb-3">
-                            <label for="cote" class="form-label">Cote  Livre</label>
-                            <span class="w-100">
-                                <p-iconfield>
-                                    <p-inputicon class="pi pi-book" />
-                                    <input pInputText id="cote" type="text" [(ngModel)]="emprunt.cote" class="w-100"
-                                        name="cote" placeholder="Ex: A39">
-                                </p-iconfield>
-                            </span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="editeur" class="form-label">Éditeur  Livre</label>
-                            <span class="w-100">
-                                <p-iconfield>
-                                    <p-inputicon class="pi pi-building" />
-                                    <input pInputText id="editeur" type="text" [(ngModel)]="emprunt.editeur"
-                                        class="w-100" name="editeur" placeholder="Ex: Gallimard">
-                                </p-iconfield>
-                            </span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="typeEmprunteur" class="form-label">Type d'Emprunteur</label>
-                            <p-select [options]="typesEmprunteur" [(ngModel)]="emprunt.typeEmprunteur"
-                                optionLabel="label" placeholder="Sélectionnez un type" styleClass="w-100"
-                                name="typeEmprunteur"></p-select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="editeur" class="form-label">Date Fin D'emprunt</label>
-                            <span class="w-100">
-                                <p-iconfield>
-                                    <p-inputicon class="pi pi-calendar-minus" />
-                                    <input pInputText id="dateFinEmp" type="date" [(ngModel)]="emprunt.dateFinEmp"
-                                        class="w-100" name="dateFinEmp">
-                                </p-iconfield>
-                            </span>
+                    <div class="col-6 mb-3">
+                        <label for="dateFin" class="form-label font-bold mb-2 w-100">Date Fin *</label>
+                        <p-datepicker id="dateFin" [minDate]="minDate" class="w-100" [(ngModel)]="Sanction.date_fin_sanction" name="dateFin"
+                            dateFormat="dd/mm/yy" showIcon="true" #datefin="ngModel" />
+                        <div *ngIf="datefin.invalid && datefin.touched" class="text-danger small mt-1">
+                            Date Fin est obligatoire
                         </div>
                     </div>
-                    <!-- Right Column -->
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email d'Emprunteur</label>
-                            <span class="w-100">
-                                <p-iconfield>
-                                    <p-inputicon class="pi pi-envelope" />
-                                    <input pInputText id="email" type="email" [(ngModel)]="emprunt.email" class="w-100"
-                                        name="email" placeholder="Ex: email@example.com">
-                                </p-iconfield>
-                            </span>
-                        </div>
-
-<div class="row">  
-    <!--  (Left Side) -->
-    <div class="col-md-6 mb-3">  
-        <label for="nom" class="form-label">Nom</label>
-        <span class="w-100">
-            <p-iconfield>
-                <p-inputicon class="pi pi-user" />
-                <input pInputText id="nom" [(ngModel)]="emprunt.nom" type="text" class="w-100"
-                    name="nom" placeholder="Ex: Amara">
-            </p-iconfield>
-        </span>
-    </div>
-
-    
-    <div class="col-md-6 mb-3">  
-        <label for="prenom" class="form-label">Prénom</label>
-        <span class="w-100">
-            <p-iconfield>
-                <p-inputicon class="pi pi-user" />
-                <input pInputText id="prenom" [(ngModel)]="emprunt.prenom" type="text" class="w-100"
-                    name="prenom" placeholder="Ex: Souad">
-            </p-iconfield>
-        </span>
-    </div>
-</div>
-
-                        <div class="mb-3">
-                            <label for="cin" class="form-label">CIN ou Passeport</label>
-                            <span class="w-100">
-                                <p-iconfield>
-                                    <p-inputicon class="pi pi-id-card" />
-                                    <input pInputText id="cin" [(ngModel)]="emprunt.cin" type="text" class="w-100"
-                                        name="cin" placeholder="Ex: AB123456">
-                                </p-iconfield>
-                            </span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="telephone" class="form-label">Téléphone</label>
-                            <span class="w-100">
-                                <p-iconfield>
-                                    <p-inputicon class="pi pi-phone" />
-                                    <input pInputText id="telephone" [(ngModel)]="emprunt.telephone" type="tel"
-                                        class="w-100" name="telephone" placeholder="Ex: 0612345678">
-                                </p-iconfield>
-                            </span>
-                        </div>
+                    <!-- Left Column -->
+                    <div class="col-6 mb-3">
+                        <label for="montant" class="form-label font-bold mb-2 w-100"> Montant </label>
+                        <p-inputnumber [(ngModel)]="Sanction.montant" class="w-100" name="monatnt" id="montant"
+                            [showButtons]="true" buttonLayout="horizontal" inputId="horizontal" spinnerMode="horizontal"
+                            [step]="0.05" mode="currency" currency="TND">
+                            <ng-template #incrementbuttonicon>
+                                <span class="pi pi-plus"></span>
+                            </ng-template>
+                            <ng-template #decrementbuttonicon>
+                                <span class="pi pi-minus"></span>
+                            </ng-template>
+                        </p-inputnumber>
                     </div>
                 </div>
 
-                <!-- Full width row for notes -->
+                <!-- Description textarea alone -->
                 <div class="row">
                     <div class="col-12">
                         <div class="mb-3">
-                            <label for="notes" class="form-label">Notes</label>
+                            <label class="form-label font-bold mb-2" for="description">Description </label>
                             <span class="w-100">
-                                <textarea pInputTextarea id="notes" [(ngModel)]="emprunt.notes" class="w-100"
-                                    name="notes" rows="3" placeholder="Ajoutez des notes ici..."></textarea>
+                                <textarea pInputTextarea id="description" name="description"
+                                    [(ngModel)]="Sanction.description" rows="3" class="w-100"
+                                    placeholder="Enter description"></textarea>
                             </span>
                         </div>
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">
-                    <p-button label="Annuler" icon="pi pi-times" styleClass="p-button-secondary" [raised]="true"
-                        (click)="Annuler()"></p-button>
-                    <p-button label="Enregistrer" icon="pi pi-check" styleClass="p-button-success" [raised]="true"
-                        (click)="Ajouter()"></p-button>
+                    <button pButton type="button" label="Annuler" icon="pi pi-times" styleClass="p-button-secondary"
+                        [raised]="true" routerLink="/bibliothecaire/emprunts"></button>
+                    <button pButton label="Enregistrer" icon="pi pi-check" styleClass="p-button-success" [raised]="true"
+                        type="submit"></button>
                 </div>
             </form>
+
         </div>
     </div>
 </div>

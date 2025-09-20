@@ -23,6 +23,7 @@
     </div>
     <!-- Right side -->
     <div class="position-absolute  end-0 ">
+            <button pButton icon="pi pi-user" class="w-full p-button-text " (click)="showProfile()"></button>
       <button pButton icon="pi pi-cog" class="w-full p-button-text " (click)="showParametres()"></button>
 <button pButton icon="pi pi-bell" rounded="true" class="p-button-text" (click)="onBellClick($event)">
   <span *ngIf="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
@@ -44,18 +45,16 @@
 <p-drawer [(visible)]="drawerVisible" position="left" class="w-20rem" [modal]="true" (onHide)="drawerVisible = false">
   <div class="p-3">
 
-    <button pButton icon="pi pi-book" label="Livres" class=" p-button-text" routerLink="/bibliothecaire/livres"
+    <button pButton icon="pi pi-book" label="Livres" class="mb-2 w-100 p-button-text" routerLink="/bibliothecaire/livres"
       (click)="drawerVisible = false"></button>
-    <button pButton icon="pi pi-inbox" label="Emprunts" class=" p-button-text" routerLink="/bibliothecaire/emprunts"
+    <button pButton icon="pi pi-inbox" label="Emprunts" class="mb-2 w-100  p-button-text" routerLink="/bibliothecaire/emprunts"
       (click)="drawerVisible = false"></button>
-    <button pButton icon="pi pi-ban" label="Sanctions" class="w-full mb-2 p-button-text"
+    <button pButton icon="pi pi-ban" label="Sanctions" class="mb-2 w-100  p-button-text"
       routerLink="/bibliothecaire/sanctions" (click)="drawerVisible = false"></button>
-    <button pButton icon="pi pi-address-book" label="Membres" class="w-full mb-2 p-button-text"
+    <button pButton icon="pi pi-address-book" label="Membres" class="mb-2 w-100  p-button-text"
       routerLink="/bibliothecaire/membres" (click)="drawerVisible = false"></button>
-    <button pButton icon="pi pi-sparkles" label="Nouveautés" class="w-full mb-2 p-button-text"
+    <button pButton icon="pi pi-sparkles" label="Nouveautés" class="mb-2 w-100  p-button-text"
       routerLink="/bibliothecaire/nouveaute" (click)="drawerVisible = false"></button>
-    <button pButton icon="pi pi-user" label="Profil" class="w-full mb-2 p-button-text"
-      (click)="showProfile(); drawerVisible = false"></button>
   </div>
 </p-drawer>
 

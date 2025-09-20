@@ -14,10 +14,6 @@ public class ParametreConfiguration : IEntityTypeConfiguration<Parametre>
         entity.Property(e => e.id_param)
         .ValueGeneratedOnAdd();
 
-       /* entity.Property(e => e.date_modification)
-        //.HasColumnType("timestamp with time zone")
-        .HasDefaultValueSql("CURRENT_TIMESTAMP");*/
-
         entity.Property(e => e.Delais_Emprunt_Autre)
         .IsRequired();
 
@@ -27,9 +23,7 @@ public class ParametreConfiguration : IEntityTypeConfiguration<Parametre>
         entity.Property(e => e.Delais_Emprunt_Etudiant)
         .IsRequired();
 
-        entity.Property(e => e.Modele_Email_Retard)
-        .IsRequired()
-        .HasMaxLength(1000);
+
 
 
     }

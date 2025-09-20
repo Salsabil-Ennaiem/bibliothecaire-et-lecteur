@@ -11,6 +11,11 @@ namespace api.Features.Nouveautes
         public DateTime date_publication { get; set; } = DateTime.UtcNow;
         public string? couverture { get; set; }
 
+           public FichierDto? CouvertureFile { get; set; }
+
+    // Collection of related fichiers (files)
+    public List<FichierDto>? Fichiers { get; set; }
+
     }
     public class NouveauteGetALL
     {
@@ -18,6 +23,7 @@ namespace api.Features.Nouveautes
         public DateTime date_publication { get; set; } = DateTime.UtcNow;
         public string? couverture { get; set; }
         public string? titre { get; set; }
+        public FichierDto? CouvertureFile { get; set; }
 
     }
 

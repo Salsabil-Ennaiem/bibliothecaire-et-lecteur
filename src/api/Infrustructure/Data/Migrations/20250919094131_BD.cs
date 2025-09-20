@@ -181,7 +181,7 @@ namespace api.Migrations
                     Delais_Emprunt_Etudiant = table.Column<int>(type: "integer", nullable: false),
                     Delais_Emprunt_Enseignant = table.Column<int>(type: "integer", nullable: false),
                     Delais_Emprunt_Autre = table.Column<int>(type: "integer", nullable: false),
-                    Modele_Email_Retard = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    Modele_Email_Retard = table.Column<string>(type: "text", nullable: true),
                     date_modification = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -226,7 +226,7 @@ namespace api.Migrations
                     id_membre = table.Column<string>(type: "text", nullable: false),
                     id_biblio = table.Column<string>(type: "text", nullable: true),
                     Id_inv = table.Column<string>(type: "text", nullable: false),
-                    date_emp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2025, 9, 8, 18, 34, 12, 449, DateTimeKind.Utc).AddTicks(8870)),
+                    date_emp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValue: new DateTime(2025, 9, 19, 9, 41, 29, 759, DateTimeKind.Utc).AddTicks(5631)),
                     date_retour_prevu = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     date_effectif = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Statut_emp = table.Column<Statut_emp>(type: "statut_emp", nullable: false, defaultValue: Statut_emp.en_cours),
@@ -310,13 +310,13 @@ namespace api.Migrations
                 {
                     id_livre = table.Column<string>(type: "text", nullable: false),
                     date_edition = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
-                    titre = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    titre = table.Column<string>(type: "text", nullable: true),
                     auteur = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     isbn = table.Column<string>(type: "character varying(18)", maxLength: 18, nullable: true),
                     editeur = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
-                    Langue = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: true),
-                    couverture = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true)
+                    Langue = table.Column<string>(type: "text", nullable: true),
+                    couverture = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -334,11 +334,11 @@ namespace api.Migrations
                 {
                     id_nouv = table.Column<string>(type: "text", nullable: false),
                     id_biblio = table.Column<string>(type: "text", nullable: true),
-                    titre = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    titre = table.Column<string>(type: "text", nullable: false),
                     fichier = table.Column<string>(type: "text", nullable: true),
                     description = table.Column<string>(type: "text", nullable: true),
                     date_publication = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    couverture = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true, defaultValue: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Favf.asso.fr%2Famboise%2Fwp-content%2Fuploads%2Fsites%2F171%2F2021%2F03%2FLogo-Nouveau.jpg&f=1&nofb=1&ipt=fdbaaa07e45eb9aa0e1f8802a963c3259485319662623816e07adf250d84f1f9")
+                    couverture = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {

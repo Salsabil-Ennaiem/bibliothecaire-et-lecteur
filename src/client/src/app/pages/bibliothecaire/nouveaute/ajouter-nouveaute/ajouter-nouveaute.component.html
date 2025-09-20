@@ -1,1 +1,59 @@
-<p>ajouter-nouveaute works!</p>
+<div class="d-flex justify-content-center align-items-center min-vh-100 p-3">
+  <div class="rounded-4 shadow p-5"
+    style="background-color: rgba(195, 242, 191, 0.188); width: 100%; max-width: 800px;">
+    <h1 class="text-center fw-bold mb-4">Ajouter Nouveaute</h1>
+
+    <form #formNouveau="ngForm" (ngSubmit)="Ajouter()" autocomplete="off" novalidate>
+
+      <!-- Titre -->
+      <div class="row mb-3">
+        <div class="col-12">
+          <label for="titre" class="form-label font-bold mb-2">Titre *</label>
+          <input pInputText id="titre" name="titre" [(ngModel)]="formData.titre" required autofocus class="w-100"
+            #titre="ngModel" />
+          <div *ngIf="titre.invalid && titre.touched" class="text-danger small mt-1">
+            Titre est obligatoire
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="row mb-3">
+        <div class="col-12">
+          <label for="description" class="form-label">Description</label>
+          <textarea pInputTextarea [(ngModel)]="formData.description" id="description" name="description" rows="3"
+            class="w-100" placeholder="Ajoutez des description ici..."></textarea>
+        </div>
+      </div>
+
+
+      <!-- Upload couverture image -->
+      <div class="p-field p-col-12 p-md-6">
+        <label class="p-label p-text-bold">Couverture (Image)</label>
+        <p-fileUpload name="couverture" maxFileSize="10000000" [auto]="false" mode="advanced" chooseLabel="Choisir"
+          cancelLabel="Annuler" [(ngModel)]="formData.Couv" (onSelect)="onSelectCover($event)" (onClear)="onClearCover()" [showCancelButton]="true"
+          [showUploadButton]="false" accept="image/*" [maxFileSize]="10000000">
+        </p-fileUpload>
+        <div *ngIf="coverPreview" class="cover-preview">
+          <img [src]="coverPreview" alt="Aperçu couverture" />
+        </div>
+      </div>
+
+      <!-- Upload fichiers multiples -->
+      <div class="p-field p-col-12 p-md-6">
+        <label class="p-label p-text-bold">Fichiers joints </label>
+        <p-fileUpload name="fichiers" multiple [maxFileSize]="50000000" [auto]="false" mode="advanced"
+          chooseLabel="Choisir" cancelLabel="Annuler" (onSelect)="onSelectFiles($event)" (onClear)="onClearFiles()"
+          [showCancelButton]="true" [showUploadButton]="false" >
+        </p-fileUpload>
+
+      </div>
+
+      <div class="d-flex justify-content-between mt-4">
+        <button type="button" pButton label="Annuler" icon="pi pi-times" class="p-button-secondary"
+          routerLink="/bibliothecaire/nouveaute"></button>
+        <button pButton icon="pi pi-check" class="p-button-success" type="submit" label="Enregistrer"></button>
+      </div>
+    </form>
+  </div>
+</div>

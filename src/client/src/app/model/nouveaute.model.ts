@@ -1,4 +1,3 @@
-// fichier: { [key: string]: any; } ;
 import { FichierDto } from "./fichier.model";
 
 export interface NouveauteDTO {
@@ -8,6 +7,9 @@ export interface NouveauteDTO {
     description?: string | null;
     date_publication: Date;
     couverture?: string | null;
+    CouvertureFile?: FichierDto | null
+    Fichiers: FichierDto[] | null
+
 }
 
 export interface NouveauteGetALL {
@@ -15,11 +17,8 @@ export interface NouveauteGetALL {
     date_publication: Date;
     couverture?: string | null;
     titre?: string | null;
-}
+    CouvertureFile?: FichierDto | null
 
-export interface UpdateNouveauteRequest {
-    titre?: string | null;
-    description?: string | null;
 }
 
 export interface CreateNouveauteRequestWithFiles {
