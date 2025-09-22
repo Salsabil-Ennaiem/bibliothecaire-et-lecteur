@@ -14,7 +14,7 @@ public class LoginController : ControllerBase
          [HttpPost]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
-        var command = new LoginCommand(request.Email, request.Password);
+        var command = request;
         var response = await _loginHandler.LoginAsync(command);
         return Ok(response);
     }
