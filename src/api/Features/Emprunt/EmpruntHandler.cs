@@ -150,76 +150,13 @@ public async Task GererAlertesEtNotificationsAsync()
                             || (e.cin_ou_passeport != null && e.cin_ou_passeport.Contains(searchTerm)));
         return query;
     }
-    private string GetCurrentUserId()
+    public async Task<IEnumerable<EmppruntDTO>> FiltreStautEmp(Statut_emp? statut_emp)
     {
-        var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
-            throw new UnauthorizedAccessException("User is not authenticated.");
-        return userId;
+        var emp = await GetAllAsync();
+        if(statut_emp==null)
+            return emp;
+        return emp.Where(r => r.Statut_emp == statut_emp);
     }
-    /* public async Task ImportAsync(Stream excelStream)
-     {
-         var workbook = new XSSFWorkbook(excelStream);
-         var sheet = workbook.GetSheetAt(0);
-
-         for (int rowIndex = 1; rowIndex <= sheet.LastRowNum; rowIndex++)
-         {
-             var row = sheet.GetRow(rowIndex);
-             if (row == null) continue;
-
-             var emp = new Emprunts
-             {
-                 id_emp = Guid.NewGuid().ToString(),
-                 id_membre = row.GetCell(0)?.StringCellValue,
-                 id_biblio = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value,
-                 Id_inv = row.GetCell(1)?.StringCellValue,
-                 date_emp = DateTime.UtcNow,
-                 date_retour_prevu = row.GetCell(2)?.DateCellValue,
-                 date_effectif = row.GetCell(3)?.DateCellValue,
-                 Statut_emp = Enum.Parse<Statut_emp>(row.GetCell(4)?.StringCellValue ?? "en_cours"),
-                 note = row.GetCell(5)?.StringCellValue
-             };
-
-             await _empruntsRepository.CreateAsync(emp);
-         }
-     }
-     */
-    /* public async Task<MemoryStream> ExportAsync()
-     {
-         var data = await SearchAsync(""); // Get all data
-
-         var workbook = new XSSFWorkbook();
-         var sheet = workbook.CreateSheet("Emprunts");
-
-         var headerRow = sheet.CreateRow(0);
-         string[] headers = {
-             "IdEmprunt", "IdMembre", "IdBibliothecaire", "IdInventaire", "DateEmprunt",
-             "DateRetourPrevu", "DateEffectif", "StatutEmprunt", "Note"
-         };
-
-         for (int i = 0; i < headers.Length; i++)
-             headerRow.CreateCell(i).SetCellValue(headers[i]);
-
-         int rowIndex = 1;
-         foreach (var emprunt in data)
-         {
-             var row = sheet.CreateRow(rowIndex++);
-             row.CreateCell(0).SetCellValue(emprunt.id_emp ?? "");
-             row.CreateCell(1).SetCellValue(emprunt.id_membre ?? "");
-             row.CreateCell(2).SetCellValue(emprunt.id_biblio ?? "");
-             row.CreateCell(3).SetCellValue(emprunt.Id_inv ?? "");
-             row.CreateCell(4).SetCellValue(emprunt.date_emp.ToString());
-             row.CreateCell(5).SetCellValue(emprunt.date_retour_prevu?.ToString() ?? "");
-             row.CreateCell(6).SetCellValue(emprunt.date_effectif?.ToString() ?? "");
-             row.CreateCell(7).SetCellValue(emprunt.Statut_emp.ToString());
-             row.CreateCell(8).SetCellValue(emprunt.note ?? "");
-         }
-
-         var stream = new MemoryStream();
-         workbook.Write(stream);
-         stream.Position = 0;
-         return stream;
-     }
- */
+ 
 }
 

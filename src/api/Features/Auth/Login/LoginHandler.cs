@@ -23,7 +23,7 @@ namespace api.Features.Auth.Login
             _configuration = configuration ;
         }
 
-        public async Task<LoginResponseDto> LoginAsync(LoginCommand request)
+        public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));

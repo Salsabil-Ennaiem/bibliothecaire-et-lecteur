@@ -1,7 +1,6 @@
 
 namespace api.Features.Auth.Login
 {
-    public record LoginCommand(string Email, string Password);
 
     public class LoginRequestDto
     {
@@ -12,5 +11,6 @@ namespace api.Features.Auth.Login
     public class LoginResponseDto
     {
         public required string Token { get; set; }
+
     }
 }

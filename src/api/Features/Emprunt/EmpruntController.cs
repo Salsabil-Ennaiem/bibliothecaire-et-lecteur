@@ -1,3 +1,4 @@
+using domain.Entity.Enum;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Features.Emprunt;
@@ -50,6 +51,14 @@ public class EmpruntController : ControllerBase
         var results = await _empruntHundler.SearchAsync(term);
         return Ok(results);
     }
+     [HttpGet("FiltrEmp/{Statut}")]
+
+    public async Task<IActionResult> FiltreEmp(Statut_emp? Statut)
+    {
+        var rst= await _empruntHundler.FiltreStautEmp(Statut);
+                return Ok(rst);
+
+    }
     
     [HttpGet("Notification")]
     public async Task<IActionResult> GetNotifications()
@@ -57,24 +66,5 @@ public class EmpruntController : ControllerBase
         await _empruntHundler.GererAlertesEtNotificationsAsync();
         return Ok("Notifications sent successfully.");
     }
-    /*
-
-        [HttpPost("import")]
-        public async Task<IActionResult> Import(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded.");
-
-            using var stream = file.OpenReadStream();
-            await _empruntHundler.ImportAsync(stream);
-            return Ok("Import successful");
-        }
-
-        [HttpGet("export")]
-        public async Task<IActionResult> Export()
-        {
-            var stream = await _empruntHundler.ExportAsync();
-            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Emprunts.xlsx");
-        }
-        */
+   
 }

@@ -36,7 +36,8 @@
             </p-iconfield>
           </span>
         </div>
-        <button pButton label="Login" styleClass="w-100 mb-12" type="submit" [raised]="true"  [disabled]="loginForm.invalid || isLoading"></button>
+        <div class="row"> <button pButton label="Login" styleClass="w-100" type="submit" [raised]="true"
+            [disabled]="loginForm.invalid || isLoading"></button></div>
         <small class="text-body-secondary d-block text-center">
           <a routerLink="../motDePasseOublie">Mot de Passe Oubliée</a>
         </small>

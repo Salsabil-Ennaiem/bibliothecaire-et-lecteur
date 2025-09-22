@@ -10,23 +10,23 @@ import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-modifier-emprunts',
-  imports: [SelectModule ,FormsModule ,TextareaModule, ButtonModule , RouterLink],
+  imports: [SelectModule, FormsModule, TextareaModule, ButtonModule, RouterLink],
   templateUrl: './modifier-emprunts.component.html',
   styleUrl: './modifier-emprunts.component.css'
 })
 export class ModifierEmpruntsComponent implements OnInit {
-  selecttypeMemb: { label: string; value: Statut_emp }[] = [];
+  selectstatutEmp: { label: string; value: Statut_emp }[] = [];
   empId!: string;
   Emp: UpdateEmppruntDTO = {
     statut_emp: null!,
     note: ''
   };
 
-  constructor(private empserv: EmpruntService, private routter :Router,private route: ActivatedRoute, private messegeservice: MessageService) { }
+  constructor(private empserv: EmpruntService, private routter: Router, private route: ActivatedRoute, private messegeservice: MessageService) { }
   ngOnInit(): void {
     this.empId = this.route.snapshot.paramMap.get('id') ?? '';
 
-    this.selecttypeMemb = [
+    this.selectstatutEmp = [
       { label: 'En Cours', value: Statut_emp.en_cours },
       { label: 'Perdu', value: Statut_emp.perdu },
       { label: 'Retourne', value: Statut_emp.retourne }
@@ -43,15 +43,14 @@ export class ModifierEmpruntsComponent implements OnInit {
   onSubmit(form: any): void {
     if (form.valid) {
       this.empserv.update(this.empId, this.Emp).subscribe({
-        next: (updatedMembre) => {
-          console.log('Updated successfully:', updatedMembre);
+        next: (updatedEmp) => {
+          console.log('Updated successfully:', updatedEmp);
           this.messegeservice.add({ severity: 'success', summary: 'Succès', detail: 'Emprunts Modifier' });
-                  this.routter.navigate(['/bibliothecaire/emprunts']);
-
+          this.routter.navigate(['/bibliothecaire/emprunts']);
         },
         error: (err) => {
           console.error('Update failed', err);
-                     this.messegeservice.add({ severity: 'error', summary: 'Error', detail: 'Error modifier Emprunts:' });
+          this.messegeservice.add({ severity: 'error', summary: 'Error', detail: 'Error modifier Emprunts:' });
 
         },
       });

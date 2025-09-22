@@ -1,6 +1,5 @@
 using System.Text;
 using api.Features.Auth.Login;
-using api.Features.ScrapingLivres;
 using Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -52,10 +51,6 @@ builder.Services.AddDbContext<BiblioDbContext>(options =>
     options.UseNpgsql(dataSource);
 });
 
-/*
-builder.Services.AddDbContext<BiblioDbContext>(options => 
-        options.UseNpgsql(builder.Configuration.GetConnectionString("postgres")).EnableSensitiveDataLogging());
-*/
 
 
 builder.Services.AddIdentity<Bibliothecaire, IdentityRole>(options =>
@@ -78,14 +73,13 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
+        NameClaimType = "sub",
+        RoleClaimType = "role",
         ValidIssuer = builder.Configuration["Jwt:ValidIssuer"],
         ValidAudience = builder.Configuration["Jwt:ValidAudience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!))
     };
 });
-
-builder.Services.AddAutoMapper(typeof(Program).Assembly);
-builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -98,6 +92,11 @@ builder.Services.AddRateLimiter(options =>
                 Window = TimeSpan.FromMinutes(5)
             }));
 });
+
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddHttpContextAccessor();
+
+
 
 // Add these services
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
@@ -128,19 +127,6 @@ builder.Services.AddScoped<LoginHandler>();
 builder.Services.AddScoped<NouveauteHandler>();
 builder.Services.AddScoped<ForgotPasswordHandler>();
 builder.Services.AddScoped<ProfileHandler>();
- 
-
-builder.Services.AddBiruniServices(builder.Configuration);
-builder.Services.AddHttpClient<BiruniHtmlExtractor>(client =>
-{
-    client.BaseAddress = new Uri("https://www.biruni.tn/catalogue-local.php?ei=108/");
-    client.DefaultRequestHeaders.UserAgent.ParseAdd("BiruniScraper/1.0");
-});
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new() { Title = "Biruni Scraper", Version = "v1" });
-});
 
 
 
@@ -149,7 +135,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularDevClient", policy =>
     {
-        policy.WithOrigins("http://localhost:4200") 
+        policy.WithOrigins("http://localhost:4200")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials(); //  l’authentification par cookie
@@ -170,11 +156,12 @@ if (app.Environment.IsDevelopment())
 // Appel du seeding au démarrage de l'application
 using (var scope = app.Services.CreateScope())
 {
-        var dbContext = scope.ServiceProvider.GetRequiredService<BiblioDbContext>();
+    var dbContext = scope.ServiceProvider.GetRequiredService<BiblioDbContext>();
     var services = scope.ServiceProvider;
     using var transaction = await dbContext.Database.BeginTransactionAsync();
     try
-    {     await DataSeeder.SeedAllDataAsync(services);
+    {
+        await DataSeeder.SeedAllDataAsync(services);
         await transaction.CommitAsync();
         Console.WriteLine("✅ Seeding process completed successfully!");
     }
@@ -185,16 +172,17 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine($"Stack trace: {ex.StackTrace}");
     }
 }
-
+//order imporatnt routing rouetr first controller last  authentification then autorization 
 app.UseRouting();// After app.UseRouting()
 app.MapHub<DashboardHub>("/dashboardHub");
 app.MapHub<NotificationHub>("/notificationHub");
 
 app.UseCors("AllowAngularDevClient");
 
+
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 app.UseHttpsRedirection();
 app.MapControllers();
-app.UseRateLimiter();
 app.Run();

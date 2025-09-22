@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { MembreDto, UpdateMembreDto } from '../model/membre.model';
+import { MembreDto, StatutMemb, UpdateMembreDto } from '../model/membre.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +13,9 @@ export class MembreService {
   constructor(private http: HttpClient) { }
   search(term: string): Observable<MembreDto[]> {
     return this.http.get<MembreDto[]>(`${this.apiUrl}/search/${term}`);
+  }
+  filtre(statut?: StatutMemb): Observable<MembreDto[]> {
+    return this.http.get<MembreDto[]>(`${this.apiUrl}/FiltrMemb/${statut}`);
   }
   getAll(): Observable<MembreDto[]> {
     return this.http.get<MembreDto[]>(`${this.apiUrl}/Getall`);

@@ -1,0 +1,29 @@
+<div class="container mt-4">
+  <div class="row">
+    <!-- Catalogue Optimization Chart -->
+    <div class="col-md-6 mb-4">
+      <h5>Top Books Loans</h5>
+      <p-chart type="bar" [data]="topBooksLoansData" [options]="chartOptions"></p-chart>
+    </div>
+
+    <!-- Delay Reduction Chart -->
+    <div class="col-md-6 mb-4">
+      <h5>Delay Rate</h5>
+      <p-chart type="doughnut" [data]="delayReductionData" [options]="chartOptions"></p-chart>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Loss Analysis Chart -->
+    <div class="col-md-6 mb-4">
+      <h5>Loss Cost Over Months</h5>
+      <p-chart type="line" [data]="lossAnalysisData" [options]="chartOptions"></p-chart>
+    </div>
+
+    <!-- Resource Planning Chart -->
+    <div class="col-md-6 mb-4">
+      <h5>Monthly Loans</h5>
+      <p-chart type="bar" [data]="resourcePlanningData" [options]="chartOptions"></p-chart>
+    </div>
+  </div>
+</div>

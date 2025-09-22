@@ -43,9 +43,9 @@ export class AjoutLivresComponent implements OnInit {
   constructor(private livreService: LivreService, private http: HttpClient, private routr: Router, private messagesev: MessageService) { }
 
   ngOnInit(): void {
-    this.http.get<{ name: string, native: string }[]>('langues.json').subscribe(data => {
+    this.http.get<{ name: string }[]>('langues.json').subscribe(data => {
       this.langues = data.map(lang => ({
-        label: ` ${lang.name} (${lang.native})`,
+        label: ` ${lang.name} `,
         value: lang.name
       }));
     });

@@ -1,3 +1,5 @@
+using domain.Entity.Enum;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Features.Membres;
@@ -5,6 +7,8 @@ namespace api.Features.Membres;
 
 [ApiController]
 [Route("api/[controller]")]
+//[Authorize(Roles = "Bibliothecaire")]
+
 public class MembreController : ControllerBase
 {
     private readonly MembreHandler _MembreHandler;
@@ -46,5 +50,13 @@ public class MembreController : ControllerBase
     {
         var results = await _MembreHandler.SearchAsync(term);
         return Ok(results);
+    }
+ [HttpGet("FiltrMemb/{satut}")]
+
+    public async Task<IActionResult> FiltreRaison(StatutMemb? satut)
+    {
+        var rst= await _MembreHandler.FiltreStautMemb(satut);
+                return Ok(rst);
+
     }
 }

@@ -1,6 +1,13 @@
 <div class="container">
   <div class="top-controls d-flex justify-content-center align-items-center mb-4 gap-3 flex-wrap">
     <h1 class="m-0">Liste des Sanction</h1>
+    <p-multiSelect id="raison" [options]="selectRaison" [(ngModel)]="selectedRaison" name="raison" optionLabel="label"
+      optionValue="value" placeholder="Select raisons" (onChange)="applyFilterR($event.value)">
+    </p-multiSelect>
+
+    <p-select id="payement" [options]="selectpaye" [(ngModel)]="selectedPay" name="payement"
+      placeholder="Select Statut Membre" [autoDisplayFirst]="false" (onChange)="applyFilterP($event.value)">
+    </p-select>
     <div id="search-container" class="position-relative w-100 d-md-inline " style="max-width: 20rem;">
       <div *ngIf="isInputVisible; else buttonTemplate">
         <p-iconfield>

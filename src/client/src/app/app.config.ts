@@ -9,17 +9,20 @@ import MyAuraPreset from './my-aura-preset';
 import { AuthInterceptor } from './interceptor/auth.interceptor';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
+
 export const appConfig: ApplicationConfig = {
   providers: [provideRouter(routes), MessageService,
   provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideHttpClient(),
   provideAnimationsAsync(),
-   providePrimeNG({theme: {preset: MyAuraPreset,options: { darkModeSelector: '.dark-theme'} } }), 
+  providePrimeNG({ theme: { preset: MyAuraPreset, options: { darkModeSelector: '.dark-theme' } } }),
   provideHttpClient(),
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true
-    }
+  {
+    provide: HTTP_INTERCEPTORS,
+    useClass: AuthInterceptor,
+    multi: true
+  },
+  provideRouter(routes),
+
 
   ]
 };

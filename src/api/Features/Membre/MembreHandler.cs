@@ -21,13 +21,11 @@ public class MembreHandler
         return rt.Adapt<IEnumerable<MembreDto>>();
 
     }
-
     public async Task<MembreDto> GetByIdAsync(string id)
     {
         var entity = await _MembreRepository.GetByIdAsync(id);
         return entity.Adapt<MembreDto>();
     }
-
     public async Task<MembreDto> UpdateAsync(UpdateMembreDto membre, string id)
     {
 
@@ -56,4 +54,11 @@ public class MembreHandler
                            || (m.prenom != null && m.prenom.Contains(searchTerm)));
         return query;
     }
+    public async Task<IEnumerable<MembreDto>> FiltreStautMemb(StatutMemb? statut_Memb)
+    {
+        var Memb = await GetAllMembAsync();
+                        if(statut_Memb==null) return Memb;
+        return Memb.Where(r => r.Statut == statut_Memb);
+    }
+
 }

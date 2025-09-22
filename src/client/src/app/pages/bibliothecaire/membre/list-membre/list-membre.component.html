@@ -1,7 +1,9 @@
 <div class="container">
 <div class="top-controls d-flex justify-content-center align-items-center mb-4 gap-3 flex-wrap">
     <h1 class="m-0">Liste des Membre</h1>
-
+<p-select id="statut_Mmb" [options]="selectstatutMemb" [(ngModel)]="selectedStatutMemb" name="statut_Mmb" 
+      placeholder="Select Statut Membre" [autoDisplayFirst]="false" (onChange)="applyFilter($event.value)">
+    </p-select>
     <div id="search-container" class="position-relative w-100 d-md-inline " style="max-width: 20rem;">
         <div *ngIf="isInputVisible; else buttonTemplate">
             <p-iconfield>

@@ -5,7 +5,6 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   token: string;
-
 }
 
 export interface ForgotPasswordRequest {
@@ -16,7 +15,6 @@ export interface ResetPasswordRequest {
   email: string;
   token: string;
   newPassword: string;
-  confirmPassword: string;
 }
 
 

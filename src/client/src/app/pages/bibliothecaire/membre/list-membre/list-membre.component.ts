@@ -10,11 +10,13 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { FormsModule } from '@angular/forms';
+import { SelectModule } from 'primeng/select';
 
 
 @Component({
   selector: 'app-list-membre',
-  imports: [CommonModule, FormsModule, ButtonModule, SpeedDialModule, InputIconModule, InputIconModule, InputTextModule, IconFieldModule],
+  imports: [CommonModule, FormsModule, ButtonModule, SpeedDialModule, InputIconModule,
+    SelectModule , InputIconModule, InputTextModule, IconFieldModule],
   templateUrl: './list-membre.component.html',
   styleUrl: './list-membre.component.css'
 })
@@ -26,12 +28,32 @@ export class ListMembreComponent implements OnInit {
     this.loadMembres();
   }
 
+  selectedStatutMemb: StatutMemb | null = null;
+  selectstatutMemb: { label: string; value: StatutMemb | null }[] = [
+    { label: 'Tous', value: null },
+    { label: 'Actif', value: StatutMemb.actif },
+    { label: 'Sanctionne', value: StatutMemb.sanctionne },
+    { label: 'Block', value: StatutMemb.block }
+  ];
   loadMembres(): void {
     this.MemServ.getAll().subscribe({
       next: (data) => this.users = data,
       error: (err) => console.error('Erreur chargement Emp', err)
     });
-  }
+  }applyFilter(statut_Mmeb?: StatutMemb): void {
+      if (statut_Mmeb === null) {
+        this.loadMembres();
+      } else {
+        this.MemServ.filtre(statut_Mmeb).subscribe({
+          next: result => {
+            this.users = result;
+          },
+          error: error => {
+            console.error('Error loading filtered Membre', error);
+          }
+        });
+      }
+    }
   public Getvalue(value: number) {
     return StatutMemb[value];
   }

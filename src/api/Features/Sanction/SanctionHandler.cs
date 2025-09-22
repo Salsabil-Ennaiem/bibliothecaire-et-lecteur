@@ -56,8 +56,6 @@ public class SanctionHandler
 
         return sanctionDtos;
     }
-
-
     public async Task<SanctionDTO> CreateAsync(CreateSanctionRequest createSanction, string id)
     {
         if (createSanction.raison == null || createSanction.date_fin_sanction == null || createSanction.date_fin_sanction > DateTime.Now)
@@ -68,39 +66,70 @@ public class SanctionHandler
         var entity = createSanction.Adapt<Sanction>();
 
         if (emprunt.Statut_emp == Statut_emp.retourne && emprunt.date_effectif <= entity.date_sanction.AddDays(1))
-        { 
-        entity.id_membre = emprunt.id_membre;
-        entity.id_emp = id;
-        entity.payement = entity.montant > 0 ? false : true;
-        entity.id_sanc = Guid.NewGuid().ToString();
-        var created = await _sanctionRepository.CreateAsync(entity);
-        return created.Adapt<SanctionDTO>();
-    }
+        {
+            entity.id_membre = emprunt.id_membre;
+            entity.id_emp = id;
+            entity.payement = entity.montant > 0 ? false : true;
+            entity.id_sanc = Guid.NewGuid().ToString();
+            var created = await _sanctionRepository.CreateAsync(entity);
+            return created.Adapt<SanctionDTO>();
+        }
         else throw new Exception("vous ne confirme pas le critère de Sanction");
-}
-public async Task<IEnumerable<SanctionDTO>> SearchAsync(string searchTerm)
-{
-
-    var list = await GetAllAsync();
-    if (searchTerm == "") { return list; }
-    var query = list.Where(s => (s.description != null && s.description.Contains(searchTerm))
-                    || (s.raison != null && s.raison.Any(r => r.ToString().Contains(searchTerm)))
-                       || (s.email != null && s.email.Contains(searchTerm)));
-
-    return query;
-}
-public async Task ModifierAsync(string id)
-{
-    try
-    {
-        var sanction = await _sanctionRepository.GetByIdAsync(id);
-        sanction.payement = true;
-        await _sanctionRepository.UpdateAsync(sanction, id);
     }
-    catch (Exception ex)
+    public async Task<IEnumerable<SanctionDTO>> SearchAsync(string searchTerm)
     {
-        throw new Exception($"Error retrieving Livre with ID {id}: {ex.Message}", ex);
 
+        var list = await GetAllAsync();
+        if (searchTerm == "") { return list; }
+        var query = list.Where(s => (s.description != null && s.description.Contains(searchTerm))
+                        || (s.raison != null && s.raison.Any(r => r.ToString().Contains(searchTerm)))
+                           || (s.email != null && s.email.Contains(searchTerm)));
+
+        return query;
     }
-}
+    public async Task ModifierAsync(string id)
+    {
+        try
+        {
+            var sanction = await _sanctionRepository.GetByIdAsync(id);
+            sanction.payement = true;
+            await _sanctionRepository.UpdateAsync(sanction, id);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error retrieving Livre with ID {id}: {ex.Message}", ex);
+
+        }
+    }
+
+    public async Task<IEnumerable<SanctionDTO>> FiltreRaison(Raison_sanction[]? selectedRaisons)
+    {
+        var sanctions = await GetAllAsync();
+
+        if (selectedRaisons == null || selectedRaisons.Length == 0)
+            return sanctions;
+
+        if (sanctions.Any() && sanctions.First().raison is Raison_sanction[])
+        {
+            return sanctions.Where(s =>
+                s.raison != null &&
+                s.raison.Length == selectedRaisons.Length &&
+                !s.raison.Except(selectedRaisons).Any() &&
+                !selectedRaisons.Except(s.raison).Any()
+            );
+        }
+        else
+        {
+            return sanctions.Where(s => s.raison != null && s.raison.Intersect(selectedRaisons).Any());
+
+        }
+    }
+
+    public async Task<IEnumerable<SanctionDTO>> FiltrePayement(bool? paye)
+    {
+        var Sanc = await GetAllAsync();
+        if (paye == null) return Sanc;
+        return Sanc.Where(r => r.payement == paye);
+    }
+
 }

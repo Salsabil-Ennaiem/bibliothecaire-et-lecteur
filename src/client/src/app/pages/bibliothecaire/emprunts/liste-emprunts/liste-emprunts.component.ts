@@ -12,34 +12,58 @@ import { BadgeModule } from 'primeng/badge';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-liste-emprunts',
-  imports: [InputIconModule, DatePickerModule, IconFieldModule, BadgeModule,
+  imports: [InputIconModule, DatePickerModule, IconFieldModule, BadgeModule, SelectModule,
     ButtonModule, SpeedDialModule, CommonModule, InputTextModule, FormsModule],
   templateUrl: './liste-emprunts.component.html',
   styleUrls: ['./liste-emprunts.component.css']
 })
 export class ListeEmpruntsComponent implements OnInit, OnDestroy {
   intervalId?: any;
+  selectedStatutEmp: Statut_emp | null = null;
+  selectstatutEmp: { label: string; value: Statut_emp | null }[] = [
+    { label: 'Tous', value: null },
+    { label: 'En Cours', value: Statut_emp.en_cours },
+    { label: 'Perdu', value: Statut_emp.perdu },
+    { label: 'Retourne', value: Statut_emp.retourne }
+  ];
 
   ngOnInit() {
     this.loadEmprunts();
-    this.intervalId = setInterval(() => {
-      // Forcer Angular à rafraîchir en mettant à jour un compteur dummy ou en changeant état
-    }, 60000);//1mn=60000ms
+    this.intervalId = setInterval(() => { }, 60000);//1mn=60000ms
+
   }
   ngOnDestroy() {
     if (this.intervalId) clearInterval(this.intervalId);
   }
-  constructor(private EmpService: EmpruntService, private router: Router , private messageService :MessageService) { }
+  constructor(private EmpService: EmpruntService, private router: Router, private messageService: MessageService) { }
   emprunts: EmppruntDTO[] = [];
+  applyFilter(statut_emp?: Statut_emp): void {
+
+    if (statut_emp === null) {
+      this.loadEmprunts();
+    }
+    else {
+      this.EmpService.filtre(statut_emp).subscribe({
+        next: result => {
+          this.emprunts = result;
+        },
+        error: error => {
+          console.error('Error loading filtered emprunts', error);
+        }
+      });
+    }
+  }
 
   loadEmprunts(): void {
     this.EmpService.getAll().subscribe({
       next: (data) => this.emprunts = data,
-      error: (err) => {console.error('Erreur chargement Emp', err);
-                   this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error get Emprunts:' });
+      error: (err) => {
+        console.error('Erreur chargement Emp', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error get Emprunts:' });
 
       }
     });
@@ -69,8 +93,8 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
       const datePrev = new Date(emprunt.date_retour_prevu);
       const dateEff = new Date(emprunt.date_effectif);
       const diffDays = Math.round((dateEff.getTime() - datePrev.getTime()) / (1000 * 60 * 60 * 24));
-      if (diffDays>0){return `Retourne avant délais ${diffDays} j`;}
-      else{return`Retard aprés le délais ${diffDays} j` }
+      if (diffDays > 0) { return `Retourne avant délais ${diffDays} j`; }
+      else { return `Retard aprés le délais ${diffDays} j` }
     }
     else if (emprunt.statut_emp === 2) { // Cas "perdu"
       if (!emprunt.date_emp) return '';
@@ -104,15 +128,17 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
   handleSearch(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery = value;
-    if(value!="")
-    {this.EmpService.search(this.searchQuery).subscribe({
-      next: (data) => { this.emprunts = data },
-      error: (err) => {                   
-           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error searching Emprunts:' });
+    if (value != "") {
+      this.EmpService.search(this.searchQuery).subscribe({
+        next: (data) => { this.emprunts = data },
+        error: (err) => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error searching Emprunts:' });
 
-         console.error('Error searching Emprunts:', err) }
-    });}
-    else{
+          console.error('Error searching Emprunts:', err)
+        }
+      });
+    }
+    else {
       this.loadEmprunts();
     }
   }
@@ -193,13 +219,15 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
       console.log(`Delete Emprunts ID: ${id}`);
       this.EmpService.delete(id).subscribe(
         {
-          next: () =>{ console.log('Emprunts deleted successfully');
+          next: () => {
+            console.log('Emprunts deleted successfully');
             this.loadEmprunts();
-                      this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Emprunt Supprimer' });
+            this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Emprunt Supprimer' });
 
           },
-          error: (error) => {console.error('Error deleting Emprunts:', error);
-                       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error deliting Emprunts:' });
+          error: (error) => {
+            console.error('Error deleting Emprunts:', error);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error deliting Emprunts:' });
 
           }
 
@@ -210,42 +238,6 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
 
   sanctionner(id: string): void {
     console.log(`Navigating to edit Emprunts ID: ${id}`);
-    this.router.navigate(['/bibliothecaire/sanctions/ajouter',id]);
+    this.router.navigate(['/bibliothecaire/sanctions/ajouter', id]);
   }
-
-
-
-  /* @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-   importer() {
-     this.fileInput.nativeElement.click();
-   }
-  handleFileUpload(event: Event) {
-     const input = event.target as HTMLInputElement;
-     const file = input.files?.[0];
-     if (!file) return;
-     if (!file.type.match(/application\/(vnd.ms-excel|vnd.openxmlformats-officedocument.spreadsheetml.sheet)/)) {
-       console.log('Selected file:', file.name, file.type, file.size);
-       alert('Veuillez sélectionner un fichier Excel (.xls ou .xlsx).');
-       return;
-     }
-      this.EmpService.import(file).subscribe(
-           response => console.log('Import successful:', response),
-           error => console.error('Error importing file:', error)
-         );
-   }*/
-  /*exporter() {
-    this.EmpService.export().subscribe(
-      blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'ListeEmprunts.xlsx';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      },
-      error => console.error('Error exporting file:', error)
-    );
-  }*/
 }

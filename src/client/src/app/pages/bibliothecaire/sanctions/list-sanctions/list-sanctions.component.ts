@@ -12,32 +12,43 @@ import { SanctionService } from '../../../../Services/sanction.service';
 import { Raison_sanction, SanctionDTO } from '../../../../model/sanction.model';
 import { SpeedDialModule } from 'primeng/speeddial';
 import { MessageService } from 'primeng/api';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 
 
 
 @Component({
   selector: 'app-list-sanctions',
-  imports: [InputIconModule, IconFieldModule, InputTextModule, SpeedDialModule, RouterLink,
-    ButtonModule, CardModule, SelectModule, CommonModule, FormsModule],
+  imports: [InputIconModule, IconFieldModule, InputTextModule, SpeedDialModule, RouterLink,SelectModule,
+    ButtonModule , CardModule, SelectModule, CommonModule, MultiSelectModule, FormsModule],
   templateUrl: './list-sanctions.component.html',
   styleUrl: './list-sanctions.component.css'
 })
 export class ListSanctionsComponent implements OnInit, OnDestroy {
   intervalId?: any;
   ngOnInit() {
-    this.loadSanction(); this.intervalId = setInterval(() => {
-      // Forcer Angular à rafraîchir en mettant à jour un compteur dummy ou en changeant état
-    }, 60000);//1mn=60000ms
+    this.loadSanction(); this.intervalId = setInterval(() => { }, 60000);//1mn=60000ms
   }
   ngOnDestroy() {
     if (this.intervalId) clearInterval(this.intervalId);
   }
-  constructor(private EmpService: SanctionService, private router: Router, private messageService: MessageService) { }
+  constructor(private SancService: SanctionService, private router: Router, private messageService: MessageService) { }
   Sanctions: SanctionDTO[] = [];
+  selectedPay: boolean | null = null;
+  selectpaye: { label: string; value: boolean | null }[] = [
+    { label: 'Tous', value: null },
+    { label: 'Payé', value: true },
+    { label: 'Non Payé', value: false }];
+      selectedRaison: Raison_sanction [] = [];
+  selectRaison: { label: string; value: Raison_sanction | null }[] = [
+    { label: 'Retard', value: Raison_sanction.retard },
+    { label: 'Perte', value: Raison_sanction.perte },
+    { label: 'Degat', value: Raison_sanction.degat },
+    { label: 'Autre', value: Raison_sanction.autre }
+  ];
 
   loadSanction(): void {
-    this.EmpService.getAll().subscribe({
+    this.SancService.getAll().subscribe({
       next: (data) => this.Sanctions = data,
       error: (err) => {
         console.error('Erreur chargement Emp', err);
@@ -46,8 +57,37 @@ export class ListSanctionsComponent implements OnInit, OnDestroy {
       }
     });
   }
+   applyFilterR(raison?: Raison_sanction[]): void {
+    if (!raison || raison.length === 0) {
+        this.loadSanction();
+    } else {
+        this.SancService.FiltrRaison(raison).subscribe({
+            next: result => {
+                this.Sanctions = result;
+            },
+            error: error => {
+                console.error('Error loading filtered Sanction', error);
+            }
+        });
+    }
+}
+
+  applyFilterP(paye?: boolean): void {
+    if (paye === null) {
+      this.loadSanction();
+    } else {
+      this.SancService.FiltrPay(paye).subscribe({
+        next: result => {
+          this.Sanctions = result;
+        },
+        error: error => {
+          console.error('Error loading filtered Sanction', error);
+        }
+      });
+    }
+  }
   getTimeDisplay(Sanction?: SanctionDTO): string {
-    if (!Sanction) return 'desoli';
+    if (!Sanction) return '';
 
     const now = new Date();
 
@@ -101,7 +141,7 @@ export class ListSanctionsComponent implements OnInit, OnDestroy {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery = value;
     if (value != "") {
-      this.EmpService.search(this.searchQuery).subscribe({
+      this.SancService.search(this.searchQuery).subscribe({
         next: (data) => { this.Sanctions = data },
         error: (err) => {
           console.error('Error searching livres:', err);
@@ -134,7 +174,7 @@ export class ListSanctionsComponent implements OnInit, OnDestroy {
 
   modifier(id: string): void {
     if (confirm('Voulez-vous vraiment Marque Comme payé?')) {
-      this.EmpService.modifier(id).subscribe({
+      this.SancService.modifier(id).subscribe({
         next: (data: any) => {
           this.Sanctions = data;
           this.loadSanction();

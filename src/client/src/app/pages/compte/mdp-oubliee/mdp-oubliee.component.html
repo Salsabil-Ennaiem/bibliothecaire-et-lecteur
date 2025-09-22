@@ -1,22 +1,31 @@
 <div class="d-flex justify-content-center align-items-center min-vh-100 p-3">
-    <div class="rounded-4 shadow" style="background-color: rgba(195, 242, 191, 0.188); width: 100%; max-width: 500px;">
-      <div class="header p-5 pb-4 border-bottom-0">
-        <p-button icon="pi pi-home"  routerLink="/" [rounded]="true" [text]="true" [raised]="true"  size="large" ></p-button>
-        <h1 class="text-center fw-bold">Mot de Passe Oubliée </h1>
-      </div>
-      <div class="p-5 pt-0">
-        <form id="motDePasseOublieeForm">
-            <div class="mb-3">
-                <label for="email" class="form-label">Email address</label>
-                <span class=" w-100">
-                    <p-iconfield>
-                    <p-inputicon  class="pi pi-envelope"/>
-                    <input pInputText id="email" type="email" class="w-100" placeholder="name@example.com">
-                    </p-iconfield>
-                </span>
-            </div>
-            <p-button label="Envoyer" styleClass="w-100 mb-12" [raised]="true" (click)="mdp()"></p-button>
-        </form>
-      </div>
+  <div class="rounded-4 shadow" style="background-color: rgba(195, 242, 191, 0.188); width: 100%; max-width: 500px;">
+    <div class="header p-5 pb-4 border-bottom-0">
+      <button pButton icon="pi pi-home" routerLink="/" [rounded]="true" [text]="true" [raised]="true"
+        size="large"></button>
+      <h1 class="text-center fw-bold">Mot de Passe Oubliée </h1>
+    </div>
+    <div class="p-5 pt-0">
+      <form #motDePasseOublieeForm="ngForm"  (ngSubmit)="mdp()" novalidate>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email address</label>
+          <span class=" w-100">
+            <p-iconfield>
+              <p-inputicon class="pi pi-envelope" />
+              <input pInputText id="email" type="email" [(ngModel)]="mdpreq.email" class="w-100" name="email"
+                placeholder="name@example.com" #email="ngModel" />
+              <div *ngIf="email.invalid && (email.dirty || email.touched)" class="text-danger">
+                <div *ngIf="email.errors?.['required']">Email is required.</div>
+                <div *ngIf="email.errors?.['email']">Enter a valid email.</div>
+              </div>
+            </p-iconfield>
+          </span>
+        </div>
+        <div class="row">
+        <button pButton [disabled]="motDePasseOublieeForm.invalid" label="Envoyer" styleClass="w-100 mb-12"
+          [raised]="true"></button>
+          </div>
+      </form>
     </div>
   </div>
+</div>

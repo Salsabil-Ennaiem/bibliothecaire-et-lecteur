@@ -7,9 +7,6 @@ using System.Web;
 
 namespace api.Features.Auth.ForgetPassword;
 
-public sealed record ForgotPasswordCommand(string Email);
-public sealed record ResetPasswordCommand(string Email, string Token, string NewPassword);
-
 public sealed class ForgotPasswordHandler
 {
     private readonly UserManager<Bibliothecaire> _userManager;
@@ -17,7 +14,7 @@ public sealed class ForgotPasswordHandler
     private readonly ILogger<ForgotPasswordHandler> _logger;
 
     public ForgotPasswordHandler(
-        UserManager<Bibliothecaire> userManager, 
+        UserManager<Bibliothecaire> userManager,
         IConfiguration config,
         ILogger<ForgotPasswordHandler> logger)
     {
@@ -26,7 +23,7 @@ public sealed class ForgotPasswordHandler
         _logger = logger;
     }
 
-    public async Task<IResult> Handle(ForgotPasswordCommand request)
+    public async Task<IResult> Handle(ForgotPasswordRequestDto request)
     {
         if (string.IsNullOrWhiteSpace(request.Email))
         {
@@ -66,11 +63,11 @@ public sealed class ForgotPasswordHandler
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var encodedToken = HttpUtility.UrlEncode(token);
             var encodedEmail = HttpUtility.UrlEncode(user.Email!);
-            var resetLink = $"{_config["ClientUrl"]}/reset-password?token={encodedToken}&email={encodedEmail}";
+            var resetLink = $"{_config["ClientUrl"]}/restemdp?token={encodedToken}&email={encodedEmail}";
 
             // Send reset email
             await SendResetEmail(user.Email!, resetLink, user.UserName ?? "User");
-            
+
             _logger.LogInformation("Password reset email sent to: {Email}", request.Email);
             return TypedResults.Ok(new { message = "If the email exists, a password reset link has been sent." });
         }
@@ -80,12 +77,11 @@ public sealed class ForgotPasswordHandler
             return TypedResults.Problem("An error occurred while processing your request. Please try again later.");
         }
     }
-
-    public async Task<IResult> HandleResetPassword(ResetPasswordCommand request)
+    public async Task<IResult> HandleResetPassword(ResetPasswordRequestDto request)
     {
         // Validate input
-        if (string.IsNullOrWhiteSpace(request.Email) || 
-            string.IsNullOrWhiteSpace(request.Token) || 
+        if (string.IsNullOrWhiteSpace(request.Email) ||
+            string.IsNullOrWhiteSpace(request.Token) ||
             string.IsNullOrWhiteSpace(request.NewPassword))
         {
             return TypedResults.BadRequest(new { message = "All fields are required" });
@@ -122,13 +118,13 @@ public sealed class ForgotPasswordHandler
 
             // Reset the password using the token
             var result = await _userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
-            
+
             if (result.Succeeded)
             {
                 // Reset failed login attempts
                 await _userManager.ResetAccessFailedCountAsync(user);
                 _logger.LogInformation("Password successfully reset for user: {Email}", request.Email);
-                
+
                 // Send confirmation email
                 try
                 {
@@ -141,7 +137,7 @@ public sealed class ForgotPasswordHandler
                 {
                     _logger.LogWarning(ex, "Failed to send confirmation email, but password reset was successful for: {Email}", request.Email);
                 }
-                
+
                 return TypedResults.Ok(new { message = "Password has been reset successfully", success = true });
             }
             else
@@ -157,7 +153,6 @@ public sealed class ForgotPasswordHandler
             return TypedResults.Problem("An error occurred while resetting your password. Please try again later.");
         }
     }
-
     private bool IsValidEmail(string email)
     {
         try
@@ -170,7 +165,6 @@ public sealed class ForgotPasswordHandler
             return false;
         }
     }
-
     private bool IsMailConfigurationValid()
     {
         var host = _config["MailSettings:Host"];
@@ -185,15 +179,14 @@ public sealed class ForgotPasswordHandler
                !string.IsNullOrWhiteSpace(from) &&
                port > 0;
     }
-
     private async Task SendResetEmail(string email, string resetLink, string userName)
     {
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress(
-            _config["MailSettings:DisplayName"] ?? "Bibliotheque VSA",
+            _config["MailSettings:DisplayName"] ?? "Bibliotheque ISGS",
             _config["MailSettings:From"]));
         message.To.Add(new MailboxAddress(userName, email));
-        message.Subject = "Password Reset - Bibliotheque VSA";
+        message.Subject = "Password Reset - Bibliotheque ISGS";
 
         var htmlBody = $@"
             <html>
@@ -201,7 +194,7 @@ public sealed class ForgotPasswordHandler
                 <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
                     <h2 style='color: #2c3e50;'>Password Reset Request</h2>
                     <p>Hello {userName},</p>
-                    <p>We received a request to reset your password for your Bibliotheque VSA account.</p>
+                    <p>We received a request to reset your password for your Bibliotheque ISGS account.</p>
                     <p>Click the button below to reset your password:</p>
                     <div style='text-align: center; margin: 30px 0;'>
                         <a href='{resetLink}' 
@@ -216,7 +209,7 @@ public sealed class ForgotPasswordHandler
                     <p>If you didn't request this password reset, please ignore this email or contact support if you have concerns.</p>
                     <hr style='border: none; border-top: 1px solid #eee; margin: 30px 0;'>
                     <p style='font-size: 12px; color: #7f8c8d;'>
-                        This is an automated message from Bibliotheque VSA. Please do not reply to this email.
+                        This is an automated message from Bibliotheque ISGS. Please do not reply to this email.
                     </p>
                 </div>
             </body>
@@ -225,10 +218,10 @@ public sealed class ForgotPasswordHandler
         message.Body = new TextPart("html") { Text = htmlBody };
 
         using var client = new SmtpClient();
-        
+
         // Connect with timeout
         var cancellationToken = new CancellationTokenSource(TimeSpan.FromSeconds(30)).Token;
-        
+
         await client.ConnectAsync(
             _config["MailSettings:Host"],
             _config.GetValue<int>("MailSettings:Port"),
@@ -242,18 +235,17 @@ public sealed class ForgotPasswordHandler
 
         await client.SendAsync(message, cancellationToken);
         await client.DisconnectAsync(true, cancellationToken);
-        
+
         _logger.LogInformation("Password reset email sent successfully to: {Email}", email);
     }
-
     private async Task SendPasswordResetConfirmationEmail(string email, string userName)
     {
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress(
-            _config["MailSettings:DisplayName"] ?? "Bibliotheque VSA",
+            _config["MailSettings:DisplayName"] ?? "Bibliotheque ISGS",
             _config["MailSettings:From"]));
         message.To.Add(new MailboxAddress(userName, email));
-        message.Subject = "Password Reset Confirmation - Bibliotheque VSA";
+        message.Subject = "Password Reset Confirmation - Bibliotheque ISGS";
 
         var htmlBody = $@"
             <html>
@@ -261,7 +253,7 @@ public sealed class ForgotPasswordHandler
                 <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
                     <h2 style='color: #27ae60;'>Password Reset Successful</h2>
                     <p>Hello {userName},</p>
-                    <p>Your password has been successfully reset for your Bibliotheque VSA account.</p>
+                    <p>Your password has been successfully reset for your Bibliotheque ISGS account.</p>
                     <p>If you did not make this change, please contact our support team immediately.</p>
                     <p>For security reasons, we recommend:</p>
                     <ul>
@@ -271,7 +263,7 @@ public sealed class ForgotPasswordHandler
                     </ul>
                     <hr style='border: none; border-top: 1px solid #eee; margin: 30px 0;'>
                     <p style='font-size: 12px; color: #7f8c8d;'>
-                        This is an automated message from Bibliotheque VSA. Please do not reply to this email.
+                        This is an automated message from Bibliotheque ISGS. Please do not reply to this email.
                     </p>
                 </div>
             </body>
@@ -280,9 +272,9 @@ public sealed class ForgotPasswordHandler
         message.Body = new TextPart("html") { Text = htmlBody };
 
         using var client = new SmtpClient();
-        
+
         var cancellationToken = new CancellationTokenSource(TimeSpan.FromSeconds(30)).Token;
-        
+
         await client.ConnectAsync(
             _config["MailSettings:Host"],
             _config.GetValue<int>("MailSettings:Port"),

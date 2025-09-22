@@ -33,14 +33,16 @@ export interface LivreDTO {
 }
 
 export interface UpdateLivreDTO {
+    statut: Statut_liv;
   etat?: etat_liv | null;
+    cote_liv: string;
 }
 
 export interface CreateLivreRequest {
+    Langue?: string | null;
   cote_liv?: string | null;
   auteur?: string | null;
   editeur?: string | null;
-  Langue?: string | null;
 
   titre?: string | null;
   isbn?: string | null;

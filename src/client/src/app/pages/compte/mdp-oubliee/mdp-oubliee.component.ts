@@ -1,36 +1,47 @@
-import { Component , OnInit} from '@angular/core';
+import { Component , ViewChild} from '@angular/core';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
-import { FormControl,FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { ForgotPasswordRequest } from '../../../model/bibliothecaire.model';
+import { AuthService } from '../../../Services/auth.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-mdp-oubliee',
-  imports: [RouterLink ,ButtonModule,ReactiveFormsModule  , IconFieldModule , InputIconModule ,CommonModule,IftaLabelModule,InputTextModule],
+  imports: [RouterLink ,ButtonModule  , FormsModule,IconFieldModule , InputIconModule ,CommonModule,IftaLabelModule,InputTextModule],
   templateUrl: './mdp-oubliee.component.html',
   styleUrl: './mdp-oubliee.component.css'
 })
-export class MdpOublieeComponent implements OnInit {
-    email: any;
-    formGroup: FormGroup | any;
-  
-  
-    ngOnInit() {
-      this.formGroup = new FormGroup({
-        email: new FormControl(''),
-      });
-  }
-      
-    errorMessage: string | null = null;
-mdp(): void {
-    this.errorMessage = null;
-    if (!this.email) {
-      this.errorMessage = 'Veuillez saisir votre email et mot de passe.';
+export class MdpOublieeComponent {
+  @ViewChild('motDePasseOublieeForm') motDePasseOublieeForm: NgForm | undefined;
+  mdpreq: ForgotPasswordRequest = {
+    email: ''
+  };
+
+  isLoading = false;
+
+  constructor(private authService: AuthService, private router: Router, private messgeserv: MessageService) { }
+
+  mdp(): void {
+  if (!this.motDePasseOublieeForm?.valid) {
+      this.messgeserv.add({ severity: 'warn', summary: 'attention', detail: 'Veuillez saisir votre email ' });
       return;
     }
-
-}}
+    this.isLoading = true;
+    this.authService.forgotPassword(this.mdpreq).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.messgeserv.add({ severity: 'success', summary: 'Succès', detail: 'Ouvrier Votre Email' });
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.messgeserv.add({ severity: 'error', summary: 'Error', detail: 'Erreur lors de la connexion' });
+      }
+    });
+  }
+}

@@ -1,3 +1,4 @@
+using domain.Entity.Enum;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Features.Livre;
@@ -42,39 +43,25 @@ public class LivresController : ControllerBase
     }
 
 
-   /* [HttpPut("Update/{id}")]
+    [HttpPut("Update/{id}")]
     public async Task<IActionResult> Update(string id, [FromBody] UpdateLivreDTO livre)
     {
         var updated = await _livresHandler.UpdateAsync(id , livre);
         return Ok(updated);
     }
-*/
+
     [HttpDelete("Delete/{id}")]
     public async Task<IActionResult> Delete(string id)
     {
         await _livresHandler.DeleteAsync(id);
         return NoContent();
     }
-/*
+ [HttpGet("FiltrLiv/{statut}")]
 
-    [HttpPost("import")]
-    public async Task<IActionResult> Import(IFormFile file)
+    public async Task<IActionResult> FiltreRaison(Statut_liv? statut)
     {
-        if (file == null || file.Length == 0)
-            return BadRequest("No file uploaded.");
+        var rst= await _livresHandler.FiltreStautLiv(statut);
+                return Ok(rst);
 
-        using var stream = file.OpenReadStream();
-        await _livresHandler.ImportAsync(stream);
-        return Ok("Import successful");
     }
-
-
-    [HttpGet("export")]
-    public async Task<IActionResult> Export()
-    {
-        var stream = await _livresHandler.ExportAsync();
-        return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "LivresInventaire.xlsx");
-    }
-
-    */
 }

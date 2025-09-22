@@ -26,6 +26,8 @@ import { ListMembreComponent } from './pages/bibliothecaire/membre/list-membre/l
 import { NotificationComponent } from './pages/bibliothecaire/notification/notification.component';
 import { TestComponent } from './pages/test/test.component';
 import { ModifierMembreComponent } from './pages/bibliothecaire/membre/modifier-membre/modifier-membre.component';
+import { AuthGuard } from './guards/auth.guard';
+import { RestMdwComponent } from './pages/compte/rest-mdw/rest-mdw.component';
 
 
 export const routes: Routes = [
@@ -36,10 +38,13 @@ export const routes: Routes = [
     children: [
       { path: 'login', component: LoginComponent },
       { path: 'motDePasseOublie', component: MdpOublieeComponent },
+      { path: 'restemdp', component: RestMdwComponent }
     ]
   },
   {
     path: 'bibliothecaire', component: BibliothecaireComponent,
+    canActivate: [AuthGuard],
+    canActivateChild: [AuthGuard],
     children: [
       { path: '', component: TableauxDeBordComponent },
       { path: 'Notification', component: NotificationComponent },

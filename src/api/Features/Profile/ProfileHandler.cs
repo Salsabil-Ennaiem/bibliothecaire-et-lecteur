@@ -2,7 +2,6 @@ using System.Security.Claims;
 using domain.Entity;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 
 namespace api.Features.Profile;
 
@@ -21,47 +20,54 @@ public class ProfileHandler
         _httpContextAccessor = httpContextAccessor;
         _logger = logger;
     }
-
-    public async Task<ProfileDTO> GetCurrentUserAsync(CancellationToken cancellationToken)
+ public async Task<ProfileDTO> GetCurrentUserAsync(CancellationToken cancellationToken)
+{
+    try
     {
-        try
+        var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue("sub") ??
+                     _httpContextAccessor.HttpContext?.User?.Identity?.Name;
+
+        _logger.LogInformation("Current user id from claims: {UserId}", userId);
+
+        if (string.IsNullOrEmpty(userId))
         {
-            var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-            {
-                _logger.LogWarning("GetCurrentUserAsync: User is not authenticated.");
-                throw new UnauthorizedAccessException("User is not authenticated.");
-            }
-
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                _logger.LogWarning("GetCurrentUserAsync: User not found. UserId: {UserId}", userId);
-                throw new UnauthorizedAccessException("User not found.");
-            }
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            return user.Adapt<ProfileDTO>();
+            _logger.LogWarning("User is not authenticated.");
+            throw new UnauthorizedAccessException("User is not authenticated.");
         }
-        catch (Exception ex)
+
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
         {
-            _logger.LogError(ex, "Error in GetCurrentUserAsync");
-            throw;
+            _logger.LogWarning("User not found for id: {UserId}", userId);
+            throw new UnauthorizedAccessException("User not found.");
         }
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        _logger.LogInformation("Returning profile for user id: {UserId}", userId);
+
+        return user.Adapt<ProfileDTO>();
     }
-
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error in GetCurrentUserAsync");
+        throw;
+    }
+}
     public async Task<ProfileDTO> GetProfileAsync()
     {
         try
         {
+            _logger.LogInformation("Getting profile of current user.");
+
             var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext!.User);
             if (user == null)
             {
-                _logger.LogWarning("GetProfileAsync: User is not authenticated.");
+                _logger.LogWarning("User is not authenticated or not found.");
                 throw new UnauthorizedAccessException("User is not authenticated.");
             }
 
+            _logger.LogInformation("User found: {UserId} - {Email}", user.Id, user.Email);
             return user.Adapt<ProfileDTO>();
         }
         catch (Exception ex)
@@ -70,7 +76,6 @@ public class ProfileHandler
             throw;
         }
     }
-
     public async Task UpdateProfileAsync(UpdateProfileDto dto)
     {
         try

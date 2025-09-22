@@ -10,20 +10,13 @@ import { Router, RouterLink } from '@angular/router';
 import { LivreService } from '../../../../Services/livre.service';
 import { etat_liv, LivreDTO, Statut_liv } from '../../../../model/livres.model';
 import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-liste-livres',
   standalone: true,
-  imports: [
-    RouterLink,
-    CommonModule,
-    FormsModule,
-    ButtonModule,
-    InputTextModule,
-    IconFieldModule,
-    InputIconModule,
-    SpeedDialModule
-  ],
+  imports: [RouterLink, CommonModule, FormsModule, ButtonModule, InputTextModule,
+    IconFieldModule, InputIconModule, SpeedDialModule, SelectModule],
   templateUrl: './liste-livres.component.html',
   styleUrls: ['./liste-livres.component.css']
 })
@@ -31,11 +24,16 @@ export class ListeLivresComponent {
   public Getstautvalue(value: number) {
     return Statut_liv[value];
   }
-
   public Getetavalue(value: number) {
     return etat_liv[value];
   }
-
+  selectedStatutLiv: Statut_liv | null = null;
+  selectstatutLiv: { label: string; value: Statut_liv | null }[] = [
+    { label: 'Tous', value: null },
+    { label: 'Disponible', value: Statut_liv.disponible },
+    { label: 'Perdu', value: Statut_liv.perdu },
+    { label: 'Emprunte', value: Statut_liv.emprunte }
+  ];
   @Input() isHosted: boolean = false;
   livres: LivreDTO[] = [];
 
@@ -47,13 +45,27 @@ export class ListeLivresComponent {
   getBooks(): void {
     this.livreService.getAllLiv().subscribe({
       next: (data) => this.livres = data,
-      error: (error) =>{ console.error('Error fetching livres:', error);
-                   this.messageserv.add({ severity: 'error', summary: 'Error', detail: 'Error get books:' });
+      error: (error) => {
+        console.error('Error fetching livres:', error);
+        this.messageserv.add({ severity: 'error', summary: 'Error', detail: 'Error get books:' });
 
       }
     });
   }
-
+  applyFilter(statut_liv?: Statut_liv): void {
+    if (statut_liv === null) {
+      this.getBooks();
+    } else {
+      this.livreService.filtre(statut_liv).subscribe({
+        next: result => {
+          this.livres = result;
+        },
+        error: error => {
+          console.error('Error loading filtered Livres', error);
+        }
+      });
+    }
+  }
   //Recherche 
   searchQuery = '';
   isInputVisible = false;
@@ -78,21 +90,22 @@ export class ListeLivresComponent {
   handleSearch(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.searchQuery = value;
-        if(value!="")
-   { this.livreService.search(this.searchQuery).subscribe({
-      next: (data) => { this.livres = data },
-      error: (err) => { console.error('Error searching livres:', err) ;
-                   this.messageserv.add({ severity: 'error', summary: 'Error', detail: 'Error searching livres:' });
+    if (value != "") {
+      this.livreService.search(this.searchQuery).subscribe({
+        next: (data) => { this.livres = data },
+        error: (err) => {
+          console.error('Error searching livres:', err);
+          this.messageserv.add({ severity: 'error', summary: 'Error', detail: 'Error searching livres:' });
 
-      }
-    });}
-    else{this.getBooks();}
+        }
+      });
+    }
+    else { this.getBooks(); }
   }
   isClickInside(event: MouseEvent): boolean {
     const searchContainer = document.getElementById('search-container');
     return searchContainer ? searchContainer.contains(event.target as Node) : false;
   }
-  //ouverture Livre
   isOpen: Set<string> = new Set(); // Track open book IDs
 
   toggleBook(livre: LivreDTO, event: Event) {
@@ -105,8 +118,6 @@ export class ListeLivresComponent {
       this.isOpen.add(livreId);
     }
   }
-
-
   getSpeedDialItems(livreId: string, statut: Statut_liv): MenuItem[] {
     const items: MenuItem[] = [
       {
@@ -131,13 +142,10 @@ export class ListeLivresComponent {
 
     return items;
   }
-
-
-  Ajouter(id: string) {
+  Ajouter() {
     console.log(`Navigating to ajouter Livre`);
     this.router.navigate([`/bibliothecaire/livres/ajouter`]);
   }
-
   editLivre(livreId: string) {
     console.log(`Navigating to edit livre ID: ${livreId}`);
     this.router.navigate([`/bibliothecaire/livres/modifier/${livreId}`]);
@@ -146,7 +154,6 @@ export class ListeLivresComponent {
     console.log(`Navigating to emprunte livre ID: ${livreId}`);
     this.router.navigate([`/bibliothecaire/emprunts/ajouter/${livreId}`]);
   }
-
   deleteLivre(livreId: string) {
     if (confirm('Voulez-vous vraiment supprimer ce livre ?')) {
       this.livreService.delete(livreId).subscribe({
@@ -157,53 +164,11 @@ export class ListeLivresComponent {
         },
         error: (err) => {
           console.error(err);
-                     this.messageserv.add({ severity: 'error', summary: 'Error', detail: 'Error supprimer Livres:' });
+          this.messageserv.add({ severity: 'error', summary: 'Error', detail: 'Error supprimer Livres:' });
 
         }
 
       });
     }
   }
-
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-  importer() {
-    this.fileInput.nativeElement.click();
-  }
-
-  handleFileUpload(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
-
-    if (!file.type.match(/application\/(vnd.ms-excel|vnd.openxmlformats-officedocument.spreadsheetml.sheet)/)) {
-      console.log('Selected file:', file.name, file.type, file.size);
-
-      alert('Veuillez sélectionner un fichier Excel (.xls ou .xlsx).');
-      return;
-    }
-    /* this.livreService.import(file).subscribe(
-       response => console.log('Import successful:', response),
-       error => console.error('Error importing file:', error)
-     );*/
-  }
-
-  exporter() {
-    /*    this.livreService.export().subscribe(
-          blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'LivresInventaire.xlsx';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-          },
-          error => console.error('Error exporting file:', error)
-        );
-        */
-  }
-
-
 }

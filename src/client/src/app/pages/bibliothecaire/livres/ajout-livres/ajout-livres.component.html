@@ -10,10 +10,10 @@
                     <!-- Upload couverture image -->
                     <div class="p-field p-col-12 p-md-6">
                         <label class="p-label p-text-bold">Couverture (Image)</label>
-                        <p-fileUpload name="couverture" maxFileSize="10000000" [(ngModel)]="livre.couverture" [auto]="false" mode="advanced"
-                            chooseLabel="Choisir" cancelLabel="Annuler" (onSelect)="onSelectCover($event)"
-                            (onClear)="onClearCover()" [showCancelButton]="true" [showUploadButton]="false"
-                            accept="image/*" [maxFileSize]="10000000">
+                        <p-fileUpload name="couverture" maxFileSize="10000000" [(ngModel)]="livre.couverture"
+                            [auto]="false" mode="advanced" chooseLabel="Choisir" cancelLabel="Annuler"
+                            (onSelect)="onSelectCover($event)" (onClear)="onClearCover()" [showCancelButton]="true"
+                            [showUploadButton]="false" accept="image/*" [maxFileSize]="10000000">
                         </p-fileUpload>
                         <div *ngIf="coverPreview" class="cover-preview">
                             <img [src]="coverPreview" alt="Aperçu couverture" />
@@ -68,7 +68,7 @@
                         <!--Langue-->
                         <div class="mb-3">
                             <label for="langue" class="form-label">Langue</label>
-                            <p-select [options]="langues" [(ngModel)]="livre.Langue" optionLabel="label" name="Langue"
+                            <p-select [options]="langues" [(ngModel)]="livre.Langue" optionLabel="label"  optionValue="value" name="Langue"
                                 placeholder="Sélectionnez une langue" class="w-100" inputId="langue">
                             </p-select>
                         </div>

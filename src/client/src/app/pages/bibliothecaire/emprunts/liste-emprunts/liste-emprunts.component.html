@@ -1,32 +1,25 @@
 <div class="container ">
-<div class="top-controls d-flex justify-content-center align-items-center mb-4 gap-3 flex-wrap">
-  <h1 class="m-0">Liste des emprunts</h1>
-  <!--  <p-select [options]="s" [(ngModel)]="selectedFilter" optionLabel="label" optionValue="value"
-                placeholder="Filtrer par statut" styleClass="w-auto" (onChange)="applyFilter()">
-      </p-select> -->
- <!-- <button pButton icon="pi pi-upload" (click)="importer()" [rounded]="true" [text]="true">
-    <span class="d-none d-md-inline">Importer</span>
-    <input #fileInput type="file" accept=".xlsx,.xls" (change)="handleFileUpload($event)" style="display: none;" />
-  </button>-->
-  <!--  <button pButton icon="pi pi-download" (click)="exporter()" class="btn btn-success">
-        <span class="d-none d-md-inline">Exporter</span>
-    </button>-->
-  <div id="search-container" class="position-relative w-100 d-md-inline " style="max-width: 20rem;">
-    <div *ngIf="isInputVisible; else buttonTemplate">
-      <p-iconfield>
-        <p-inputicon styleClass="pi pi-search" />
-        <input type="text" pInputText placeholder="Rechercher un livre..." [(ngModel)]="searchQuery"
-          (input)="handleSearch($event)" class="w-100" />
-      </p-iconfield>
+  <div class="top-controls d-flex justify-content-center align-items-center mb-4 gap-3 flex-wrap">
+    <h1 class="m-0">Liste des emprunts</h1>
+    <p-select id="statut_emp" [options]="selectstatutEmp" [(ngModel)]="selectedStatutEmp" name="statut_emp" 
+      placeholder="Select Statut Emprunts" [autoDisplayFirst]="false" (onChange)="applyFilter($event.value)">
+    </p-select>
+    <div id="search-container" class="position-relative w-100 d-md-inline " style="max-width: 20rem;">
+      <div *ngIf="isInputVisible; else buttonTemplate">
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input type="text" pInputText placeholder="Rechercher un livre..." [(ngModel)]="searchQuery"
+            (input)="handleSearch($event)" class="w-100" />
+        </p-iconfield>
+      </div>
+      <ng-template #buttonTemplate>
+        <button pButton icon="pi pi-search" [rounded]="true" [text]="true" (click)="toggleInput()"></button>
+      </ng-template>
     </div>
-    <ng-template #buttonTemplate>
-      <button pButton icon="pi pi-search" [rounded]="true" [text]="true" (click)="toggleInput()"></button>
-    </ng-template>
   </div>
-</div>
 
   <div class="row g-4">
-<div class="col-12 col-sm-6" *ngFor="let m of emprunts; let i = index">
+    <div class="col-12 col-sm-6" *ngFor="let m of emprunts; let i = index">
       <div class="cardcontainer p-4 text-center position-relative" [class.flipped]="flippedIndex === i"
         (click)="toggleFlipoo(i)">
         <div class="inner-card">
@@ -40,8 +33,8 @@
             </div>
             <div class="front-left">
               <div class="countdown">
-    {{ getTimeDisplay(m) }}
-  </div>
+                {{ getTimeDisplay(m) }}
+              </div>
 
             </div>
             <div class="front-right">

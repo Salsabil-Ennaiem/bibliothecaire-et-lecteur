@@ -1,3 +1,4 @@
+using domain.Entity.Enum;
 using domain.Interfaces;
 using Mapster;
 
@@ -6,21 +7,21 @@ namespace api.Features.Livre;
 public class LivresHandler
 {
     private readonly ILivresRepository _livresRepository;
-            private readonly IFichierRepository _FichierRepository;
+    private readonly IFichierRepository _FichierRepository;
 
-    public LivresHandler(ILivresRepository livresRepository,IFichierRepository FichierRepository)
+    public LivresHandler(ILivresRepository livresRepository, IFichierRepository FichierRepository)
 
     {
         _livresRepository = livresRepository;
         _FichierRepository = FichierRepository;
     }
-  
+
     public async Task<IEnumerable<LivreDTO>> SearchAsync(string searchTerm)
     {
         try
         {
             var list = await _livresRepository.GetAllLivresAsync();
-                            if(searchTerm=="") { return list;}
+            if (searchTerm == "") { return list; }
             var query = list.Where(l =>
               (l.titre != null && l.titre.Contains(searchTerm)) ||
               (l.auteur != null && l.auteur.Contains(searchTerm)) ||
@@ -40,15 +41,15 @@ public class LivresHandler
     public async Task<IEnumerable<LivreDTO>> GetAllAsync()
     {
         var entities = await _livresRepository.GetAllLivresAsync();
-        var dtos=entities.Adapt<IEnumerable<LivreDTO>>();
-           foreach (var dto in dtos)
+        var dtos = entities.Adapt<IEnumerable<LivreDTO>>();
+        foreach (var dto in dtos)
+        {
+            if (!string.IsNullOrWhiteSpace(dto.couverture))
             {
-                if (!string.IsNullOrWhiteSpace(dto.couverture))
-                {
-                    var fichierDto = await _FichierRepository.GetFullFileInfoAsync(dto.couverture);
-                    dto.CouvertureFile = fichierDto;
-                }
+                var fichierDto = await _FichierRepository.GetFullFileInfoAsync(dto.couverture);
+                dto.CouvertureFile = fichierDto;
             }
+        }
         return dtos;
 
     }
@@ -60,121 +61,23 @@ public class LivresHandler
     public async Task<LivreDTO> CreateAsync(CreateLivreRequest livredto)
     {
         var createdLivre = await _livresRepository.CreateAsync(livredto);
-    
+
         return createdLivre.Adapt<LivreDTO>();
     }
-   /* public async Task<LivreDTO> UpdateAsync(string id , UpdateLivreDTO UpdateLivreDTO)
+    public async Task<LivreDTO> UpdateAsync(string id, UpdateLivreDTO UpdateLivreDTO)
     {
-        var update = await _livresRepository.UpdateAsync(id , UpdateLivreDTO);
+        var update = await _livresRepository.UpdateAsync(id, UpdateLivreDTO);
         return update.Adapt<LivreDTO>();
-    }*/
+    }
     public async Task DeleteAsync(string id)
     {
         await _livresRepository.DeleteAsync(id);
     }
-  
-   /* public async Task ImportAsync(Stream excelStream)
+
+    public async Task<IEnumerable<LivreDTO>> FiltreStautLiv(Statut_liv? statut_Liv)
     {
-        var workbook = new XSSFWorkbook(excelStream);
-        var sheet = workbook.GetSheetAt(0);
-
-
-        try
-        {
-            for (int rowIndex = 1; rowIndex <= sheet.LastRowNum; rowIndex++)
-            {
-                var row = sheet.GetRow(rowIndex);
-                if (row == null) continue;
-
-                var livre = new Livres
-                {
-                    id_livre = Guid.NewGuid().ToString(),
-                    date_edition = row.GetCell(2)?.StringCellValue ?? string.Empty,
-                    titre = row.GetCell(3)?.StringCellValue ?? string.Empty,
-                    auteur = row.GetCell(4)?.StringCellValue ?? string.Empty,
-                    isbn = row.GetCell(5)?.StringCellValue ?? string.Empty,
-                    editeur = row.GetCell(6)?.StringCellValue ?? string.Empty,
-                    Description = row.GetCell(7)?.StringCellValue ?? string.Empty,
-                    Langue = row.GetCell(8)?.StringCellValue ?? string.Empty,
-                    couverture = row.GetCell(9)?.StringCellValue ?? string.Empty
-                };
-
-                Enum.TryParse(row.GetCell(13)?.StringCellValue, out etat_liv etat);
-                Enum.TryParse(row.GetCell(14)?.StringCellValue, out Statut_liv statut);
-
-                var inventaire = new Inventaire
-                {
-                    id_inv = Guid.NewGuid().ToString(),
-                 //   id_biblio = GetCurrentUserId(),
-                    id_liv = livre.id_livre,
-                    cote_liv = row.GetCell(12)?.StringCellValue ?? string.Empty,
-                    etat = etat,
-                    statut = statut,
-                    inventaire = row.GetCell(15)?.StringCellValue ?? string.Empty
-                };
-
-                // Use repository method to add entities
-                await _livresRepository.CreateAsync(livre, inventaire);
-            }
-
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Erreur lors de l'importation des données depuis le fichier Excel", ex);
-        }
-        finally
-        {
-            workbook.Close();
-        }
+        var liv = await GetAllAsync();
+                if(statut_Liv==null) return liv;
+        return liv.Where(r => r.statut == statut_Liv);
     }
-    public async Task<MemoryStream> ExportAsync()
-    {
-        var data = await SearchAsync("");
-
-        var workbook = new XSSFWorkbook();
-        var sheet = workbook.CreateSheet("LivresInventaire");
-
-        var headerRow = sheet.CreateRow(0);
-        string[] headers = {
-        "IdLivre", "DateEdition", "Titre", "Auteur", "ISBN", "Editeur", "Description", "Langue", "Couverture",
-         "CoteLiv", "Etat", "Statut", "Inventaire"
-    };
-
-        for (int i = 0; i < headers.Length; i++)
-            headerRow.CreateCell(i).SetCellValue(headers[i]);
-
-        int rowIndex = 1;
-        foreach (var livreDto in data) // Changed from tuple deconstruction to single object
-        {
-            var row = sheet.CreateRow(rowIndex++);
-
-            // Book information (assuming these properties exist in LivreDTO)
-            row.CreateCell(0).SetCellValue(livreDto.id_livre ?? "");
-            row.CreateCell(1).SetCellValue(livreDto.date_edition ?? "");
-            row.CreateCell(2).SetCellValue(livreDto.titre ?? "");
-            row.CreateCell(3).SetCellValue(livreDto.auteur ?? "");
-            row.CreateCell(4).SetCellValue(livreDto.isbn ?? "");
-            row.CreateCell(5).SetCellValue(livreDto.editeur ?? "");
-            row.CreateCell(6).SetCellValue(livreDto.Description ?? "");
-            row.CreateCell(7).SetCellValue(livreDto.Langue ?? "");
-            row.CreateCell(8).SetCellValue(livreDto.couverture ?? "");
-
-            // Inventory information (assuming these properties exist in LivreDTO)
-
-            row.CreateCell(9).SetCellValue(livreDto.cote_liv ?? "");
-            row.CreateCell(10).SetCellValue(livreDto.etat?.ToString() ?? "");
-            row.CreateCell(11).SetCellValue(livreDto.statut.ToString() ?? "");
-            row.CreateCell(12).SetCellValue(livreDto.inventaire ?? "");
-        }
-
-        var stream = new MemoryStream();
-        workbook.Write(stream);
-        stream.Position = 0;
-
-        workbook.Close();
-
-        return stream;
-    }
-*/
-
 }

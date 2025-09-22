@@ -55,6 +55,7 @@ export class ProfilComponent implements OnInit {
 get(): void {
   this.ProfileServ.get().subscribe({
     next: (data) => {
+      console.log('Profile data:', data);
       this.profile = data;
       this.uprofil = {
         nom: data.nom,

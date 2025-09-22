@@ -7,7 +7,6 @@ namespace LibraryManagement.Features.Dashboard.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
 public class DashboardController : ControllerBase
 {
     private readonly IDashboardService _dashboardService;

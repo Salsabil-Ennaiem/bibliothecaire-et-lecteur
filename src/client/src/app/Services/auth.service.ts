@@ -7,8 +7,8 @@ import { LoginRequest, LoginResponse, ForgotPasswordRequest, ResetPasswordReques
   providedIn: 'root'
 })
 export class AuthService {
-  
-  private baseUrl = 'http://localhost:5232/api'; 
+
+  private baseUrl = 'http://localhost:5232/api';
   private currentUserSubject = new BehaviorSubject<LoginResponse | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
@@ -28,10 +28,12 @@ export class AuthService {
     );
   }
 
-    getToken(): string | null {
-    const currentUser = this.currentUserSubject.value;
-    return currentUser ? currentUser.token : null;
-  }
+getToken(): string | null {
+  const currentUser = this.currentUserSubject.value;
+  console.log('Current token:', currentUser?.token);  
+  return currentUser ? currentUser.token : null;
+}
+
 
   isLoggedIn(): boolean {
     return !!this.getToken();
@@ -42,11 +44,11 @@ export class AuthService {
   }
 
   forgotPassword(request: ForgotPasswordRequest): Observable<any> {
-    return this.http.post(`${this.baseUrl}/ForgotPassword`, request);
+    return this.http.post(`${this.baseUrl}/ForgotPasseword/MDPOubliee`, request);
   }
 
   resetPassword(request: ResetPasswordRequest): Observable<any> {
-    return this.http.post(`${this.baseUrl}/ForgotPassword/reset-password`, request);
+    return this.http.post(`${this.baseUrl}/ForgotPasseword/reset-password`, request);
   }
 
 
