@@ -12,7 +12,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     if (this.authService.isLoggedIn()) {
       return true;
     }
-    return this.router.parseUrl('/compte/login'); // redirect to login page
+    return this.router.parseUrl('/compte/login');
   }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree {

@@ -9,7 +9,7 @@
       <button pButton icon="pi pi-bars" class="p-button-text d-lg-none mobile-menu-button"
         (click)="drawerVisible = true" aria-label="Menu"></button>
       <div class="desktop-menu">
-        <button pButton icon="pi pi-book" label="Livres" class="p-button-text "
+        <button pButton icon="pi pi-book" label="Livres" [text]="true" 
           routerLink="/bibliothecaire/livres"></button>
         <button pButton icon="pi pi-inbox" label="Emprunts" class="p-button-text"
           routerLink="/bibliothecaire/emprunts"></button>

@@ -4,13 +4,14 @@ namespace Infrastructure.SignalR;
 
 public class NotificationHub : Hub
 {
-    public async Task SubscribeUser(string userId)
+    public async Task SubscribeUser()
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, userId);
+               await Clients.Caller.SendAsync("Connected", Context.ConnectionId);
+        await base.OnConnectedAsync();
     }
 
-    public async Task UnsubscribeUser(string userId)
+    public async Task UnsubscribeUser(Exception? exception)
     {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, userId);
+        await base.OnDisconnectedAsync(exception);
     }
 }

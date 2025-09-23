@@ -8,7 +8,7 @@ import { Subscription, timer } from 'rxjs';
 @Component({
   selector: 'app-notification',
   standalone: true,
-  imports: [ CommonModule, PopoverModule ],
+  imports: [CommonModule, PopoverModule],
   templateUrl: './notification.component.html',
   styleUrls: ['./notification.component.css']
 })
@@ -20,19 +20,19 @@ export class NotificationComponent implements OnInit, OnDestroy {
   unreadCount = 0;
   private subscription?: Subscription;
 
-  constructor(private empruntService: EmpruntService) {}
-//10s=1000ms*10
+  constructor(private empruntService: EmpruntService) { }
+  //10s=1000ms*10
   ngOnInit() {
     this.subscription = timer(0, 60000).subscribe(() => {
-this.empruntService.notifcation().subscribe({
-  next: (response: string) => {
-    console.log('Backend response:', response);
-    // If you want to trigger UI updates or notifications, do it here
-  },
-  error: (err) => {
-    console.error('Failed to load notifications', err);
-  }
-});
+      this.empruntService.notifcation().subscribe({
+        next: (response: string) => {
+          console.log('Backend response:', response);
+          // If you want to trigger UI updates or notifications, do it here
+        },
+        error: (err) => {
+          console.error('Failed to load notifications', err);
+        }
+      });
 
     });
   }

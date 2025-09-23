@@ -10,7 +10,6 @@ export class DashboardSignalRService {
    private hubConnection?: signalR.HubConnection;
   private dashboardUpdateSubject = new BehaviorSubject<any>(null);
 
-  // Observable to subscribe for dashboard updates 
   dashboardUpdates$ = this.dashboardUpdateSubject.asObservable();
 
   constructor(private authService: AuthService) {}

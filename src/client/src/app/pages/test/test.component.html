@@ -1,29 +1,107 @@
-<div class="container mt-4">
-  <div class="row">
-    <!-- Catalogue Optimization Chart -->
-    <div class="col-md-6 mb-4">
-      <h5>Top Books Loans</h5>
-      <p-chart type="bar" [data]="topBooksLoansData" [options]="chartOptions"></p-chart>
-    </div>
+<div class="container-fluid py-4">
 
-    <!-- Delay Reduction Chart -->
-    <div class="col-md-6 mb-4">
-      <h5>Delay Rate</h5>
-      <p-chart type="doughnut" [data]="delayReductionData" [options]="chartOptions"></p-chart>
+  <h2>Catalogue Optimization</h2>
+  <div class="row mb-4">
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-header">Top 10 Books Loans</div>
+        <div class="card-body">
+          <canvas id="topBooksLoansChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-header">Book Rotation Rates</div>
+        <div class="card-body">
+          <canvas id="bookRotationRatesChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-header">Unused Books (Months Since Last Loan)</div>
+        <div class="card-body">
+          <canvas id="unusedBooksChart"></canvas>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="row">
-    <!-- Loss Analysis Chart -->
-    <div class="col-md-6 mb-4">
-      <h5>Loss Cost Over Months</h5>
-      <p-chart type="line" [data]="lossAnalysisData" [options]="chartOptions"></p-chart>
+  <h2>Delay Reduction</h2>
+  <div class="row mb-4">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header">Delay Rate</div>
+        <div class="card-body">
+          <canvas id="delayRateChart"></canvas>
+        </div>
+      </div>
     </div>
-
-    <!-- Resource Planning Chart -->
-    <div class="col-md-6 mb-4">
-      <h5>Monthly Loans</h5>
-      <p-chart type="bar" [data]="resourcePlanningData" [options]="chartOptions"></p-chart>
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header">Top Users With Delays</div>
+        <div class="card-body">
+          <canvas id="topUsersDelayChart"></canvas>
+        </div>
+      </div>
     </div>
   </div>
+
+  <h2>Loss Analysis</h2>
+  <div class="row mb-4">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header">Sanction Rate</div>
+        <div class="card-body">
+          <canvas id="sanctionRateChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header">Monthly Losses & Fines</div>
+        <div class="card-body">
+          <canvas id="monthlyLossesChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Delay vs Loss</h2>
+  <div class="row mb-4">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header">Delay vs Loss Counts</div>
+        <div class="card-body">
+          <canvas id="delayVsLossChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Resource Planning</h2>
+  <div class="row mb-4">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header">Monthly Loans</div>
+        <div class="card-body">
+          <canvas id="monthlyLoansChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Policy Evaluation</h2>
+  <div class="row mb-4">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header">Policy Delay Rate Comparison</div>
+        <div class="card-body">
+          <canvas id="policyComparisonChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

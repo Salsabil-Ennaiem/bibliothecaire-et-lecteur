@@ -1,40 +1,34 @@
 .theme-toggle-container {
-  position: fixed;   /* pour rester visible même en scroll */
-  top: 20px;         /* position verticale (ajuster selon votre nav) */
-  right: 250px;       /* position horizontale, devant à droite */
-  z-index: 1050;     /* au-dessus de la nav et autres composants */
-  background: var(--surface-ground); /* fond selon thème (optionnel) */
+  position: fixed;
+  top: 20px;
+  right: 250px;
+  z-index: 1050;
+  background: var(--surface-ground);
   border-radius: 20px;
   cursor: pointer;
 }
-
 .theme-toggle {
   position: relative;
   width: 60px;
   height: 30px;
   border-radius: 15px;
-  background-color: rgb(245, 245, 245);
+  background-color: rgba(233, 229, 229, 0.904);
   cursor: pointer;
 }
-
-
 .theme-icon {
   z-index: 2;
   font-size: 14px;
   transition: opacity 0.3s ease;
   opacity: 0.7;
 }
-
 .theme-icon.active {
   opacity: 1;
 }
-
 .theme-icon.active {
   opacity: 1;
-    transform: scale(1.2);
+  transform: scale(1.2);
   color: #f0a500;
 }
-
 .slider {
   position: absolute;
   top: 4px;
@@ -45,7 +39,28 @@
   background: #fff;
   transition: left 0.3s ease;
 }
-
 .slider.dark {
   left: 34px;
+}
+
+
+::ng-deep .p-button-text:not(.p-button-danger)  {
+  color: orange !important;
+}
+::ng-deep .p-button-text:not(.p-button-danger):hover {
+  color: #ffb347 !important;
+  background-color: #e69500 !important;
+}
+::ng-deep .p-button-text:not(.p-button-danger):active {
+  color: #e69500 !important;
+}
+:host-context(.dark-theme)::ng-deep .p-button-text:not(.p-button-danger) {
+  color: rgb(74, 79, 143) !important;
+}
+:host-context(.dark-theme)::ng-deep .p-button-text:not(.p-button-danger):hover {
+  color: rgb(74, 79, 143) !important;
+  background-color: rgb(74, 79, 143) !important;
+}
+:host-context(.dark-theme)::ng-deep .p-button-text:not(.p-button-danger):active {
+  color: rgb(74, 79, 143) !important;
 }

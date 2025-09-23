@@ -44,17 +44,23 @@ public class PolicyEvaluationDto
     public List<MonthlyPolicyComparisonDto> MonthlyComparison { get; set; } = new();
 }
 
-// Supporting DTOs
+
+
+
+
+
+
+
 public class BookLoanCountDto
 {
-    public string BookTitle { get; set; } = string.Empty;
+    public string BookTitle { get; set; } 
     public int LoanCount { get; set; }
-    public string BookId { get; set; } = string.Empty;
+    public string BookId { get; set; } 
 }
 
 public class BookRotationRateDto
 {
-    public string BookTitle { get; set; } = string.Empty;
+    public string BookTitle { get; set; } 
     public decimal RotationRate { get; set; }
     public int Available { get; set; }
     public int Loaned { get; set; }

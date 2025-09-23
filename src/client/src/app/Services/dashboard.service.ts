@@ -7,19 +7,12 @@ import { DashboardResponse } from '../model/dashbord.model';
   providedIn: 'root'
 })
 export class DashboardService {
-  private apiUrl = 'http://localhost:5232/api/dashboard';
+  private apiUrl = 'http://localhost:5232/api/Dashboard';
 
  constructor(private http: HttpClient) {}
 
-  getDashboardData(biblioId: string): Observable<DashboardResponse> {
-    return this.http.get<DashboardResponse>(`${this.apiUrl}/${biblioId}`);
+  getDashboardData(biblioId?: string): Observable<DashboardResponse> {
+    return this.http.get<DashboardResponse>(`${this.apiUrl}`);
   }
 
-  refreshDashboard(biblioId: string) {
-    return this.http.post(`${this.apiUrl}/${biblioId}/refresh`, {});
-  }
-
-  notifyDataChange(biblioId: string, changeType: string) {
-    return this.http.post(`${this.apiUrl}/${biblioId}/notify/${changeType}`, {});
-  }
 }

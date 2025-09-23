@@ -99,8 +99,6 @@ builder.Services.AddHttpContextAccessor();
 
 
 // Add these services
-builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
-builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddSignalR();
 
 builder.Services.AddScoped<IRepository<Nouveaute>, Repository<Nouveaute>>();
@@ -116,7 +114,7 @@ builder.Services.AddScoped<ILivresRepository, LivresRepository>();
 builder.Services.AddScoped<IFichierRepository, FichierRepository>();
 builder.Services.AddScoped<IEmpruntsRepository, EmpruntsRepository>();
 builder.Services.AddScoped<IParametreRepository, ParametreRepository>();
-builder.Services.AddScoped<IScrapingRepository, ScrapingRepository>();
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 
 builder.Services.AddScoped<LivresHandler>();
 builder.Services.AddScoped<MembreHandler>();
@@ -127,6 +125,7 @@ builder.Services.AddScoped<LoginHandler>();
 builder.Services.AddScoped<NouveauteHandler>();
 builder.Services.AddScoped<ForgotPasswordHandler>();
 builder.Services.AddScoped<ProfileHandler>();
+builder.Services.AddScoped<DashboardService>();
 
 
 
@@ -174,7 +173,7 @@ using (var scope = app.Services.CreateScope())
 }
 //order imporatnt routing rouetr first controller last  authentification then autorization 
 app.UseRouting();// After app.UseRouting()
-app.MapHub<DashboardHub>("/dashboardHub");
+app.MapHub<dashboardHub>("/dashboardHub");
 app.MapHub<NotificationHub>("/notificationHub");
 
 app.UseCors("AllowAngularDevClient");

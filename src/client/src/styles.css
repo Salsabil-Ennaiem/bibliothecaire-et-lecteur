@@ -1,28 +1,13 @@
 @import "primeicons/primeicons.css";
 
-/*:root {
-    --primary-color: #2c3b55;
-    --secondary-color: #a777e3;
-    --bg-color: #f8f9fa;
-    --text-color: #212529;
-    --card-color: #ffffff;
-  }
-  
-  body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    transition: all 0.3s ease;
-  }
-  
-  .card {
-    background-color: var(--card-color);
-    color: var(--text-color);
-  }
-  
-  button{
-    background-color: var(--primary-color);
-  }
-    */
 
 
+body, #app-root {
+  background-color:  rgba(255, 182, 193, 0.39);
+  color: black;
+}
 
+body.dark-theme, #app-root.dark-theme {
+  background-color: #1a1a1a; /* dark */
+  color: white;
+}

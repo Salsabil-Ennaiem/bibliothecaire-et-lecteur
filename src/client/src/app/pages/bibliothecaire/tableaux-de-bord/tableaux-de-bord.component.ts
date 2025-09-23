@@ -48,10 +48,10 @@ export class TableauxDeBordComponent implements OnInit {
   lineWithThresholdOptions: any;
   doubleLineOptions: any;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(private cdr: ChangeDetectorRef) { }
 
   ngOnInit() {
-    Chart.register(...registerables, annotationPlugin); 
+    Chart.register(...registerables, annotationPlugin);
     this.initChartOptions();
     this.initChartData();
   }
@@ -99,7 +99,7 @@ export class TableauxDeBordComponent implements OnInit {
             scaleID: 'y',
             yMin: 500,
             yMax: 500,
-            borderColor: '#595959', 
+            borderColor: '#595959',
             borderWidth: 2,
             label: { content: 'Seuil d\'alerte', enabled: true }
           }
@@ -132,13 +132,13 @@ export class TableauxDeBordComponent implements OnInit {
         {
           label: 'Taux de rotation',
           data: [0.5, 0.6, 0.55, 0.7, 0.65, 0.8],
-          borderColor: '#25a244', 
+          borderColor: '#25a244',
           fill: false
         },
         {
           label: 'Livres inutilisés',
           data: [0.1, 0.15, 0.12, 0.2, 0.18, 0.25],
-          borderColor: '#595959', 
+          borderColor: '#595959',
           fill: false
         }
       ]
@@ -148,7 +148,7 @@ export class TableauxDeBordComponent implements OnInit {
       labels: ['Retards >3 jours', 'Retours à temps'],
       datasets: [{
         data: [this.delayRate, 100 - this.delayRate],
-        backgroundColor: ['#8c1c13', '#10451D'] 
+        backgroundColor: ['#8c1c13', '#10451D']
       }]
     };
 
@@ -157,7 +157,7 @@ export class TableauxDeBordComponent implements OnInit {
       datasets: [{
         label: 'Retards',
         data: [15, 12, 10, 8, 5],
-        backgroundColor: ['#250902', '#38040e', '#640d14', '#800e13', '#ad2831'] 
+        backgroundColor: ['#250902', '#38040e', '#640d14', '#800e13', '#ad2831']
       }]
     };
 
@@ -167,17 +167,17 @@ export class TableauxDeBordComponent implements OnInit {
         {
           label: 'Pertes',
           data: [5, 10, 8, 12, 6, 15],
-          backgroundColor: '#6f1d1b', 
+          backgroundColor: '#6f1d1b',
         },
         {
           label: 'Retards',
           data: [20, 25, 15, 30, 10, 20],
-          backgroundColor: '#99582a', 
+          backgroundColor: '#99582a',
         },
         {
           label: 'autre',
           data: [2, 9, 5, 3, 1, 2],
-          backgroundColor: '#adc178', 
+          backgroundColor: '#adc178',
         }
       ]
     };
@@ -188,13 +188,13 @@ export class TableauxDeBordComponent implements OnInit {
         {
           label: 'Coût des pertes',
           data: [300, 450, 400, 600, 350, 700],
-          borderColor: '#9d0208', 
+          borderColor: '#9d0208',
           fill: false
         },
         {
           label: 'Amendes',
           data: [100, 150, 120, 200, 130, 250],
-          borderColor: '#adc178', 
+          borderColor: '#adc178',
           fill: false
         }
       ]
@@ -205,7 +205,7 @@ export class TableauxDeBordComponent implements OnInit {
       datasets: [{
         label: 'Emprunts',
         data: [200, 250, 300, 350, 400, 450],
-        borderColor: '#25a244', 
+        borderColor: '#25a244',
         fill: false
       }]
     };
@@ -216,13 +216,13 @@ export class TableauxDeBordComponent implements OnInit {
         {
           label: 'Avant politique',
           data: [40, 45, 50, 48, 47, 46],
-          borderColor: '#a47148', 
+          borderColor: '#a47148',
           fill: false
         },
         {
           label: 'Après politique',
           data: [30, 32, 28, 25, 27, 26],
-          borderColor: '#25a244', 
+          borderColor: '#25a244',
           fill: false
         }
       ]
@@ -236,17 +236,17 @@ export class TableauxDeBordComponent implements OnInit {
         {
           label: 'Taux de rotation',
           data: this.selectedCategory === 'economie' ? [0.5, 0.6, 0.55, 0.7, 0.65, 0.8] : [0.4, 0.5, 0.45, 0.6, 0.55, 0.7],
-          borderColor: '#25a244', 
+          borderColor: '#25a244',
           fill: false
         },
         {
           label: 'Livres inutilisés',
           data: this.selectedCategory === 'economie' ? [0.1, 0.15, 0.12, 0.2, 0.18, 0.25] : [0.08, 0.12, 0.1, 0.15, 0.13, 0.2],
-          borderColor: '#595959', 
+          borderColor: '#595959',
           fill: false
         }
       ]
     };
-    this.cdr.detectChanges(); 
+    this.cdr.detectChanges();
   }
 }

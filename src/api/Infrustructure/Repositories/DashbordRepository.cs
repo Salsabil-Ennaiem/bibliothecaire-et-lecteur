@@ -13,12 +13,11 @@ public class DashboardRepository : IDashboardRepository
     {
         _context = context;
     }
-    public async Task<List<BookLoanCountDto>> GetTopBooksLoansAsync(string biblioId, int count = 10)
+    public async Task<List<BookLoanCountDto>> GetTopBooksLoansAsync( int count = 10)
     {
         var query = await (from e in _context.Emprunts
                           join i in _context.Inventaires on e.Id_inv equals i.id_inv
                           join l in _context.Livres on i.id_liv equals l.id_livre
-                          where e.id_biblio == biblioId
                           group new { l.id_livre, l.titre } by new { l.id_livre, l.titre } into g
                           orderby g.Count() descending
                           select new { BookId = g.Key.id_livre, BookTitle = g.Key.titre, LoanCount = g.Count() })
@@ -27,11 +26,10 @@ public class DashboardRepository : IDashboardRepository
 
         return query.Adapt<List<BookLoanCountDto>>();
     }
-      public async Task<List<BookRotationRateDto>> GetBookRotationRatesAsync(string biblioId)
+    public async Task<List<BookRotationRateDto>> GetBookRotationRatesAsync()
       {
           var query = await (from i in _context.Inventaires
                             join l in _context.Livres on i.id_liv equals l.id_livre
-                            where i.id_biblio == biblioId
                             let totalCopies = _context.Inventaires.Count()
                             let loanCount = (from e in _context.Emprunts
                                             join inv in _context.Inventaires on e.Id_inv equals inv.id_inv
@@ -49,12 +47,11 @@ public class DashboardRepository : IDashboardRepository
 
           return query.Adapt<List<BookRotationRateDto>>();
       }
-      public async Task<List<UnusedBookDto>> GetUnusedBooksAsync(string biblioId, int monthsBack = 6)
+    public async Task<List<UnusedBookDto>> GetUnusedBooksAsync( int monthsBack = 6)
       {
           var cutoffDate = DateTime.Now.AddMonths(-monthsBack);
           var query = await (from inv in _context.Inventaires
                             join livre in _context.Livres on inv.id_liv equals livre.id_livre
-                            where inv.id_biblio == biblioId
                             where !(from e in _context.Emprunts
                                  join l in _context.Livres on e.Id_inv equals l.id_livre
                                  where inv.id_liv == l.id_livre && e.date_emp >= cutoffDate
@@ -73,12 +70,11 @@ public class DashboardRepository : IDashboardRepository
 
           return query.Adapt<List<UnusedBookDto>>();
       }
-    public async Task<(decimal delayRate, List<UserDelayCountDto> topUsers, List<BookDelayCountDto> problematicBooks)> GetDelayDataAsync(string biblioId)
+    public async Task<(decimal delayRate, List<UserDelayCountDto> topUsers, List<BookDelayCountDto> problematicBooks)> GetReatrdAsync(int top=5)
     {
-        var totalLoans = await _context.Emprunts.CountAsync(e => e.id_biblio == biblioId);
+        var totalLoans = await _context.Emprunts.CountAsync();
         var delayedLoans = await _context.Emprunts
-            .CountAsync(e => e.id_biblio == biblioId && 
-                        e.date_effectif.HasValue && 
+            .CountAsync(e => e.date_effectif.HasValue && 
                         e.date_effectif > e.date_retour_prevu);
 
         var delayRate = totalLoans > 0 ? (decimal)delayedLoans / totalLoans * 100 : 0;
@@ -86,8 +82,7 @@ public class DashboardRepository : IDashboardRepository
         // Top delayed users
         var delayedUsersQuery = await (from e in _context.Emprunts
                                       join m in _context.Membres on e.id_membre equals m.id_membre
-                                      where e.id_biblio == biblioId && 
-                                            e.date_effectif.HasValue && 
+                                      where e.date_effectif.HasValue && 
                                             e.date_effectif > e.date_retour_prevu
                                       group new { m.id_membre, m.nom, m.prenom } by new { m.id_membre, m.nom, m.prenom } into g
                                       orderby g.Count() descending
@@ -97,7 +92,7 @@ public class DashboardRepository : IDashboardRepository
                                           DelayCount = g.Count(),
                                           UserId = g.Key.id_membre
                                       })
-                                      .Take(5)
+                                      .Take(top)
                                       .ToListAsync();
 
         var topUsers = delayedUsersQuery.Adapt<List<UserDelayCountDto>>();
@@ -106,8 +101,7 @@ public class DashboardRepository : IDashboardRepository
         var problematicBooksQuery = await (from e in _context.Emprunts
                                           join i in _context.Inventaires on e.Id_inv equals i.id_inv
                                           join l in _context.Livres on i.id_liv equals l.id_livre
-                                          where e.id_biblio == biblioId && 
-                                                e.date_effectif.HasValue && 
+                                          where e.date_effectif.HasValue && 
                                                 e.date_effectif > e.date_retour_prevu
                                           group new { l.id_livre, l.titre } by new { l.id_livre, l.titre } into g
                                           orderby g.Count() descending
@@ -117,22 +111,21 @@ public class DashboardRepository : IDashboardRepository
                                               DelayCount = g.Count(),
                                               BookId = g.Key.id_livre
                                           })
-                                          .Take(5)
+                                          .Take(top)
                                           .ToListAsync();
 
         var problematicBooks = problematicBooksQuery.Adapt<List<BookDelayCountDto>>();
 
         return (delayRate, topUsers, problematicBooks);
     }
-    public async Task<(decimal sanctionRate, List<MonthlyLossDto> monthlyLosses, DelayVsLossDto delayVsLoss, decimal totalLossCost)> GetLossDataAsync(string biblioId)
+    public async Task<(decimal sanctionRate, List<MonthlyLossDto> monthlyLosses, DelayVsLossDto delayVsLoss, decimal totalLossCost)> GetLossSancAsync(int monthbefor=12)
     {
-        var totalLoans = await _context.Emprunts.CountAsync(e => e.id_biblio == biblioId);
-        var sanctionCount = await _context.Sanctions.CountAsync(s => s.id_biblio == biblioId);
+        var totalLoans = await _context.Emprunts.CountAsync();
+        var sanctionCount = await _context.Sanctions.CountAsync();
         var sanctionRate = totalLoans > 0 ? (decimal)sanctionCount / totalLoans * 100 : 0;
 
         var monthlyLossesQuery = await (from s in _context.Sanctions
-                                       where s.id_biblio == biblioId && 
-                                             s.date_sanction >= DateTime.Now.AddMonths(-12)
+                                       where s.date_sanction >= DateTime.Now.AddMonths(-monthbefor)
                                        group s by new { s.date_sanction.Month, s.date_sanction.Year } into g
                                        orderby g.Key.Year, g.Key.Month
                                        select new
@@ -140,35 +133,30 @@ public class DashboardRepository : IDashboardRepository
                                            Month = g.Key.Month,
                                            Year = g.Key.Year,
                                            LossCost = g.Where(s => s.raison.Equals("perte")).Sum(s => s.montant),
-                                           FineAmount = g.Where(s => s.raison.Equals("retard")).Sum(s => s.montant)
+                                           FineAmount = g.Where(s => s.raison.Equals("degat")).Sum(s => s.montant)
                                        })
                                        .ToListAsync();
 
         var monthlyLosses = monthlyLossesQuery.Adapt<List<MonthlyLossDto>>();
 
         var delayCount = await _context.Emprunts
-            .CountAsync(e => e.id_biblio == biblioId && 
-                        e.date_effectif.HasValue && 
+            .CountAsync(e => e.date_effectif.HasValue && 
                         e.date_effectif > e.date_retour_prevu);
         
         var lossCount = await _context.Sanctions
-            .CountAsync(s => s.id_biblio == biblioId && s.raison.Equals("perte"));
+            .CountAsync(s => s.raison.Equals("perte"));
 
-        var totalLossCostNullable = await _context.Sanctions
-            .Where(s => s.id_biblio == biblioId)
-            .SumAsync(s => (decimal?)s.montant);
-
-        var totalLossCost = totalLossCostNullable ?? 0;
+        var totalLossCost = await _context.Sanctions
+            .SumAsync(s => (decimal?)s.montant) ?? 0;
 
         var delayVsLoss = new DelayVsLossDto { DelayCount = delayCount, LossCount = lossCount };
 
         return (sanctionRate, monthlyLosses, delayVsLoss, totalLossCost);
     }
-    public async Task<(List<MonthlyLoanDto> monthlyLoans, decimal avgDuration)> GetResourceDataAsync(string biblioId)
+    public async Task<(List<MonthlyLoanDto> monthlyLoans, decimal avgDuration)> GetEmpMonthTopAsync(int monthbefor=12)
     {
         var monthlyLoansQuery = await (from e in _context.Emprunts
-                                      where e.id_biblio == biblioId && 
-                                            e.date_emp >= DateTime.Now.AddMonths(-12)
+                                      where e.date_emp >= DateTime.Now.AddMonths(-monthbefor)
                                       group e by new { e.date_emp.Month, e.date_emp.Year } into g
                                       orderby g.Key.Year, g.Key.Month
                                       select new
@@ -182,7 +170,7 @@ public class DashboardRepository : IDashboardRepository
         var monthlyLoans = monthlyLoansQuery.Adapt<List<MonthlyLoanDto>>();
 
         var avgDurationNullable = await (from e in _context.Emprunts
-                                        where e.id_biblio == biblioId && e.date_effectif.HasValue
+                                        where e.date_effectif.HasValue
                                         select (double?)(e.date_effectif!.Value - e.date_emp).TotalDays)
                                         .AverageAsync();
 
@@ -190,31 +178,28 @@ public class DashboardRepository : IDashboardRepository
 
         return (monthlyLoans, avgDuration);
     }
-    public async Task<(decimal beforeRate, decimal afterRate, List<MonthlyPolicyComparisonDto> comparison)> GetPolicyDataAsync(string biblioId)
+    public async Task<(decimal beforeRate, decimal afterRate, List<MonthlyPolicyComparisonDto> comparison)> GetPolicyDataAsync(int paramMonth=6 ,int empmonth=12)
     {
         var policyChangeDate = await _context.Parametres
-            .Where(p => p.IdBiblio == biblioId)
             .Select(p => p.date_modification)
             .FirstOrDefaultAsync();
 
         if (policyChangeDate == default)
-            policyChangeDate = DateTime.Now.AddMonths(-6);
+            policyChangeDate = DateTime.Now.AddMonths(-paramMonth);
 
         var totalLoansBefore = await _context.Emprunts
-            .CountAsync(e => e.id_biblio == biblioId && e.date_emp < policyChangeDate);
+            .CountAsync(e => e.date_emp < policyChangeDate);
         
         var delayedLoansBefore = await _context.Emprunts
-            .CountAsync(e => e.id_biblio == biblioId && 
-                        e.date_emp < policyChangeDate &&
+            .CountAsync(e =>  e.date_emp < policyChangeDate &&
                         e.date_effectif.HasValue &&
                         e.date_effectif > e.date_retour_prevu);
 
         var totalLoansAfter = await _context.Emprunts
-            .CountAsync(e => e.id_biblio == biblioId && e.date_emp >= policyChangeDate);
+            .CountAsync(e => e.date_emp >= policyChangeDate);
         
         var delayedLoansAfter = await _context.Emprunts
-            .CountAsync(e => e.id_biblio == biblioId && 
-                        e.date_emp >= policyChangeDate &&
+            .CountAsync(e => e.date_emp >= policyChangeDate &&
                         e.date_effectif.HasValue &&
                         e.date_effectif > e.date_retour_prevu);
 
@@ -222,8 +207,7 @@ public class DashboardRepository : IDashboardRepository
         var afterRate = totalLoansAfter > 0 ? (decimal)delayedLoansAfter / totalLoansAfter * 100 : 0;
 
                var monthlyComparisonQuery = await (from e in _context.Emprunts
-                                           where e.id_biblio == biblioId && 
-                                                 e.date_emp >= DateTime.Now.AddMonths(-12)
+                                           where e.date_emp >= DateTime.Now.AddMonths(-empmonth)
                                            group e by new { e.date_emp.Month, e.date_emp.Year } into g
                                            let totalInMonth = g.Count()
                                            let delayedInMonthBefore = g.Count(x => x.date_emp < policyChangeDate && 
