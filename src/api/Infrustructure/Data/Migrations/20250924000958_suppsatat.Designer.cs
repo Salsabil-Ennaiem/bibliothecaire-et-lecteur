@@ -3,6 +3,7 @@ using System;
 using Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using domain.Entity.Enum;
@@ -12,9 +13,11 @@ using domain.Entity.Enum;
 namespace api.Migrations
 {
     [DbContext(typeof(BiblioDbContext))]
-    partial class BiblioDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250924000958_suppsatat")]
+    partial class suppsatat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

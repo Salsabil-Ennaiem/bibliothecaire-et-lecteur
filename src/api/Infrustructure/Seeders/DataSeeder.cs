@@ -25,14 +25,13 @@ public static class DataSeeder
             var hasNouveautes = await dbContext.Nouveautes.AnyAsync();
             var hasParametres = await dbContext.Parametres.AnyAsync();
             var hasSanctions = await dbContext.Sanctions.AnyAsync();
-             var hasStatistiques = await dbContext.Statistiques.AnyAsync(); 
              var hasUsers = await dbContext.Bibliothecaires.AnyAsync(); 
 
             if (hasLivres && hasInventaires
             && hasMembres && hasEmprunts
             && hasNouveautes && nb > 1 &&
             hasParametres && hasSanctions 
-            && hasStatistiques && hasUsers)
+            && hasUsers)
             {
                 Console.WriteLine("ℹ️ Data already exists in database.");
                 return;
@@ -135,16 +134,6 @@ public static class DataSeeder
                     Console.WriteLine("⚠️ Sanctions already exist.");
                 }
 
-                // Seed statistiques
-                 if (!hasStatistiques && ancienParametre != null && nouveauParametre != null)
-                 {
-                     Console.WriteLine("🌱 Seeding Statistiques...");
-                     await StatistiqueSeeder.SeedStatistiquesAsync(dbContext, ancienParametre, nouveauParametre, emprunts, membres);
-                 }
-                 else if (hasStatistiques)
-                 {
-                     Console.WriteLine("📊 Statistiques already exist.");
-                 }
                  
                  //seed user
                 if (!hasUsers)

@@ -21,7 +21,6 @@ public class BiblioDbContext : IdentityDbContext<Bibliothecaire>
     public DbSet<Inventaire> Inventaires { get; set; }
     public DbSet<Livres> Livres { get; set; }
     public DbSet<Bibliothecaire> Bibliothecaires { get; set; }
-    public DbSet<Statistique> Statistiques { get; set; }
     public DbSet<Parametre> Parametres { get; set; }
     public DbSet<Nouveaute> Nouveautes { get; set; }
     public DbSet<Sanction> Sanctions { get; set; }
@@ -44,7 +43,6 @@ public class BiblioDbContext : IdentityDbContext<Bibliothecaire>
         modelBuilder.ApplyConfiguration(new LivreConfiguration());
         modelBuilder.ApplyConfiguration(new InventaireConfiguration());
         modelBuilder.ApplyConfiguration(new BibliothecaireConfiguration());
-        modelBuilder.ApplyConfiguration(new StatistiqueConfiguration());
         modelBuilder.ApplyConfiguration(new ParametreConfiguration());
         modelBuilder.ApplyConfiguration(new NouveauteConfiguration());
         modelBuilder.ApplyConfiguration(new FichierConfiguration());

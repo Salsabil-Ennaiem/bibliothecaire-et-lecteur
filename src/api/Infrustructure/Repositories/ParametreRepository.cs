@@ -16,21 +16,7 @@ namespace Infrastructure.Repositries
         {
             _context = context;
         }
-        /*  public async Task<Parametre> GetParam(string userId)
-          {
-              try
-              {
-                  var parametre = await _context.Parametres
-                      .Where(p => p.IdBiblio == userId)
-                      .OrderByDescending(p => p.id_param)
-                      .FirstOrDefaultAsync();
-                  return parametre;
-              }
-              catch (Exception ex)
-              {
-                  throw new Exception($"Error retrieving Parametre for User ID {userId}: {ex.Message}", ex);
-              }
-          }*/
+
         public async Task<ParametreDTO> GetParam()
         {
             try
