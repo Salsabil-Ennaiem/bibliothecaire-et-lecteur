@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 using LibraryManagement.Features.Dashboard.DTOs;
 using LibraryManagement.Features.Dashboard.Repositories;
 using Infrastructure.SignalR;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace LibraryManagement.Features.Dashboard.Services;
 
@@ -24,50 +25,59 @@ public class DashboardService
 
     private async Task<DashboardResponse> GetDashboardDataAsync()
     {
-        var topBooksTask = _repository.GetTopBooksLoansAsync();
-        var rotationRatesTask = _repository.GetBookRotationRatesAsync();
-        var unusedBooksTask = _repository.GetUnusedBooksAsync();
-        var delayDataTask = _repository.GetReatrdAsync();
-        var lossDataTask = _repository.GetLossSancAsync();
-        var emptopmonthDataTask = _repository.GetEmpMonthTopAsync();
-        var policyDataTask = _repository.GetPolicyDataAsync();
 
-        await Task.WhenAll(topBooksTask, rotationRatesTask, unusedBooksTask, delayDataTask, lossDataTask, emptopmonthDataTask, policyDataTask);
+            var topBooksTask = _repository.GetTopBooksLoansAsync();
+            var rotationRatesTask = _repository.GetBookRotationRatesAsync();
+            var unusedBooksTask = _repository.GetUnusedBooksAsync();
+            var delayDataTask = _repository.GetReatrdAsync();
+            var lossDataTask = _repository.GetLossSancAsync();
+            var emptopmonthDataTask = _repository.GetEmpMonthTopAsync();
+            var policyDataTask = _repository.GetPolicyDataAsync();
+            Console.WriteLine("get all repositry  ");
 
-        return new DashboardResponse
-        {
-            CatalogueOptimization = new CatalogueOptimizationDto
-            {
-                TopBooksLoans = await topBooksTask,
-                BookRotationRates = await rotationRatesTask,
-                UnusedBooks = await unusedBooksTask
-            },
-            DelayReduction = new DelayReductionDto
-            {
-                DelayRate = (await delayDataTask).delayRate,
-                TopDelayedUsers = (await delayDataTask).topUsers,
-                ProblematicBooks = (await delayDataTask).problematicBooks
-            },
-            LossAnalysis = new LossAnalysisDto
-            {
-                SanctionRate = (await lossDataTask).sanctionRate,
-                MonthlyLosses = (await lossDataTask).monthlyLosses,
-                DelayVsLoss = (await lossDataTask).delayVsLoss,
-                TotalLossCost = (await lossDataTask).totalLossCost
-            },
-            ResourcePlanning = new ResourcePlanningDto
-            {
-                MonthlyLoans = (await emptopmonthDataTask).monthlyLoans,
-                AverageLoanDuration = (await emptopmonthDataTask).avgDuration
-            },
-            PolicyEvaluation = new PolicyEvaluationDto
-            {
-                DelayRateBeforePolicy = (await policyDataTask).beforeRate,
-                DelayRateAfterPolicy = (await policyDataTask).afterRate,
-                MonthlyComparison = (await policyDataTask).comparison
-            }
-        };
+            await Task.WhenAll(topBooksTask, rotationRatesTask, unusedBooksTask, delayDataTask, lossDataTask, emptopmonthDataTask, policyDataTask);
+            Console.WriteLine("get all deja ");
 
+            var s= new DashboardResponse
+            {
+                CatalogueOptimization = new CatalogueOptimizationDto
+                {
+                    TopBooksLoans = topBooksTask.Result,
+                    BookRotationRates = rotationRatesTask.Result,
+                    UnusedBooks = unusedBooksTask.Result
+
+                },
+                DelayReduction = new DelayReductionDto
+                {
+                    DelayRate = delayDataTask.Result.delayRate,
+                    TopDelayedUsers = delayDataTask.Result.topUsers,
+                    ProblematicBooks = delayDataTask.Result.problematicBooks
+                },
+                LossAnalysis = new LossAnalysisDto
+                {
+                    SanctionRate = lossDataTask.Result.sanctionRate,
+                    MonthlyLosses = lossDataTask.Result.monthlyLosses,
+                    DelayVsLoss = lossDataTask.Result.delayVsLoss,
+                    TotalLossCost = lossDataTask.Result.totalLossCost
+                },
+                ResourcePlanning = new ResourcePlanningDto
+                {
+                    MonthlyLoans = emptopmonthDataTask.Result.monthlyLoans,
+                    AverageLoanDuration = emptopmonthDataTask.Result.avgDuration
+                },
+                PolicyEvaluation = new PolicyEvaluationDto
+                {
+                    DelayRateBeforePolicy = policyDataTask.Result.beforeRate,
+                    DelayRateAfterPolicy = policyDataTask.Result.afterRate,
+                    MonthlyComparison = policyDataTask.Result.comparison
+                }
+            };
+if (s == null)
+{
+     throw new Exception("null") ; 
+}
+return s;
+   
     }
 
     private async Task NotifyDataChangeAsync(string? biblioId)

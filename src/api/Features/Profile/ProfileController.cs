@@ -18,9 +18,9 @@ public class ProfileController : ControllerBase
     }
 
     [HttpGet("Get")]
-    public async Task<ActionResult<ProfileDTO>> GetProfile()
+    public async Task<ActionResult<ProfileDTO>> GetProfile(CancellationToken cancellationToken)
     {
-        var profile = await _profileHandler.GetProfileAsync();
+        var profile = await _profileHandler.GetProfileAsync(cancellationToken);
         return Ok(profile);
     }
 

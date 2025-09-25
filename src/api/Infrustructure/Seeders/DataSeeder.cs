@@ -1,7 +1,6 @@
 using domain.Entity;
 using Data;
 using Microsoft.EntityFrameworkCore;
-using Infrustructure.Seeders;
 
 namespace Infrastructure.Seeders;
 
@@ -106,7 +105,7 @@ public static class DataSeeder
                 if (!hasParametres)
                 {
                     Console.WriteLine("🌱 Seeding Parametres...");
-                    (ancienParametre, nouveauParametre) = await parametreSeeder.SeedParametresAsync(dbContext);
+                    (ancienParametre, nouveauParametre) = await ParametreSeeder.SeedParametresAsync(dbContext);
                 }
                 else
                 {

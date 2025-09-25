@@ -76,15 +76,6 @@ namespace Infrastructure.Repositories
         }
         public async Task<LivreDTO> CreateAsync(CreateLivreRequest livreCreate)
         {
-            if (string.IsNullOrEmpty(livreCreate.titre) ||
-                string.IsNullOrEmpty(livreCreate.editeur) ||
-                string.IsNullOrEmpty(livreCreate.date_edition) ||
-                string.IsNullOrEmpty(livreCreate.cote_liv))
-            {
-                throw new Exception("Les 4 champs sont obligatoires : titre, éditeur, date édition, cote liv.");
-            }
-
-
 
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try

@@ -60,6 +60,13 @@ public class LivresHandler
     }
     public async Task<LivreDTO> CreateAsync(CreateLivreRequest livredto)
     {
+                    if (string.IsNullOrEmpty(livredto.titre) ||
+                string.IsNullOrEmpty(livredto.editeur) ||
+                string.IsNullOrEmpty(livredto.date_edition) ||
+                string.IsNullOrEmpty(livredto.cote_liv))
+            {
+                throw new Exception("Les 4 champs sont obligatoires : titre, éditeur, date édition, cote liv.");
+            }
         var createdLivre = await _livresRepository.CreateAsync(livredto);
 
         return createdLivre.Adapt<LivreDTO>();

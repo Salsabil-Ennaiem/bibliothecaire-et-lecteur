@@ -9,7 +9,7 @@ public interface IFichierRepository
     Task<FichierDto?> GetFullFileInfoAsync(string id);
     Task<IEnumerable<FichierDto>> GetByNouveauteIdAsync(string nouveauteId);
 //    Task<(Stream? ContentStream, string ContentType, string FileName)?> GetFileByIdAsync(string id);
-        Task DeleteFileByIdAsync(string id);
+    Task DeleteFileByIdAsync(string id);
     Task DeleteFileListAsync(string id);
 
 }

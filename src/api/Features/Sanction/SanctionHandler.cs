@@ -21,7 +21,6 @@ public class SanctionHandler
         _handlerEmp = handlerEmp;
     }
 
-
     public async Task<IEnumerable<SanctionDTO>> GetAllAsync()
     {
         var sanctions = await _sanctionRepository.GetAllAsync();
@@ -101,7 +100,6 @@ public class SanctionHandler
 
         }
     }
-
     public async Task<IEnumerable<SanctionDTO>> FiltreRaison(Raison_sanction[]? selectedRaisons)
     {
         var sanctions = await GetAllAsync();
@@ -124,7 +122,6 @@ public class SanctionHandler
 
         }
     }
-
     public async Task<IEnumerable<SanctionDTO>> FiltrePayement(bool? paye)
     {
         var Sanc = await GetAllAsync();

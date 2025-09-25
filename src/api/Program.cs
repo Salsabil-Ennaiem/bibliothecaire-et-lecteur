@@ -51,6 +51,11 @@ builder.Services.AddDbContext<BiblioDbContext>(options =>
     options.UseNpgsql(dataSource);
 });
 
+builder.Services.AddDbContextFactory<BiblioDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("postgres")),
+    ServiceLifetime.Scoped);
+    
+
 
 
 builder.Services.AddIdentity<Bibliothecaire, IdentityRole>(options =>
@@ -114,7 +119,7 @@ builder.Services.AddScoped<ILivresRepository, LivresRepository>();
 builder.Services.AddScoped<IFichierRepository, FichierRepository>();
 builder.Services.AddScoped<IEmpruntsRepository, EmpruntsRepository>();
 builder.Services.AddScoped<IParametreRepository, ParametreRepository>();
-builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>(); 
 
 builder.Services.AddScoped<LivresHandler>();
 builder.Services.AddScoped<MembreHandler>();

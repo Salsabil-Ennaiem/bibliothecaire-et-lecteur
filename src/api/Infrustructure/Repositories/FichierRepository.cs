@@ -111,7 +111,7 @@ public class FichierRepository : IFichierRepository
 
         return couverture.IdFichier;
     }
-    public async Task<(Stream ContentStream, string ContentType, string FileName)?> GetFileByIdAsync(string id)
+  /*  public async Task<(Stream ContentStream, string ContentType, string FileName)?> GetFileByIdAsync(string id)
     {
         var fichier = await _context.Set<Fichier>().FindAsync(id);
         if (fichier == null)
@@ -142,6 +142,7 @@ public class FichierRepository : IFichierRepository
             throw new InvalidOperationException($"File content for id '{id}' not found in file path or database.");
         }
     }
+  */
     public async Task<FichierDto?> GetFullFileInfoAsync(string fileId)
     {
         var fichier = await _context.Fichiers.FindAsync(fileId);

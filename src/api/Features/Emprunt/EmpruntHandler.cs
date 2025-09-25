@@ -38,33 +38,33 @@ public class EmpruntHandler
     {
         await _hubContext.Clients.User(userId).SendAsync("ReceiveNotification", message, when);
     }
-private async Task SendEmailAsync(string userEmail, string subject, string body)
-{
-    var emailMessage = new MimeMessage();
-    emailMessage.From.Add(new MailboxAddress(_configuration["MailSettings:Username"], _configuration["MailSettings:From"]));
-    emailMessage.To.Add(new MailboxAddress("", userEmail));
-    emailMessage.Subject = subject;
-    emailMessage.Body = new TextPart("plain") { Text = body };
+    private async Task SendEmailAsync(string userEmail, string subject, string body)
+    {
+        var emailMessage = new MimeMessage();
+        emailMessage.From.Add(new MailboxAddress(_configuration["MailSettings:Username"], _configuration["MailSettings:From"]));
+        emailMessage.To.Add(new MailboxAddress("", userEmail));
+        emailMessage.Subject = subject;
+        emailMessage.Body = new TextPart("plain") { Text = body };
 
-    try
-    {
-        using var client = new SmtpClient();
-        await client.ConnectAsync(_configuration["MailSettings:Host"], int.Parse(_configuration["MailSettings:Port"]), MailKit.Security.SecureSocketOptions.StartTls);
-        await client.AuthenticateAsync(_configuration["MailSettings:Username"], _configuration["MailSettings:Password"]);
-        await client.SendAsync(emailMessage);
-        await client.DisconnectAsync(true);
+        try
+        {
+            using var client = new SmtpClient();
+            await client.ConnectAsync(_configuration["MailSettings:Host"], int.Parse(_configuration["MailSettings:Port"]), MailKit.Security.SecureSocketOptions.StartTls);
+            await client.AuthenticateAsync(_configuration["MailSettings:Username"], _configuration["MailSettings:Password"]);
+            await client.SendAsync(emailMessage);
+            await client.DisconnectAsync(true);
+        }
+        catch (MailKit.Net.Smtp.SmtpCommandException ex) when (
+            ex.Message.Contains("5.4.5 Daily user sending limit exceeded"))
+        {
+            Console.Error.WriteLine("Gmail daily sending limit exceeded. Email skipped for now.");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Email sending failed: " + ex.Message, ex);
+        }
     }
-    catch (MailKit.Net.Smtp.SmtpCommandException ex) when (
-        ex.Message.Contains("5.4.5 Daily user sending limit exceeded") )
-    {
-        Console.Error.WriteLine("Gmail daily sending limit exceeded. Email skipped for now.");
-    }
-    catch (Exception ex)
-    {
-        throw new Exception("Email sending failed: " + ex.Message, ex);
-    }
-}
-   public async Task GererAlertesEtNotificationsAsync()
+    public async Task GererAlertesEtNotificationsAsync()
     {
         var allemprunts = await _empruntsRepository.GetAllEmpAsync();
         var emprunts = allemprunts.Where(e => e.Statut_emp == Statut_emp.en_cours);

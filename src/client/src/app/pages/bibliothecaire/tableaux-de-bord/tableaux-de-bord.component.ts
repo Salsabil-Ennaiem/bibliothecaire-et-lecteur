@@ -1,252 +1,443 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { SelectItem } from 'primeng/api';
-import { FormsModule } from '@angular/forms';
-import { CardModule } from 'primeng/card';
-import { SelectModule } from 'primeng/select';
 import { ChartModule } from 'primeng/chart';
-import { Chart, registerables } from 'chart.js';
-import annotationPlugin from 'chartjs-plugin-annotation';
+import { Subscription, timer } from 'rxjs';
+import { Chart } from 'chart.js';
+import { BookLoanCountDto, BookRotationRateDto, DashboardResponse, MonthlyLoanDto, MonthlyLossDto, MonthlyPolicyComparisonDto, UnusedBookDto, UserDelayCountDto } from '../../../model/dashbord.model';
+import {Component, OnDestroy, OnInit } from '@angular/core';
+import { DashboardService } from '../../../Services/dashboard.service';
+import { TabViewModule } from 'primeng/tabview';
+
 
 @Component({
   selector: 'app-tableaux-de-bord',
-  imports: [FormsModule, CardModule, SelectModule, ChartModule],
+  imports: [ChartModule ,TabViewModule],
   templateUrl: './tableaux-de-bord.component.html',
   styleUrl: './tableaux-de-bord.component.css'
 })
-export class TableauxDeBordComponent implements OnInit {
-  // Données des graphiques
-  topBooksData: any;
-  rotationData: any;
-  delayRateData: any;
-  frequentDelaysData: any;
-  sanctionData: any;
-  lossCostData: any;
-  monthlyLoansData: any;
-  policyImpactData: any;
 
-  // KPI
-  averageLoanDuration: number = 14;
-  totalLoans: number = 1000;
-  delayRate: number = 30;
-  sanctionRate: number = 15;
-  lossCost: number = 5000;
 
-  // Options du filtre
-  categories: SelectItem[] = [
-    { label: 'Tous', value: '' },
-    { label: 'Economie', value: 'economie' },
-    { label: 'IT', value: 'Informatique' },
-    { label: 'Sciences', value: 'sciences' }
-  ];
-  selectedCategory: string = '';
+export class TableauxDeBordComponent implements OnInit, OnDestroy {
+  activePartIndex: number = 0
 
-  // Options des graphiques
-  barOptions: any;
-  lineOptions: any;
-  doughnutOptions: any;
-  stackedBarOptions: any;
-  lineWithThresholdOptions: any;
-  doubleLineOptions: any;
+  private subscription?: Subscription;
+  dashboardData?: any;
+  private topBooksLoansChart?: Chart;
+  private bookRotationRatesChart?: Chart;
+  private unusedBooksChart?: Chart;
+  private delayRateChart?: Chart;
+  private topUsersDelayChart?: Chart;
+  private sanctionRateChart?: Chart;
+  private monthlyLossesChart?: Chart;
+  private delayVsLossChart?: Chart;
+  private monthlyLoansChart?: Chart;
+  private policyComparisonChart?: Chart;
 
-  constructor(private cdr: ChangeDetectorRef) { }
+  constructor(private dashService: DashboardService) { }
 
   ngOnInit() {
-    Chart.register(...registerables, annotationPlugin);
-    this.initChartOptions();
-    this.initChartData();
+    this.subscription = timer(0, 60000).subscribe(() => this.loadDashboardData());
   }
 
-  initChartOptions() {
-    this.barOptions = {
-      indexAxis: 'y',
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { beginAtZero: true, title: { display: true, text: 'Nombre' } },
-        y: { beginAtZero: true, title: { display: true, text: 'Livres/Utilisateurs' } }
-      }
-    };
+  ngOnDestroy() {
+    this.subscription?.unsubscribe();
+    this.destroyAllCharts();
+  }
 
-    this.lineOptions = {
-      plugins: { legend: { display: true, position: 'top' } },
-      scales: {
-        x: { title: { display: true, text: 'Mois' } },
-        y: { beginAtZero: true, title: { display: true, text: 'Valeur' } }
-      }
-    };
+  private destroyAllCharts() {
+    this.topBooksLoansChart?.destroy();
+    this.bookRotationRatesChart?.destroy();
+    this.unusedBooksChart?.destroy();
+    this.delayRateChart?.destroy();
+    this.topUsersDelayChart?.destroy();
+    this.sanctionRateChart?.destroy();
+    this.monthlyLossesChart?.destroy();
+    this.delayVsLossChart?.destroy();
+    this.monthlyLoansChart?.destroy();
+    this.policyComparisonChart?.destroy();
+  }
 
-    this.doughnutOptions = {
-      plugins: { legend: { position: 'top' } }
-    };
-
-    this.stackedBarOptions = {
-      plugins: { legend: { display: true, position: 'top' } },
-      scales: {
-        x: { stacked: true, title: { display: true, text: 'Mois' } },
-        y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Taux (%)' } }
-      }
-    };
-
-    this.lineWithThresholdOptions = {
-      plugins: { legend: { display: true, position: 'top' } },
-      scales: {
-        x: { id: 'x', title: { display: true, text: 'Mois' } },
-        y: { id: 'y', beginAtZero: true, title: { display: true, text: 'Coût (dt)' } }
+  loadDashboardData() {
+    this.dashService.getDashboardData('').subscribe({
+      next: (data) => {
+        this.dashboardData = data;
+        this.renderTopBooksLoansChart();
+        this.renderBookRotationRatesChart();
+        this.renderUnusedBooksChart();
+        this.renderDelayRateAndTopUsersCharts();
+        this.renderSanctionAndMonthlyLossesChart();
+        this.renderDelayVsLossChart();
+        this.renderMonthlyLoansChart();
+        this.renderPolicyComparisonChart();
       },
-      annotation: {
-        annotations: {
-          threshold: {
-            type: 'line',
-            scaleID: 'y',
-            yMin: 500,
-            yMax: 500,
-            borderColor: '#595959',
-            borderWidth: 2,
-            label: { content: 'Seuil d\'alerte', enabled: true }
+      error: (err) => console.error('Failed to load dashboard', err)
+    });
+  }
+
+  private renderTopBooksLoansChart() {
+    if (!this.dashboardData) return;
+    const ctx = (document.getElementById('topBooksLoansChart') as HTMLCanvasElement).getContext('2d');
+    this.topBooksLoansChart?.destroy();
+
+    const top10Books = this.dashboardData.catalogueOptimization.topBooksLoans.slice(0, 10);
+    this.topBooksLoansChart = new Chart(ctx!, {
+      type: 'bar',
+      data: {
+        labels: top10Books.map((b: BookLoanCountDto) => b.bookTitle),
+        datasets: [{
+          label: 'Loan Count',
+          data: top10Books.map((b: BookLoanCountDto) => b.loanCount),
+          backgroundColor: top10Books.map(() =>
+            `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.7)`
+          ),
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: 'Loan Count' }
+          },
+          x: {
+            title: { display: true, text: 'Book Title' }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          title: { display: true, text: 'Top 10 Books by Loan Count' }
+        }
+      }
+    });
+  }
+
+  private renderBookRotationRatesChart() {
+    if (!this.dashboardData) return;
+    const ctx = (document.getElementById('bookRotationRatesChart') as HTMLCanvasElement).getContext('2d');
+    this.bookRotationRatesChart?.destroy();
+
+    const data = this.dashboardData.catalogueOptimization.bookRotationRates;
+    this.bookRotationRatesChart = new Chart(ctx!, {
+      type: 'bar',
+      data: {
+        labels: data.map((b: BookRotationRateDto) => b.bookTitle),
+        datasets: [{
+          label: 'Rotation Rate',
+          data: data.map((b: BookRotationRateDto) => b.rotationRate),
+          backgroundColor: 'rgba(75,192,192,0.7)'
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: 'Rotation Rate' }
+          },
+          x: {
+            title: { display: true, text: 'Book Title' }
+          }
+        },
+        plugins: {
+          title: { display: true, text: 'Book Rotation Rates' }
+        }
+      }
+    });
+  }
+
+  private renderUnusedBooksChart() {
+    if (!this.dashboardData) return;
+    const ctx = (document.getElementById('unusedBooksChart') as HTMLCanvasElement).getContext('2d');
+    this.unusedBooksChart?.destroy();
+
+    const data = this.dashboardData.catalogueOptimization.unusedBooks;
+    this.unusedBooksChart = new Chart(ctx!, {
+      type: 'bar',
+      data: {
+        labels: data.map((b: UnusedBookDto) => b.bookTitle),
+        datasets: [{
+          label: 'Months Since Last Loan',
+          data: data.map((b: UnusedBookDto) => {
+            const lastLoanDate = new Date(b.lastLoan);
+            const diffMonths = (new Date().getTime() - lastLoanDate.getTime()) / (1000 * 3600 * 24 * 30);
+            return diffMonths;
+          }),
+          backgroundColor: 'rgba(255, 159, 64, 0.7)'
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: 'Months Since Last Loan' }
+          },
+          x: {
+            title: { display: true, text: 'Book Title' }
+          }
+        },
+        plugins: {
+          title: { display: true, text: 'Unused Books (Months Since Last Loan)' }
+        }
+      }
+    });
+  }
+
+  private renderDelayRateAndTopUsersCharts() {
+    if (!this.dashboardData) return;
+
+    {
+      const ctx = (document.getElementById('delayRateChart') as HTMLCanvasElement).getContext('2d');
+      this.delayRateChart?.destroy();
+
+      this.delayRateChart = new Chart(ctx!, {
+        type: 'doughnut',
+        data: {
+          labels: ['Delay Rate', 'Other'],
+          datasets: [{
+            data: [this.dashboardData.delayReduction.delayRate, 100 - this.dashboardData.delayReduction.delayRate],
+            backgroundColor: ['rgba(255, 99, 132, 0.7)', 'rgba(201, 203, 207, 0.7)']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: { display: true, text: 'Delay Rate' }
           }
         }
-      }
-    };
+      });
+    }
 
-    this.doubleLineOptions = {
-      plugins: { legend: { display: true, position: 'top' } },
-      scales: {
-        x: { title: { display: true, text: 'Mois' } },
-        y: { beginAtZero: true, title: { display: true, text: 'Taux de retard (%)' } }
-      }
-    };
+    {
+      const ctx = (document.getElementById('topUsersDelayChart') as HTMLCanvasElement).getContext('2d');
+      this.topUsersDelayChart?.destroy();
+
+      const topUsers = this.dashboardData.delayReduction.topDelayedUsers.slice(0, 5);
+      this.topUsersDelayChart = new Chart(ctx!, {
+        type: 'bar',
+        data: {
+          labels: topUsers.map((u: UserDelayCountDto) => u.userName),
+          datasets: [{
+            label: 'Delay Count',
+            data: topUsers.map((u: UserDelayCountDto) => u.delayCount),
+            backgroundColor: 'rgba(54, 162, 235, 0.7)'
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: 'Delay Count' }
+            },
+            x: {
+              title: { display: true, text: 'User Name' }
+            }
+          },
+          plugins: {
+            title: { display: true, text: 'Top Users With Delays' }
+          }
+        }
+      });
+    }
   }
 
-  initChartData() {
-    this.topBooksData = {
-      labels: ['Livre A', 'Livre B', 'Livre C', 'Livre D', 'Livre E', 'Livre F', 'Livre G', 'Livre H', 'Livre I', 'Livre J'],
-      datasets: [{
-        label: 'Emprunts',
-        data: [120, 100, 90, 85, 80, 70, 60, 50, 40, 30],
-        backgroundColor: ['#10451d', '#155d27', '#1a7431', '#208b3a', '#25a244', '#2dc653', '#4ad66d', '#6ede8a', '#92e6a7', '#b7efc5'] // Vert dégradé for top books
-      }]
-    };
+  private renderSanctionAndMonthlyLossesChart() {
+    if (!this.dashboardData) return;
 
-    this.rotationData = {
-      labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
-      datasets: [
-        {
-          label: 'Taux de rotation',
-          data: [0.5, 0.6, 0.55, 0.7, 0.65, 0.8],
-          borderColor: '#25a244',
-          fill: false
+    {
+      const ctx = (document.getElementById('sanctionRateChart') as HTMLCanvasElement).getContext('2d');
+      this.sanctionRateChart?.destroy();
+
+      this.sanctionRateChart = new Chart(ctx!, {
+        type: 'doughnut',
+        data: {
+          labels: ['Sanction Rate', 'Other'],
+          datasets: [{
+            data: [this.dashboardData.lossAnalysis.sanctionRate, 100 - this.dashboardData.lossAnalysis.sanctionRate],
+            backgroundColor: ['rgba(255, 206, 86, 0.7)', 'rgba(201, 203, 207, 0.7)']
+          }]
         },
-        {
-          label: 'Livres inutilisés',
-          data: [0.1, 0.15, 0.12, 0.2, 0.18, 0.25],
-          borderColor: '#595959',
-          fill: false
+        options: {
+          responsive: true,
+          plugins: {
+            title: { display: true, text: 'Sanction Rate' }
+          }
         }
-      ]
-    };
+      });
+    }
 
-    this.delayRateData = {
-      labels: ['Retards >3 jours', 'Retours à temps'],
-      datasets: [{
-        data: [this.delayRate, 100 - this.delayRate],
-        backgroundColor: ['#8c1c13', '#10451D']
-      }]
-    };
+    {
+      const ctx = (document.getElementById('monthlyLossesChart') as HTMLCanvasElement).getContext('2d');
+      this.monthlyLossesChart?.destroy();
 
-    this.frequentDelaysData = {
-      labels: ['Utilisateur 1', 'Utilisateur 2', 'Utilisateur 3', 'Utilisateur 4', 'Utilisateur 5'],
-      datasets: [{
-        label: 'Retards',
-        data: [15, 12, 10, 8, 5],
-        backgroundColor: ['#250902', '#38040e', '#640d14', '#800e13', '#ad2831']
-      }]
-    };
-
-    this.sanctionData = {
-      labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
-      datasets: [
-        {
-          label: 'Pertes',
-          data: [5, 10, 8, 12, 6, 15],
-          backgroundColor: '#6f1d1b',
+      const data = this.dashboardData.lossAnalysis.monthlyLosses;
+      this.monthlyLossesChart = new Chart(ctx!, {
+        type: 'bar',
+        data: {
+          labels: data.map((d: MonthlyLossDto) => `${d.month}/${d.year}`),
+          datasets: [
+            {
+              type: 'bar',
+              label: 'Loss Cost',
+              data: data.map((d: MonthlyLossDto) => d.lossCost),
+              backgroundColor: 'rgba(255, 159, 64, 0.7)'
+            },
+            {
+              type: 'line',
+              label: 'Fine Amount',
+              data: data.map((d: MonthlyLossDto) => d.fineAmount),
+              borderColor: 'rgba(255, 99, 132, 0.7)',
+              fill: false,
+              tension: 0.3,
+              yAxisID: 'y1'
+            }
+          ]
         },
-        {
-          label: 'Retards',
-          data: [20, 25, 15, 30, 10, 20],
-          backgroundColor: '#99582a',
-        },
-        {
-          label: 'autre',
-          data: [2, 9, 5, 3, 1, 2],
-          backgroundColor: '#adc178',
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              type: 'linear',
+              position: 'left',
+              title: { display: true, text: 'Loss Cost (USD)' }
+            },
+            y1: {
+              type: 'linear',
+              position: 'right',
+              title: { display: true, text: 'Fine Amount (USD)' },
+              grid: { drawOnChartArea: false }
+            },
+            x: {
+              title: { display: true, text: 'Month/Year' }
+            }
+          },
+          plugins: {
+            title: { display: true, text: 'Monthly Losses and Fines' }
+          }
         }
-      ]
-    };
-
-    this.lossCostData = {
-      labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
-      datasets: [
-        {
-          label: 'Coût des pertes',
-          data: [300, 450, 400, 600, 350, 700],
-          borderColor: '#9d0208',
-          fill: false
-        },
-        {
-          label: 'Amendes',
-          data: [100, 150, 120, 200, 130, 250],
-          borderColor: '#adc178',
-          fill: false
-        }
-      ]
-    };
-
-    this.monthlyLoansData = {
-      labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
-      datasets: [{
-        label: 'Emprunts',
-        data: [200, 250, 300, 350, 400, 450],
-        borderColor: '#25a244',
-        fill: false
-      }]
-    };
-
-    this.policyImpactData = {
-      labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
-      datasets: [
-        {
-          label: 'Avant politique',
-          data: [40, 45, 50, 48, 47, 46],
-          borderColor: '#a47148',
-          fill: false
-        },
-        {
-          label: 'Après politique',
-          data: [30, 32, 28, 25, 27, 26],
-          borderColor: '#25a244',
-          fill: false
-        }
-      ]
-    };
+      });
+    }
   }
 
-  updateRotationChart() {
-    this.rotationData = {
-      labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
-      datasets: [
-        {
-          label: 'Taux de rotation',
-          data: this.selectedCategory === 'economie' ? [0.5, 0.6, 0.55, 0.7, 0.65, 0.8] : [0.4, 0.5, 0.45, 0.6, 0.55, 0.7],
-          borderColor: '#25a244',
-          fill: false
+  private renderDelayVsLossChart() {
+    if (!this.dashboardData) return;
+    const ctx = (document.getElementById('delayVsLossChart') as HTMLCanvasElement).getContext('2d');
+    this.delayVsLossChart?.destroy();
+
+    const data = this.dashboardData.lossAnalysis.delayVsLoss;
+
+    this.delayVsLossChart = new Chart(ctx!, {
+      type: 'bar',
+      data: {
+        labels: ['Delay Count', 'Loss Count'],
+        datasets: [{
+          label: 'Count',
+          data: [data.delayCount, data.lossCount],
+          backgroundColor: ['rgba(153, 102, 255, 0.7)', 'rgba(255, 159, 64, 0.7)']
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: 'Counts' }
+          },
+          x: {
+            title: { display: true, text: 'Metric Type' }
+          }
         },
-        {
-          label: 'Livres inutilisés',
-          data: this.selectedCategory === 'economie' ? [0.1, 0.15, 0.12, 0.2, 0.18, 0.25] : [0.08, 0.12, 0.1, 0.15, 0.13, 0.2],
-          borderColor: '#595959',
-          fill: false
+        plugins: {
+          title: { display: true, text: 'Delay vs Loss Counts' }
         }
-      ]
-    };
-    this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private renderMonthlyLoansChart() {
+    if (!this.dashboardData) return;
+    const ctx = (document.getElementById('monthlyLoansChart') as HTMLCanvasElement).getContext('2d');
+    this.monthlyLoansChart?.destroy();
+
+    const data = this.dashboardData.resourcePlanning.monthlyLoans;
+    this.monthlyLoansChart = new Chart(ctx!, {
+      type: 'line',
+      data: {
+        labels: data.map((d: MonthlyLoanDto) => `${d.month}/${d.year}`),
+        datasets: [{
+          label: 'Monthly Loans',
+          data: data.map((b: MonthlyLoanDto) => b.loanCount),
+          borderColor: 'rgba(54, 162, 235, 0.7)',
+          fill: false,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: 'Loan Count' }
+          },
+          x: {
+            title: { display: true, text: 'Month/Year' }
+          }
+        },
+        plugins: {
+          title: { display: true, text: 'Monthly Loans Over Time' }
+        }
+      }
+    });
+  }
+
+  private renderPolicyComparisonChart() {
+    if (!this.dashboardData) return;
+    const ctx = (document.getElementById('policyComparisonChart') as HTMLCanvasElement).getContext('2d');
+    this.policyComparisonChart?.destroy();
+
+    const data = this.dashboardData.policyEvaluation.monthlyComparison;
+    this.policyComparisonChart = new Chart(ctx!, {
+      type: 'line',
+      data: {
+        labels: data.map((d: MonthlyPolicyComparisonDto) => `${d.month}/${d.year}`),
+        datasets: [
+          {
+            label: 'Before Policy',
+            data: data.map((d: MonthlyPolicyComparisonDto) => d.beforeRate),
+            borderColor: 'rgba(255, 99, 132, 0.7)',
+            fill: false,
+            tension: 0.3
+          },
+          {
+            label: 'After Policy',
+            data: data.map((d: MonthlyPolicyComparisonDto) => d.afterRate),
+            borderColor: 'rgba(54, 162, 235, 0.7)',
+            fill: false,
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            type: 'linear',
+            position: 'left',
+            title: { display: true, text: 'Before Rate (%)' }
+          },
+          y1: {
+            type: 'linear',
+            position: 'right',
+            title: { display: true, text: 'After Rate (%)' },
+            grid: { drawOnChartArea: false }
+          },
+          x: {
+            title: { display: true, text: 'Month/Year' }
+          }
+        },
+        plugins: {
+          title: { display: true, text: 'Policy Delay Rate Comparison' }
+        }
+      }
+    });
   }
 }

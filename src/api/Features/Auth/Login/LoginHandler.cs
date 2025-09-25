@@ -7,10 +7,10 @@ using System.Text;
 
 namespace api.Features.Auth.Login
 {
-    public class LoginHandler 
+    public class LoginHandler
     {
         private readonly UserManager<Bibliothecaire> _userManager;
-        private readonly SignInManager<Bibliothecaire> _signInManager; 
+        private readonly SignInManager<Bibliothecaire> _signInManager;
         private readonly IConfiguration _configuration;
 
         public LoginHandler(
@@ -19,8 +19,8 @@ namespace api.Features.Auth.Login
             IConfiguration configuration)
         {
             _userManager = userManager;
-            _signInManager = signInManager ;
-            _configuration = configuration ;
+            _signInManager = signInManager;
+            _configuration = configuration;
         }
 
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request)
@@ -34,7 +34,7 @@ namespace api.Features.Auth.Login
             try
             {
                 var user = await _userManager.FindByEmailAsync(request.Email);
-               
+
                 if (user == null)
                     throw new UnauthorizedAccessException("Invalid credentials");
 
@@ -44,12 +44,12 @@ namespace api.Features.Auth.Login
                 if (_userManager.Options.SignIn.RequireConfirmedEmail && !await _userManager.IsEmailConfirmedAsync(user))
                     throw new UnauthorizedAccessException("Email not confirmed. Please check your email inbox.");
 
-                var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, true); 
+                var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, true);
                 if (!result.Succeeded)
                 {
                     if (result.IsLockedOut)
                         throw new UnauthorizedAccessException("Account is locked due to multiple failed attempts. Please try again later.");
-                    
+
                     throw new UnauthorizedAccessException("Invalid credentials");
                 }
 
@@ -77,7 +77,7 @@ namespace api.Features.Auth.Login
                 var jwtSecret = _configuration["Jwt:Secret"];
                 var jwtIssuer = _configuration["Jwt:ValidIssuer"];
                 var jwtAudience = _configuration["Jwt:ValidAudience"];
-                var jwtExpiryHours = _configuration.GetValue<int>("Jwt:ExpiryHours", 1); 
+                var jwtExpiryHours = _configuration.GetValue<int>("Jwt:ExpiryHours", 1);
 
                 if (string.IsNullOrEmpty(jwtSecret))
                     throw new InvalidOperationException("JWT Secret is not configured");
