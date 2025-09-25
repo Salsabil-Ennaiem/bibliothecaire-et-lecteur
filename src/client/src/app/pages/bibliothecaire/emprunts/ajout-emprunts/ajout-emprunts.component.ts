@@ -88,14 +88,13 @@ export class AjoutEmpruntsComponent implements OnInit {
       this.emprunt.typeMembre !== null;
   }
 
-
   Ajouter(): void {
     if (this.canSubmit()) {
       this.empService.create(this.id, this.emprunt).subscribe({
         next: () => {
           alert('Emprunt ajouté avec succès');
           this.messagesev.add({ severity: 'success', summary: 'Succès', detail: 'Emprunt ajouté' });
-          this.routr.navigate(['/bibliothecaire/livres']);
+          this.routr.navigate(['/bibliothecaire/emprunts']);
         },
         error: err => alert('Erreur lors de l\'ajout : ' + err.message)
       });
