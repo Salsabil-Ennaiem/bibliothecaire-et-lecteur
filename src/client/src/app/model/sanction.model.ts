@@ -1,11 +1,10 @@
 
-export enum Raison_sanction
-    {
-       retard,
-       perte,
-       degat , 
-       autre
-    }
+export enum Raison_sanction {
+  retard,
+  perte,
+  degat,
+  autre
+}
 
 
 export interface SanctionDTO {
@@ -26,8 +25,9 @@ export interface SanctionDTO {
 export interface CreateSanctionRequest {
   email?: string | null;
   id_emp: string;
+  id_memb: string;
   raison: Raison_sanction[];
   date_fin_sanction?: Date | null;
-  montant?: number | null;
+  montant: number | 0;
   description?: string | null;
 }

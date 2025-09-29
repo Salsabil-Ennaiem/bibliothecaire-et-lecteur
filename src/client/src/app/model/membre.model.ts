@@ -14,7 +14,7 @@ export interface MembreDto {
   nom?: string | null;
   prenom?: string | null;
   email: string;
-  telephone?: string | null;
+  telephone: string | '';
   date_inscription: Date;
   statut: StatutMemb;
     cin_ou_passeport: string;

@@ -27,14 +27,9 @@ namespace api.Features.Nouveautes
 
     }
 
-    public class UpdateNouveauteRequest
-    {
-        public string? titre { get; set; }
-        public string? description { get; set; }
-    }
     public class CreateNouveauteRequestWithFiles
     {
-        public string? titre { get; set; }
+        public string titre { get; set; }
         public string? description { get; set; }
         public FichierDto? Couv { get; set; }
         public IEnumerable<FichierDto>? File { get; set; }

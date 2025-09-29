@@ -5,7 +5,7 @@ public class Nouveaute
 {
     public string? id_nouv { get; set; }
     public string? id_biblio { get; set; }
-    public string? titre { get; set; }
+    public string titre { get; set; }
     public string? fichier { get; set; }
     public string? description { get; set; }
     public DateTime date_publication { get; set; } = DateTime.UtcNow;

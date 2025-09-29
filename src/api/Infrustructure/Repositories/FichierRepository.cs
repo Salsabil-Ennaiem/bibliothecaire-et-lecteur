@@ -111,6 +111,7 @@ public class FichierRepository : IFichierRepository
 
         return couverture.IdFichier;
     }
+ 
   /*  public async Task<(Stream ContentStream, string ContentType, string FileName)?> GetFileByIdAsync(string id)
     {
         var fichier = await _context.Set<Fichier>().FindAsync(id);

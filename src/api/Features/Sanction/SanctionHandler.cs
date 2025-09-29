@@ -57,23 +57,25 @@ public class SanctionHandler
     }
     public async Task<SanctionDTO> CreateAsync(CreateSanctionRequest createSanction, string id)
     {
-        if (createSanction.raison == null || createSanction.date_fin_sanction == null || createSanction.date_fin_sanction > DateTime.Now)
+        if (createSanction.raison == null || createSanction.date_fin_sanction == null || createSanction.date_fin_sanction <= DateTime.Now)
         {
             throw new Exception("Raison et date fin sont obligatoire ainsi date fin doit > date aujourd'hui ");
         }
-        var emprunt = await _handlerEmp.GetByIdAsync(id);
-        var entity = createSanction.Adapt<Sanction>();
-
-        if (emprunt.Statut_emp == Statut_emp.retourne && emprunt.date_effectif <= entity.date_sanction.AddDays(1))
+        if (createSanction.id_membre == null)
         {
-            entity.id_membre = emprunt.id_membre;
-            entity.id_emp = id;
-            entity.payement = entity.montant > 0 ? false : true;
-            entity.id_sanc = Guid.NewGuid().ToString();
-            var created = await _sanctionRepository.CreateAsync(entity);
-            return created.Adapt<SanctionDTO>();
+            var emprunt = await _handlerEmp.GetByIdAsync(id) ?? throw new Exception("no id ");
+            if (string.IsNullOrEmpty(emprunt.id_membre))
+                throw new Exception("emprunt.id_membre is null or empty");
+            createSanction.id_membre = emprunt.id_membre;
         }
-        else throw new Exception("vous ne confirme pas le critère de Sanction");
+        createSanction.id_emp = id;
+
+        var entity = createSanction.Adapt<Sanction>();
+        entity.payement = entity.montant > 0 ? false : true;
+        entity.id_sanc = Guid.NewGuid().ToString();
+        var created = await _sanctionRepository.CreateAsync(entity);
+        return created.Adapt<SanctionDTO>();
+
     }
     public async Task<IEnumerable<SanctionDTO>> SearchAsync(string searchTerm)
     {

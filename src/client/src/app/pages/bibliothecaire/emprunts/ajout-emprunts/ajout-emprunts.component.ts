@@ -35,7 +35,6 @@ export class AjoutEmpruntsComponent implements OnInit {
     note: ''
   };
 
-  memberExists: boolean | null = null;
   id: string = '';
 
   constructor(private memService: MembreService, private messagesev: MessageService, private empService: EmpruntService, private route: ActivatedRoute, private routr: Router) { }
@@ -50,26 +49,44 @@ export class AjoutEmpruntsComponent implements OnInit {
       { label: 'Autre', value: TypeMemb.Autre }
     ];
   }
-  isCinInvalid = true;
 
-  onCinChange(value: string) {
-    this.isCinInvalid = !(value && value.length >= 6);
-    if (!this.isCinInvalid) {
-      this.memService.search(value).subscribe(res => {
-        if (res && res.length > 0) {
-          this.emprunt.nom = res[0].nom;
-          this.emprunt.prenom = res[0].prenom;
-          this.emprunt.email = res[0].email;
-          this.emprunt.telephone = res[0].telephone;
-          this.emprunt.typeMembre = this.convertTypeMembre(res[0].typeMembre);
-          this.memberExists = true;
-        } else {
-          this.memberExists = false;
-        }
-      });
-    }
+resetEmpruntFields() {
+  this.emprunt.nom = '';
+  this.emprunt.prenom = '';
+  this.emprunt.email = '';
+  this.emprunt.telephone = '';
+  this.emprunt.typeMembre = TypeMemb.Autre;
+}  
+isCinInvalid = true;
+memberExists = false;
 
+onCinChange(value: string) {
+  this.isCinInvalid = !(value && value.length >= 6);
+
+  if (!this.isCinInvalid) {
+    this.memService.search(value).subscribe(res => {
+      if (res && res.length > 0) {
+        const membre = res[0];
+        this.emprunt.nom = membre.nom;
+        this.emprunt.prenom = membre.prenom;
+        this.emprunt.email = membre.email;
+        this.emprunt.telephone = membre.telephone;
+        this.emprunt.typeMembre = this.convertTypeMembre(membre.typeMembre);
+
+        this.memberExists = true;
+        this.isCinInvalid = false;
+      } else {
+        this.memberExists = false;
+        this.isCinInvalid = false;
+        this.resetEmpruntFields(); 
+      }
+    });
+  } else {
+    this.memberExists = false;
   }
+}
+
+        
   convertTypeMembre(type: number): TypeMemb {
 
     if (type == 0)

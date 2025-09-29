@@ -57,9 +57,8 @@ export class ListeNouveauteComponent implements OnInit {
     if (confirm('Voulez-vous vraiment supprimer cette nouveauté ?')) {
       this.nouveauteService.delete(id).subscribe({
         next: () => {
-          this.loadNouveautes();
                     this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Nouvete Supprimer' });
-
+          this.loadNouveautes();
         },
         error: (err) => {
           console.error('Erreur suppression nouveauté', err);

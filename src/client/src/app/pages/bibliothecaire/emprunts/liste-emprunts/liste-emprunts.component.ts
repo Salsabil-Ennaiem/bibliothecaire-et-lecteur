@@ -77,9 +77,10 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
       if (!emprunt.date_retour_prevu) return '';
       const retour = new Date(emprunt.date_retour_prevu);
       const diffMs = retour.getTime() - now.getTime();
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-      const diffHours = Math.floor((diffMs % (1000 * 60)) / (1000 * 60 * 60));
-      const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
 
       const signe = diffMs < 0 ? '-' : '';
       const absHours = Math.abs(diffHours);
@@ -203,9 +204,9 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
   }
   public IconTypeMem(value: number) {
     if (value == 0)
-      return "👨‍🏫";
-    else if (value == 1)
       return "🎓";
+    else if (value == 1)
+      return "👨‍🏫";
     else
       return "📚";
   }

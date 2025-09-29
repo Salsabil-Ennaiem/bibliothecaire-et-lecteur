@@ -59,9 +59,9 @@ export class ListMembreComponent implements OnInit {
   }
   public IconTypeMem(value: number) {
     if (value == 0)
-      return "👨‍🏫";
-    else if (value == 1)
       return "🎓";
+    else if (value == 1)
+      return "👨‍🏫";
     else
       return "📚";
   }

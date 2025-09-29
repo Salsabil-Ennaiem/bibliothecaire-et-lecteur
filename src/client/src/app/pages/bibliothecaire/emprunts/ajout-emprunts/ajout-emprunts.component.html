@@ -2,7 +2,7 @@
     <div class="rounded-4 shadow p-5"
         style="background-color: rgba(195, 242, 191, 0.188); width: 100%; max-width: 800px;">
         <h1 class="text-center fw-bold mb-4">Ajouter Emprunt</h1>
-        <form #formEmprunt="ngForm" (ngSubmit)="Ajouter()"  novalidate>
+        <form #formEmprunt="ngForm" (ngSubmit)="Ajouter()" novalidate>
 
             <div class="row mb-3">
                 <div class="col-12">
@@ -21,8 +21,8 @@
                     <div class="col-md-6">
                         <label for="typeEmprunteur" class="form-label">Type d'Emprunteur *</label>
                         <p-select [options]="selecttypeMemb" [(ngModel)]="emprunt.typeMembre" name="typeEmprunteur"
-                            optionLabel="label" optionValue="value" class="w-100" [readonly]="isCinInvalid"
-                            [autoDisplayFirst]="false" placeholder="Sélectionnez un type" required #typeCtrl="ngModel">
+                            optionLabel="label" optionValue="value" class="w-100" placeholder="Sélectionnez un type"
+                            required [disabled]="memberExists" #typeCtrl="ngModel">
                         </p-select>
 
                         <div *ngIf="typeCtrl.invalid && typeCtrl.touched" class="text-danger small mt-1">
@@ -32,7 +32,7 @@
                     <div class="col-md-3">
                         <label for="nom" class="form-label">Nom *</label>
                         <input pInputText id="nom" [(ngModel)]="emprunt.nom" name="nom" required
-                            [readonly]="isCinInvalid" class="w-100" placeholder="Nom" #nomCtrl="ngModel" />
+                            [readonly]="memberExists" class="w-100" placeholder="Nom" #nomCtrl="ngModel" />
                         <div *ngIf="nomCtrl.invalid && nomCtrl.touched" class="text-danger small mt-1">
                             Nom requis
                         </div>
@@ -40,7 +40,7 @@
                     <div class="col-md-3">
                         <label for="prenom" class="form-label">Prénom *</label>
                         <input pInputText id="prenom" [(ngModel)]="emprunt.prenom" name="prenom" required
-                            [readonly]="isCinInvalid" class="w-100" placeholder="Prénom" #prenomCtrl="ngModel" />
+                            [readonly]="memberExists" class="w-100" placeholder="Prénom" #prenomCtrl="ngModel" />
                         <div *ngIf="prenomCtrl.invalid && prenomCtrl.touched" class="text-danger small mt-1">
                             Prénom requis
                         </div>
@@ -51,7 +51,7 @@
                     <div class="col-md-6">
                         <label for="email" class="form-label">Email d'Emprunteur *</label>
                         <input pInputText id="email" [(ngModel)]="emprunt.email" name="email" type="email" class="w-100"
-                            [disabled]="isCinInvalid" placeholder="exemple@exemple.com" required
+                            [disabled]="memberExists" placeholder="exemple@exemple.com" required
                             pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" #mailCtrl="ngModel" />
                         <div *ngIf="mailCtrl.invalid && (mailCtrl.touched || formEmprunt.submitted)"
                             class="text-danger small mt-1">
@@ -63,8 +63,8 @@
                     </div>
                     <div class="col-md-6">
                         <label for="telephone" class="form-label">Téléphone</label>
-                        <input pInputText id="telephone" [(ngModel)]="emprunt.telephone" name="telephone" type="tel"
-                            [readonly]="isCinInvalid" class="w-100" placeholder="Ex: +216 98 345 678" />
+                        <input type="tel" id="telephone" pInputText [(ngModel)]="emprunt.telephone" name="telephone"
+                            type="tel" class="w-100" [readonly]="memberExists" placeholder="Ex: +216 98 345 678" />
                     </div>
                 </div>
             </div>

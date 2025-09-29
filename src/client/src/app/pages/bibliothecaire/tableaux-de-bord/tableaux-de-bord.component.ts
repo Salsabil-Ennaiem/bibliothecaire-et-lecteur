@@ -83,7 +83,7 @@ export class TableauxDeBordComponent implements OnInit, OnDestroy {
       data: {
         labels: top10Books.map((b: BookLoanCountDto) => b.bookTitle),
         datasets: [{
-          label: 'Loan Count',
+          label: 'Nombre Emprunts',
           data: top10Books.map((b: BookLoanCountDto) => b.loanCount),
           backgroundColor: top10Books.map(() =>
             `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.7)`
@@ -95,15 +95,15 @@ export class TableauxDeBordComponent implements OnInit, OnDestroy {
         scales: {
           y: {
             beginAtZero: true,
-            title: { display: true, text: 'Loan Count' }
+            title: { display: true, text: 'nombre Emprunts' }
           },
           x: {
-            title: { display: true, text: 'Book Title' }
+            title: { display: true, text: 'Titre Livre ' }
           }
         },
         plugins: {
           legend: { display: false },
-          title: { display: true, text: 'Top 10 Books by Loan Count' }
+          title: { display: true, text: 'Top 10 Livre selon nombre d\'emprunts' }
         }
       }
     });
@@ -150,7 +150,7 @@ export class TableauxDeBordComponent implements OnInit, OnDestroy {
 
     const data = this.dashboardData.catalogueOptimization.unusedBooks;
     this.unusedBooksChart = new Chart(ctx!, {
-      type: 'bar',
+      type: 'line',
       data: {
         labels: data.map((b: UnusedBookDto) => b.bookTitle),
         datasets: [{
@@ -266,55 +266,57 @@ export class TableauxDeBordComponent implements OnInit, OnDestroy {
     }
 
     {
-      const ctx = (document.getElementById('monthlyLossesChart') as HTMLCanvasElement).getContext('2d');
-      this.monthlyLossesChart?.destroy();
+      
+    const ctx = (document.getElementById('monthlyLossesChart') as HTMLCanvasElement).getContext('2d');
+    this.monthlyLossesChart?.destroy();
 
-      const data = this.dashboardData.lossAnalysis.monthlyLosses;
-      this.monthlyLossesChart = new Chart(ctx!, {
-        type: 'bar',
-        data: {
-          labels: data.map((d: MonthlyLossDto) => `${d.month}/${d.year}`),
-          datasets: [
-            {
-              type: 'bar',
-              label: 'Loss Cost',
-              data: data.map((d: MonthlyLossDto) => d.lossCost),
-              backgroundColor: 'rgba(255, 159, 64, 0.7)'
-            },
-            {
-              type: 'line',
-              label: 'Fine Amount',
-              data: data.map((d: MonthlyLossDto) => d.fineAmount),
-              borderColor: 'rgba(255, 99, 132, 0.7)',
-              fill: false,
-              tension: 0.3,
-              yAxisID: 'y1'
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              type: 'linear',
-              position: 'left',
-              title: { display: true, text: 'Loss Cost (USD)' }
-            },
-            y1: {
-              type: 'linear',
-              position: 'right',
-              title: { display: true, text: 'Fine Amount (USD)' },
-              grid: { drawOnChartArea: false }
-            },
-            x: {
-              title: { display: true, text: 'Month/Year' }
-            }
+    const data = this.dashboardData.lossAnalysis.monthlyLosses;
+    this.monthlyLossesChart = new Chart(ctx!, {
+      type: 'bar', 
+      data: {
+        labels: data.map((d: MonthlyLossDto) => `${d.month}/${d.year}`),
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Loss Cost',
+            data: data.map((d: MonthlyLossDto) => d.lossCost),
+            backgroundColor: 'rgba(255, 159, 64, 0.7)'
           },
-          plugins: {
-            title: { display: true, text: 'Monthly Losses and Fines' }
+          {
+            type: 'line',
+            label: 'Fine Amount',
+            data: data.map((d: MonthlyLossDto) => d.fineAmount),
+            borderColor: 'rgba(255, 99, 132, 0.7)',
+            fill: false,
+            tension: 0.3,
+            yAxisID: 'y1'
           }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            type: 'linear',
+            position: 'left',
+            title: { display: true, text: 'Loss Cost (USD)' }
+          },
+          y1: {
+            type: 'linear',
+            position: 'right',
+            title: { display: true, text: 'Fine Amount (USD)' },
+            grid: { drawOnChartArea: false }
+          },
+          x: {
+            title: { display: true, text: 'Month/Year' }
+          }
+        },
+        plugins: {
+          title: { display: true, text: 'Monthly Losses and Fines' }
         }
-      });
+      }
+    });
+  
     }
   }
 
@@ -354,40 +356,42 @@ export class TableauxDeBordComponent implements OnInit, OnDestroy {
   }
 
   private renderMonthlyLoansChart() {
-    if (!this.dashboardData) return;
-    const ctx = (document.getElementById('monthlyLoansChart') as HTMLCanvasElement).getContext('2d');
-    this.monthlyLoansChart?.destroy();
+  if (!this.dashboardData) return;
+  const ctx = (document.getElementById('monthlyLoansChart') as HTMLCanvasElement).getContext('2d');
+  this.monthlyLoansChart?.destroy();
 
-    const data = this.dashboardData.resourcePlanning.monthlyLoans;
-    this.monthlyLoansChart = new Chart(ctx!, {
-      type: 'line',
-      data: {
-        labels: data.map((d: MonthlyLoanDto) => `${d.month}/${d.year}`),
-        datasets: [{
-          label: 'Monthly Loans',
-          data: data.map((b: MonthlyLoanDto) => b.loanCount),
-          borderColor: 'rgba(54, 162, 235, 0.7)',
-          fill: false,
-          tension: 0.3
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            title: { display: true, text: 'Loan Count' }
-          },
-          x: {
-            title: { display: true, text: 'Month/Year' }
-          }
+  const data = this.dashboardData.resourcePlanning.monthlyLoans;
+  this.monthlyLoansChart = new Chart(ctx!, {
+    type: 'line',
+    data: {
+      labels: data.map((d: MonthlyLoanDto) => `${d.month}/${d.year}`),
+      datasets: [{
+        label: 'Monthly Loans',
+        data: data.map((b: MonthlyLoanDto) => b.loanCount),
+        borderColor: 'rgba(54, 162, 235, 0.7)',
+        backgroundColor: 'rgba(54, 162, 235, 0.3)',  // couleur area claire
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'Loan Count' }
         },
-        plugins: {
-          title: { display: true, text: 'Monthly Loans Over Time' }
+        x: {
+          title: { display: true, text: 'Month/Year' }
         }
+      },
+      plugins: {
+        title: { display: true, text: 'Monthly Loans Over Time (Area Chart)' }
       }
-    });
-  }
+    }
+  });
+}
+
 
   private renderPolicyComparisonChart() {
     if (!this.dashboardData) return;

@@ -19,7 +19,7 @@ import { Router, RouterLink } from '@angular/router';
 })
 export class AjouterNouveauteComponent {
   formData: CreateNouveauteRequestWithFiles = {
-    titre: null,
+    titre: '',
     description: null,
     Couv: null,
     File: [],
@@ -27,9 +27,8 @@ export class AjouterNouveauteComponent {
   constructor(private novServ: NouveauteService, private messagesev: MessageService, private routr: Router) { }
   coverFile: File | null = null;
   coverPreview: string | null = null;
-  uploadedFiles: File[] = [];
 
-  onSelectCover(event: any) {
+onSelectCover(event: any) {
     const file = event.files[0];
     if (file) {
       this.coverFile = file;
@@ -41,10 +40,13 @@ export class AjouterNouveauteComponent {
     }
   }
 
-  onClearCover() {
-    this.coverFile = null;
-    this.coverPreview = null;
-  }
+onClearCover() {
+  this.coverFile = null;
+  this.coverPreview = null;
+  this.formData.Couv = null;
+}
+
+  uploadedFiles: File[] = [];
 
   onSelectFiles(event: any) {
     this.uploadedFiles = this.uploadedFiles.concat(event.files);
@@ -55,51 +57,24 @@ export class AjouterNouveauteComponent {
   }
 
   onCancel() {
-    this.formData = { titre: null, description: null, Couv: null, File: [] };
+    this.formData = { titre: '', description: null, Couv: null, File: [] };
     this.coverFile = null;
     this.coverPreview = null;
     this.uploadedFiles = [];
   }
 
-
-  Ajouter(): void {
-    if (!!this.formData.titre) {
-      this.novServ.create(this.formData).subscribe({
-        next: () => {
-          alert('Emprunt ajouté avec succès');
-          this.messagesev.add({ severity: 'success', summary: 'Succès', detail: 'Emprunt ajouté' });
-          this.routr.navigate(['/bibliothecaire/nouveaute']);
-        },
-        error: err => alert('Erreur lors de l\'ajout : ' + err.message)
-      });
-    } else {
-      alert('Veuillez remplir tous les champs obligatoires.');
+  base64ToByteArray(base64: string): Uint8Array {
+    const binaryString = window.atob(base64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
     }
-  }
-  // Convert File (JS File) to FichierDto for cover
-  convertCoverToDto() {
-    if (!this.coverFile) {
-      this.formData.Couv = null;
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = e => {
-      const content = (e.target as FileReader).result as string;
-      this.formData.Couv = {
-        idFichier: '', // backend will create
-        nomFichier: this.coverFile!.name,
-        cheminFichier: null,
-        typeFichier: this.coverFile!.type,
-        contenuFichier: this.base64ToByteArray(content.split(',')[1]), // convert base64 string to byte[]
-        contentHash: '', // backend to calculate or optionally calculate here
-        tailleFichier: this.coverFile!.size,
-        dateCreation: new Date(),
-        nouveauteId: null
-      };
-    };
-    reader.readAsDataURL(this.coverFile);
+    return bytes;
   }
 
+
+  
   // Similarly for multiple files
   convertFilesToDto() {
     this.formData.File = [];
@@ -125,15 +100,56 @@ export class AjouterNouveauteComponent {
     return Promise.all(convertPromises);
   }
 
-  base64ToByteArray(base64: string): Uint8Array {
-    const binaryString = window.atob(base64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes;
-  }
 
+// Convert File to Base64 string for DTO
+convertCoverToDto(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (!this.coverFile) {
+      this.formData.Couv = null;
+      resolve();
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = (e.target as FileReader).result as string; // "data:<type>;base64,..."
+      this.formData.Couv = {
+        idFichier: '',
+        nomFichier: this.coverFile!.name,
+        cheminFichier: null,
+        typeFichier: this.coverFile!.type,
+          contenuFichier: this.base64ToByteArray(content.split(',')[1]),
+        contentHash: '',
+        tailleFichier: this.coverFile!.size,
+        dateCreation: new Date(),
+        nouveauteId: null,
+      };
+      resolve();
+    };
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(this.coverFile);
+  });
+}
+
+async Ajouter(): Promise<void> {
+  if (!!this.formData.titre) {
+    try {
+      await this.convertCoverToDto();
+      this.novServ.create(this.formData).subscribe({
+        next: () => {
+          this.messagesev.add({ severity: 'success', summary: 'Succès', detail: 'Emprunt ajouté' });
+          this.routr.navigate(['/bibliothecaire/nouveaute']);
+        },
+        error: (err) => {
+          const errorMessage = err.error?.message || err.message || 'Erreur inconnue';
+          this.messagesev.add({ severity: 'error', summary: 'Erreur', detail: errorMessage });
+        }
+      });
+    } catch (err) {
+      this.messagesev.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur lors de la préparation du fichier couverture' });
+    }
+  } else {
+    this.messagesev.add({ severity: 'warn', summary: 'Attention', detail: 'Veuillez remplir tous les champs obligatoires.' });
+  }
+}
 }
 

@@ -36,7 +36,7 @@ public class CreateEmpRequest
     public TypeMemb TypeMembre { get; set; }
     public string? nom { get; set; }
     public string? prenom { get; set; }
-    public string? email { get; set; }
+    public string email { get; set; }
     public string? telephone { get; set; }
-    public string? cin_ou_passeport { get; set; }
+    public string cin_ou_passeport { get; set; }
 }

@@ -26,6 +26,7 @@ export class AjoutSanctionComponent implements OnInit {
 
   Sanction: CreateSanctionRequest = {
     id_emp: '',
+    id_memb:'',
     email: '',
     raison: [Raison_sanction.autre],
     date_fin_sanction: new Date,
@@ -39,6 +40,10 @@ export class AjoutSanctionComponent implements OnInit {
     const today = new Date();
     this.minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
   }
+  isAutreSelected(): boolean {
+    return this.Sanction.raison?.includes(Raison_sanction.autre);
+  }
+
   ngOnInit(): void {
 
     this.route.params.subscribe(params => {
@@ -62,6 +67,10 @@ export class AjoutSanctionComponent implements OnInit {
   }
   Ajouter(): void {
     if (this.canSubmit()) {
+      if (this.isAutreSelected() && !this.Sanction.description?.trim()) {
+        this.messagesev.add({ severity: 'error', summary: 'Error', detail: 'decrire l\'autre raison ' });
+        return;
+      }
       this.sanctioserv.create(this.Sanction, this.id).subscribe({
         next: () => {
           alert('Sanction ajouté avec succès');

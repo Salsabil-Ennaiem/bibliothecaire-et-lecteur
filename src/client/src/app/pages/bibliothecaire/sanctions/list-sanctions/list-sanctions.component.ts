@@ -95,9 +95,10 @@ export class ListSanctionsComponent implements OnInit, OnDestroy {
       if (!Sanction.date_fin_sanction) return '';
       const retour = new Date(Sanction.date_fin_sanction);
       const diffMs = retour.getTime() - now.getTime();
-      const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-      const diffHours = Math.floor((diffMs % (1000 * 60)) / (1000 * 60 * 60));
-      const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
 
       const signe = diffMs < 0 ? '-' : '';
       const absHours = Math.abs(diffHours);

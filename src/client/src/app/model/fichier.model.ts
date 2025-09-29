@@ -3,8 +3,8 @@ export interface FichierDto {
   nomFichier?: string | null;
   cheminFichier?: string | null;
   typeFichier?: string | null;
-  contenuFichier?: Uint8Array | null;
-  contentHash: string;
+  contenuFichier?:  Uint8Array | null;
+  contentHash?: string;
   tailleFichier: number;
   dateCreation: Date;
   nouveauteId?: string | null;

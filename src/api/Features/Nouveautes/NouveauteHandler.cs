@@ -53,28 +53,31 @@ namespace api.Features.Nouveautes
         {
             var nouv = createdNouveauteDto.Adapt<Nouveaute>();
             nouv.id_nouv = Guid.NewGuid().ToString();
-            var files = (createdNouveauteDto.File != null)
-     ? createdNouveauteDto.File.Adapt<List<Fichier>>()
-     : new List<Fichier>();
+            var files = (createdNouveauteDto.File != null) ? createdNouveauteDto.File.Adapt<List<Fichier>>() : new List<Fichier>();
 
             var couverture = (createdNouveauteDto.Couv != null)
-                ? createdNouveauteDto.Couv.Adapt<Fichier>()
-                : null;
+                ? createdNouveauteDto.Couv.Adapt<Fichier>() : null;
             if (!await ExistenceNouv(nouv.titre))
             {
                 var id = nouv.id_nouv;
 
                 if (files.Any())
                 {
+                    Console.WriteLine("the there is a file  ");
 
                     if (files.Count() == 1)
                     {
                         var filecree = await _FichierRepository.UploadF(files, id);
+                        Console.WriteLine("the fichierrfffffffffffffffffffffffffffffffffffff ", filecree);
                         nouv.fichier = filecree.IdFichier;
+                        Console.WriteLine("the fichierokkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk ", nouv.fichier);
+
                     }
                     else
                     {
                         await _FichierRepository.UploadF(files, id);
+                        Console.WriteLine("elseeeeeeeee okkkkkkkkkkkkk");
+
                     }
 
                 }
@@ -82,8 +85,12 @@ namespace api.Features.Nouveautes
                 if (couverture != null)
                 {
                     var filecree = await _FichierRepository.UploadImageAsync(couverture);
+                    Console.WriteLine("the coverturrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr ", filecree);
                     nouv.couverture = filecree;
+                    Console.WriteLine("theeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee covertur ", nouv.couverture);
+
                 }
+                else Console.WriteLine("noooooooooooooooooooooooooooooooooooooo couvertur");
                 var created = await _nouveauteRepository.CreateAsync(nouv);
                 return created.Adapt<NouveauteDTO>();
 
@@ -93,8 +100,8 @@ namespace api.Features.Nouveautes
         public async Task DeleteAsync(string id)
         {
             var nouv = await GetByIdAsync(id);
-            if (nouv.couverture!=null) await _FichierRepository.DeleteFileByIdAsync(nouv.couverture);
-            if (nouv.fichier!=null) await _FichierRepository.DeleteFileByIdAsync(nouv.fichier);
+            if (nouv.couverture != null) await _FichierRepository.DeleteFileByIdAsync(nouv.couverture);
+            if (nouv.fichier != null) await _FichierRepository.DeleteFileByIdAsync(nouv.fichier);
             await _FichierRepository.DeleteFileListAsync(id);
             await _nouveauteRepository.DeleteAsync(id);
         }

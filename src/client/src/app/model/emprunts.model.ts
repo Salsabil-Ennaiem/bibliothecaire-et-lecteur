@@ -37,6 +37,6 @@ export interface CreateEmpRequest {
   nom?: string | null;
   prenom?: string | null;
   email?: string | null;
-  telephone?: string | null;
+  telephone: string |'';
   cin_ou_passeport: string ;
 }

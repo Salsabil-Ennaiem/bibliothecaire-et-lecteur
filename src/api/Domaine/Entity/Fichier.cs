@@ -8,7 +8,7 @@ public class Fichier
     public string? CheminFichier { get; set; }
     public string? TypeFichier { get; set; }
     public  byte[]? ContenuFichier { get; set; }
-    public required string ContentHash { get; set; }      // Unique hash for duplicate detection
+    public required string ContentHash { get; set; }     
     public long TailleFichier { get; set; }
     public DateTime DateCreation { get; set; } = DateTime.UtcNow;
     public string? NouveauteId { get; set; }

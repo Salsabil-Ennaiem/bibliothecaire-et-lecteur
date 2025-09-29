@@ -4,7 +4,6 @@ using Data;
 using domain.Entity;
 using domain.Entity.Enum;
 using domain.Interfaces;
-using Infrastructure.Repositories;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,48 +12,50 @@ namespace Infrastructure.Repositries
     public class EmpruntsRepository : IEmpruntsRepository
     {
         private readonly BiblioDbContext _dbContext;
-        private readonly MembreHandler _membreRepository;
-        private readonly ILivresRepository _LivresRepository;
+        private readonly IRepository<Membre> _membreRepository;
         private readonly IParametreRepository _ParametreRepository;
 
 
-        public EmpruntsRepository(BiblioDbContext dbContext, IParametreRepository ParametreRepository, MembreHandler membreRepository, ILivresRepository LivresRepository)
+        public EmpruntsRepository(BiblioDbContext dbContext, IRepository<Membre> membreRepository, IParametreRepository ParametreRepository)
 
         {
             _dbContext = dbContext;
-            _membreRepository = membreRepository;
             _ParametreRepository = ParametreRepository;
-            _LivresRepository = LivresRepository;
+            _membreRepository = membreRepository;
         }
         public async Task<EmppruntDTO> CreateAsync(string id_inv, CreateEmpRequest empdto)
         {
             try
             {
-                if (string.IsNullOrEmpty(empdto.cin_ou_passeport) || string.IsNullOrEmpty(empdto.email))
-                {
-                    throw new Exception(" CIN , email doit etre remplir au minimum");
-                }
+
                 // 1. Recherche du membre existant
-                var allMembres = await _membreRepository.GetAllMembAsync();
-                var membreExistant = allMembres.FirstOrDefault(m =>
-                    (!string.IsNullOrEmpty(empdto.cin_ou_passeport) && m.cin_ou_passeport == empdto.cin_ou_passeport) ||
-                    (!string.IsNullOrEmpty(empdto.email) && m.email == empdto.email)
-                );
-                if (membreExistant != null && membreExistant.Statut != StatutMemb.actif)
+                var allMembres = await _membreRepository.GetAllAsync() ?? new List<Membre>();
+                var membreExistant = allMembres.FirstOrDefault(m => m.cin_ou_passeport == empdto.cin_ou_passeport) ?? null;
+
+                if (membreExistant != null)
                 {
-                    if (membreExistant.Statut == StatutMemb.sanctionne)
+                    //verifier si a posseder un emprunts 
+                    var emprunts = await GetAllEmpAsync() ?? new List<EmppruntDTO>();
+                    if (emprunts.Any(e => e.id_membre == membreExistant.id_membre))
                     {
-                        throw new Exception("this membre not allowed to get any book right now ");
+                        throw new Exception("He already has borrowed a book; return it first before borrowing another.");
                     }
-                    else
-                        throw new Exception("this membre not allowed to have any service with us  ");
+                    //verifier son statut
+                    if (membreExistant.Statut != StatutMemb.actif)
+                    {
+                        if (membreExistant.Statut == StatutMemb.sanctionne)
+                        {
+                            throw new Exception("this membre not allowed to get any book right now ");
+                        }
+                        else
+                            throw new Exception("this membre not allowed to have any service with us  ");
+                    }
                 }
                 // 2. Création du membre si inexistant
-                else if (membreExistant == null)
+                else
                 {
-                    var cin = _membreRepository.SearchAsync(empdto.cin_ou_passeport);
-                    var email = _membreRepository.SearchAsync(empdto.email);
-                    if (cin == null && email == null)
+                    var email = allMembres.FirstOrDefault(m => m.email == empdto.email) ?? null;
+                    if (email == null)
                     {
                         var nouveauMembre = new Membre
                         {
@@ -64,17 +65,19 @@ namespace Infrastructure.Repositries
                             cin_ou_passeport = empdto.cin_ou_passeport,
                             email = empdto.email,
                             telephone = empdto.telephone,
+                            Statut = StatutMemb.actif,
                             TypeMembre = empdto.TypeMembre
                         };
                         await _dbContext.Membres.AddAsync(nouveauMembre);
+                        await _dbContext.SaveChangesAsync();
 
-                        membreExistant = nouveauMembre.Adapt<MembreDto>();
+                        membreExistant = nouveauMembre;
                     }
-                    else  throw new Exception("cin ou email deja existe soit changer le ou ecriver tous donne correcte");
-
+                    else throw new Exception("Eamil déja utiliser ");
                 }
+                //prendre delais 
                 var delais = await _ParametreRepository.GetDelais(empdto.TypeMembre);
-
+                //enregistre emprunt
                 var nouveauEmp = new Emprunts
                 {
                     id_emp = Guid.NewGuid().ToString(),
@@ -82,10 +85,12 @@ namespace Infrastructure.Repositries
                     Id_inv = id_inv,
                     date_retour_prevu = DateTime.UtcNow.AddDays(Convert.ToDouble(delais))
                 };
-                var liv = await _LivresRepository.GetByIdAsync(id_inv);
-                liv.statut = Statut_liv.emprunte;
-                var entity = liv.Adapt<Inventaire>();
-                _dbContext.Inventaires.Update(entity);
+                //change statut livre
+                var inventaireEntity = await _dbContext.Inventaires.FindAsync(id_inv);
+                if (inventaireEntity == null) throw new Exception("Inventaire non trouvé.");
+                inventaireEntity.statut = Statut_liv.emprunte;
+                _dbContext.Inventaires.Update(inventaireEntity);
+
                 await _dbContext.Emprunts.AddAsync(nouveauEmp);
                 await _dbContext.SaveChangesAsync();
                 return empdto.Adapt<EmppruntDTO>();
@@ -184,15 +189,23 @@ namespace Infrastructure.Repositries
                 }
 
                 // Update the tracked entity properties as requested
-                if (updateEmpReq.Statut_emp != Statut_emp.en_cours)
+                if (updateEmpReq.Statut_emp != Statut_emp.en_cours && empEntity.Statut_emp != Statut_emp.retourne)
                 {
                     empEntity.Statut_emp = updateEmpReq.Statut_emp;
 
                     if (updateEmpReq.Statut_emp == Statut_emp.retourne)
                     {
                         empEntity.date_effectif = DateTime.Now;
-                        var liv = await _LivresRepository.GetByIdAsync(empEntity.Id_inv);
-                        liv.statut = Statut_liv.disponible;
+                        var liv = await _dbContext.Inventaires.FindAsync(empEntity.Id_inv);
+                        if (liv == null) throw new Exception("Inventaire non trouvé."); liv.statut = Statut_liv.disponible;
+                        var entity = liv.Adapt<Livres>();
+                        _dbContext.Livres.Update(entity);
+                    }
+                    if (updateEmpReq.Statut_emp == Statut_emp.perdu)
+                    {
+                        empEntity.date_effectif = DateTime.Now;
+                        var liv = await _dbContext.Inventaires.FindAsync(empEntity.Id_inv);
+                        if (liv == null) throw new Exception("Inventaire non trouvé."); liv.statut = Statut_liv.perdu;
                         var entity = liv.Adapt<Livres>();
                         _dbContext.Livres.Update(entity);
                     }

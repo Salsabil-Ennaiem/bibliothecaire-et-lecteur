@@ -5,7 +5,7 @@
         </div>
 
         <div class="p-5 pt-0">
-            <form #ajouterSanction (ngSubmit)="Ajouter()" >
+            <form #ajouterSanction (ngSubmit)="Ajouter()">
                 <div class="row">
                     <div class="col-md-12 mb-3">
                         <label for="raison" class="w-100 form-label font-bold mb-2">Raison *</label>
@@ -22,8 +22,9 @@
                     <!-- Left Column -->
                     <div class="col-6 mb-3">
                         <label for="dateFin" class="form-label font-bold mb-2 w-100">Date Fin *</label>
-                        <p-datepicker id="dateFin" [minDate]="minDate" class="w-100" [(ngModel)]="Sanction.date_fin_sanction" name="dateFin"
-                            dateFormat="dd/mm/yy" showIcon="true" #datefin="ngModel" />
+                        <p-datepicker id="dateFin" [minDate]="minDate" class="w-100"
+                            [(ngModel)]="Sanction.date_fin_sanction" name="dateFin" dateFormat="dd/mm/yy"
+                            showIcon="true" #datefin="ngModel" />
                         <div *ngIf="datefin.invalid && datefin.touched" class="text-danger small mt-1">
                             Date Fin est obligatoire
                         </div>
@@ -37,8 +38,10 @@
                             <ng-template #incrementbuttonicon>
                                 <span class="pi pi-plus"></span>
                             </ng-template>
-                            <ng-template #decrementbuttonicon>
-                                <span class="pi pi-minus"></span>
+                            <ng-template #decrementbuttonicon let-disabled="disabled">
+                                <button type="button" [disabled]="Sanction.montant <= 0" pButton icon="pi pi-minus"
+                                    class="p-button-text p-button-plain">
+                                </button>
                             </ng-template>
                         </p-inputnumber>
                     </div>
@@ -52,7 +55,13 @@
                             <span class="w-100">
                                 <textarea pInputTextarea id="description" name="description"
                                     [(ngModel)]="Sanction.description" rows="3" class="w-100"
-                                    placeholder="Enter description"></textarea>
+                                    placeholder="Enter description" [required]="isAutreSelected()"
+                                    #description="ngModel"></textarea>
+                                <div *ngIf="isAutreSelected() && description.invalid && description.touched"
+                                    class="text-danger small mt-1">
+                                    Description est obligatoire si raison est « autre »
+                                </div>
+
                             </span>
                         </div>
                     </div>

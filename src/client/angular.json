@@ -26,10 +26,13 @@
                 "input": "public"
               }
             ],
-            "styles": [
+            "styles": [   
+               "node_modules/intl-tel-input/build/css/intlTelInput.min.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+                "node_modules/intl-tel-input/build/js/intlTelInput.min.js"
+            ]
           },
           "configurations": {
             "production": {
