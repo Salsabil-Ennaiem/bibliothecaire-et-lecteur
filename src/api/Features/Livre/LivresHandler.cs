@@ -21,7 +21,7 @@ public class LivresHandler
         try
         {
             var list = await _livresRepository.GetAllLivresAsync();
-            if (searchTerm == "") { return list; }
+            if (searchTerm == "") return list;
             var query = list.Where(l =>
               (l.titre != null && l.titre.Contains(searchTerm)) ||
               (l.auteur != null && l.auteur.Contains(searchTerm)) ||
@@ -60,13 +60,13 @@ public class LivresHandler
     }
     public async Task<LivreDTO> CreateAsync(CreateLivreRequest livredto)
     {
-                    if (string.IsNullOrEmpty(livredto.titre) ||
-                string.IsNullOrEmpty(livredto.editeur) ||
-                string.IsNullOrEmpty(livredto.date_edition) ||
-                string.IsNullOrEmpty(livredto.cote_liv))
-            {
-                throw new Exception("Les 4 champs sont obligatoires : titre, éditeur, date édition, cote liv.");
-            }
+        if (string.IsNullOrEmpty(livredto.titre) ||
+    string.IsNullOrEmpty(livredto.editeur) ||
+    string.IsNullOrEmpty(livredto.date_edition) ||
+    string.IsNullOrEmpty(livredto.cote_liv))
+        {
+            throw new Exception("Les 4 champs sont obligatoires : titre, éditeur, date édition, cote liv.");
+        }
         var createdLivre = await _livresRepository.CreateAsync(livredto);
 
         return createdLivre.Adapt<LivreDTO>();
@@ -80,11 +80,10 @@ public class LivresHandler
     {
         await _livresRepository.DeleteAsync(id);
     }
-
     public async Task<IEnumerable<LivreDTO>> FiltreStautLiv(Statut_liv? statut_Liv)
     {
         var liv = await GetAllAsync();
-                if(statut_Liv==null) return liv;
+        if (statut_Liv == null) return liv;
         return liv.Where(r => r.statut == statut_Liv);
     }
 }

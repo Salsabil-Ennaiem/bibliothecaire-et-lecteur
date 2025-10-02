@@ -19,6 +19,6 @@ public class UpdateMembreDto
     public TypeMemb TypeMembre { get; set; }
     public string? nom { get; set; }
     public string? prenom { get; set; }
-    public required string email { get; set; }
+    public  string email { get; set; }
     public string? telephone { get; set; }
 }

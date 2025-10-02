@@ -4,8 +4,8 @@
         <p-select id="statut_Liv" [options]="selectstatutLiv" [(ngModel)]="selectedStatutLiv" name="statut_Liv"
             placeholder="Select Statut Livres" [autoDisplayFirst]="false" (onChange)="applyFilter($event.value)">
         </p-select>
-        <button pButton icon="pi pi-plus" *ngIf="!isHosted" routerLink="ajouter" [rounded]="true" [text]="true"
-            (click)="Ajouter()" class="btn btn-primary">
+        <button pButton icon="pi pi-plus" *ngIf="!isHosted" [rounded]="true" [text]="true" (click)="Ajouter()"
+            class="btn btn-primary">
             <span class="d-none d-md-inline">Ajouter</span>
         </button>
 
@@ -26,47 +26,52 @@
 
     <div class="book-grid ">
         <div class="row row-cols-1 row-cols-sm-3 g-4">
-            <div *ngFor="let livre of livres" class="col">
-                @if (!livres) {<h2 class="text-center">No Livres </h2>}
-                @else {
-                <div class="book" [ngClass]="{'open': isOpen.has(livre.id_inv)  }" (click)="toggleBook(livre, $event)">
-                    <div class="back"></div>
-                    <div class="page6"></div>
-                    <div class="page5"></div>
-                    <div class="page4"></div>
-                    <div class="page3"></div>
-                    <div class="page2">
-                        <div class="page-details">
-                            <p class="mb-2"><strong>ISBN :</strong> {{ livre.isbn }}</p>
-                            <p class="mb-2"><strong>État:</strong> {{ Getetavalue(livre.etat) }}</p>
-                            <p class="mb-2"><strong>cote:</strong> {{ livre.cote_liv }}</p>
-                            <p class="mb-2"><strong>invtentaire:</strong> {{ livre.inventaire }}</p>
-                            <p class="mb-2"><strong>Description:</strong> {{ livre.Description }}</p>
 
-                        </div>
-                    </div>
-                    <div class="page1"></div>
-                    <div class="front">
-                        <img [src]="livre.couverture" [alt]="livre.titre" class="book-image" />
-                        <div class="book-details">
-                            <h3 class="book-title">{{ livre.titre }}</h3>
-                            <p class="book-author">{{ livre.auteur }}</p>
-                            <p>{{livre.editeur}}</p>
-                            <p class="book-date">{{ livre.date_edition }}</p>
-                            <span class="badge position-absolute top-0 start-0 m-2" [ngClass]="{
+                <ng-container *ngIf="livres && livres.length; else noLivre">
+                    <div class="col" *ngFor="let livre of livres">
+                        <div class="book" [ngClass]="{'open': isOpen.has(livre.id_inv)}"
+                            (click)="toggleBook(livre, $event)">
+                            <div class="back"></div>
+                            <div class="page6"></div>
+                            <div class="page5"></div>
+                            <div class="page4"></div>
+                            <div class="page3"></div>
+                            <div class="page2">
+                                <div class="page-details">
+                                    <p class="mb-2"><strong>ISBN :</strong> {{ livre.isbn }}</p>
+                                    <p class="mb-2"><strong>État:</strong> {{ Getetavalue(livre.etat) }}</p>
+                                    <p class="mb-2"><strong>cote:</strong> {{ livre.cote_liv }}</p>
+                                    <p class="mb-2"><strong>invtentaire:</strong> {{ livre.inventaire }}</p>
+                                    <p class="mb-2"><strong>Description:</strong> {{ livre.Description }}</p>
+
+                                </div>
+                            </div>
+                            <div class="page1"></div>
+                            <div class="front">
+                                <img [src]="livre.couverture" [alt]="livre.titre" class="book-image" />
+                                <div class="book-details">
+                                    <h3 class="book-title">{{ livre.titre }}</h3>
+                                    <p class="book-author">{{ livre.auteur }}</p>
+                                    <p>{{livre.editeur}}</p>
+                                    <p class="book-date">{{ livre.date_edition }}</p>
+                                    <span class="badge position-absolute top-0 start-0 m-2" [ngClass]="{
                                             'bg-success': livre.statut === 0,
                                             'bg-warning': livre.statut === 1,
                                             'bg-danger': livre.statut === 2
                                           }">
-                                {{ Getstautvalue(livre.statut)}}
-                            </span>
+                                        {{ Getstautvalue(livre.statut)}}
+                                    </span>
+                                </div>
+                                <p-speeddial *ngIf="!isHosted && livre.statut !==1" class="speed-dial"
+                                    [model]="getSpeedDialItems(livre.id_inv, livre.statut)" direction="down"
+                                    showIcon="pi pi-ellipsis-v" (click)="$event.stopPropagation()" />
+                            </div>
                         </div>
-                        <p-speeddial *ngIf="!isHosted" class="speed-dial"
-                            [model]="getSpeedDialItems(livre.id_inv, livre.statut)" direction="down"
-                            showIcon="pi pi-ellipsis-v" (click)="$event.stopPropagation()" />
                     </div>
-                </div>}
-            </div>
+                </ng-container>
+            <ng-template #noLivre>
+                <h2 class="text-center">No Livres</h2>
+            </ng-template>
         </div>
     </div>
 </div>

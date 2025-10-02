@@ -54,7 +54,7 @@ builder.Services.AddDbContext<BiblioDbContext>(options =>
 builder.Services.AddDbContextFactory<BiblioDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("postgres")),
     ServiceLifetime.Scoped);
-    
+
 
 
 
@@ -72,6 +72,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    options.RequireHttpsMetadata = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -84,8 +85,27 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:ValidAudience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!))
     };
-});
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+   {
+       var exception = context.Exception;
+       // log or inspect exception here for clues
+       return Task.CompletedTask;
+   },
+        OnMessageReceived = context =>
+        {
+            var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            if (!string.IsNullOrEmpty(token))
+            {
+                context.Token = token;
+            }
+            return Task.CompletedTask;
+        }
 
+    };
+    options.IncludeErrorDetails = true;
+});
 builder.Services.AddRateLimiter(options =>
 {
     options.AddPolicy("login", httpContext =>
@@ -97,6 +117,7 @@ builder.Services.AddRateLimiter(options =>
                 Window = TimeSpan.FromMinutes(5)
             }));
 });
+
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddHttpContextAccessor();
@@ -119,7 +140,7 @@ builder.Services.AddScoped<ILivresRepository, LivresRepository>();
 builder.Services.AddScoped<IFichierRepository, FichierRepository>();
 builder.Services.AddScoped<IEmpruntsRepository, EmpruntsRepository>();
 builder.Services.AddScoped<IParametreRepository, ParametreRepository>();
-builder.Services.AddScoped<IDashboardRepository, DashboardRepository>(); 
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 
 builder.Services.AddScoped<LivresHandler>();
 builder.Services.AddScoped<MembreHandler>();
@@ -176,17 +197,18 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine($"Stack trace: {ex.StackTrace}");
     }
 }
-//order imporatnt routing rouetr first controller last  authentification then autorization 
-app.UseRouting();// After app.UseRouting()
-app.MapHub<dashboardHub>("/dashboardHub");
-app.MapHub<NotificationHub>("/notificationHub");
+//order imporatnt routing rouetr first controller last  authentification then autorization
+app.UseHttpsRedirection();
+app.UseRouting();
 
 app.UseCors("AllowAngularDevClient");
-
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
-app.UseHttpsRedirection();
+
+app.MapHub<dashboardHub>("/dashboardHub");
+app.MapHub<NotificationHub>("/notificationHub");
+
 app.MapControllers();
 app.Run();

@@ -27,5 +27,4 @@ export interface UpdateMembreDto {
   prenom?: string | null;
   email: string;
   telephone?: string | null;
-  cin_ou_passeport: string;
 }

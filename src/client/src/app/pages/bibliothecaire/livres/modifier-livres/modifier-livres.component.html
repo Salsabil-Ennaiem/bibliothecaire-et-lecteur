@@ -6,9 +6,10 @@
         <form #form="ngForm" (ngSubmit)="onSubmit(form)">
             <div class="row ">
                 <div class="col-12 mb-3">
-                    <label class="form-label font-bold mb-2 w-100" for="typeMembre">Staut Livre *</label>
-                    <p-select id="typeMembre" [options]="selectStatutLiv" [(ngModel)]="Liv.statut" class="w-100"
-                        name="typeMembre" required placeholder="Select type membre" [autoDisplayFirst]="false">
+                    <label class="form-label font-bold mb-2 w-100" for="StautLivre">Staut Livre *</label>
+                    <p-select id="StautLivre" [options]="selectStatutLiv" [(ngModel)]="Liv.statut" class="w-100"
+                        name="StautLivre" optionValue="value" optionLabel="label" required
+                        placeholder="Select Staut Livre" [autoDisplayFirst]="false">
                     </p-select>
 
                 </div>
@@ -16,9 +17,10 @@
 
             <div class="row ">
                 <div class="col-12 mb-3">
-                    <label class="form-label font-bold mb-2 w-100" for="typeMembre">Etat livre*</label>
-                    <p-select id="typeMembre" [options]="selectetatLiv" [(ngModel)]="Liv.etat" class="w-100"
-                        name="typeMembre" required placeholder="Select type membre" [autoDisplayFirst]="false">
+                    <label class="form-label font-bold mb-2 w-100" for="Etativre">Etat livre*</label>
+                    <p-select id="Etativre" [options]="selectetatLiv" [(ngModel)]="Liv.etat" class="w-100"
+                        name="Etativre" optionValue="value" optionLabel="label" required placeholder="Select Etat livre"
+                        [autoDisplayFirst]="false">
                     </p-select>
 
                 </div>
@@ -26,19 +28,19 @@
             <div class="row">
                 <div class="col-12 mb-3">
                     <label for="cote" class="form-label">Cote Livre *</label>
-                        <p-iconfield>
-                            <p-inputicon class="pi pi-barcode" />
-                            <input pInputText id="cote" type="text" [(ngModel)]="Liv.cote_liv" class="w-100"
-                                name="cote_liv" placeholder="Ex: A39-B12"  required>
-                        </p-iconfield>
+                    <p-iconfield>
+                        <p-inputicon class="pi pi-barcode" />
+                        <input pInputText id="cote" type="text" [(ngModel)]="Liv.cote_liv" class="w-100" name="cote_liv"
+                            placeholder="Ex: A39-B12" required>
+                    </p-iconfield>
                 </div>
             </div>
 
-    <div class="d-flex justify-content-between mt-4">
-        <button type="button" pButton label="Annuler" icon="pi pi-times" class="p-button-secondary"
-            routerLink="/bibliothecaire/livres"></button>
-        <button type="submit" pButton label="Enregistrer" icon="pi pi-check" class="p-button-success"></button>
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" pButton label="Annuler" icon="pi pi-times" class="p-button-secondary"
+                    routerLink="/bibliothecaire/livres"></button>
+                <button type="submit" pButton label="Enregistrer" icon="pi pi-check" class="p-button-success"></button>
+            </div>
+        </form>
     </div>
-    </form>
-</div>
 </div>

@@ -58,13 +58,12 @@ namespace Infrastructure.Repositries
             }
 
         }
-        public async Task<T> UpdateAsync(T entity, string id)
+        public async Task<T> UpdateAsync(T entity)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
-                var existingEntity = await GetByIdAsync(id);
-                _dbContext.Entry(existingEntity).CurrentValues.SetValues(entity);
+                _dbContext.Update(entity);
                 await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
                 return entity;
@@ -72,7 +71,7 @@ namespace Infrastructure.Repositries
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                throw new Exception($"Error updating {typeof(T).Name} with ID {id}: {ex.Message}", ex);
+                throw new Exception($"Error updating {typeof(T).Name} : {ex.Message}", ex);
             }
         }
         public async Task DeleteAsync(string id)

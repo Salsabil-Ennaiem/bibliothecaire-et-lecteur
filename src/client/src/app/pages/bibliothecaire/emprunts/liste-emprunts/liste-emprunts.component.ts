@@ -94,8 +94,8 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
       const datePrev = new Date(emprunt.date_retour_prevu);
       const dateEff = new Date(emprunt.date_effectif);
       const diffDays = Math.round((dateEff.getTime() - datePrev.getTime()) / (1000 * 60 * 60 * 24));
-      if (diffDays > 0) { return `Retourne avant délais ${diffDays} j`; }
-      else { return `Retard aprés le délais ${diffDays} j` }
+      if (diffDays > 0) { return `Retourne aprés délais ${diffDays} j`; }
+      else { return `Retard avant le délais ${diffDays} j` }
     }
     else if (emprunt.statut_emp === 2) { // Cas "perdu"
       if (!emprunt.date_emp) return '';
@@ -156,13 +156,8 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
       this.showSpeedDial = !this.showSpeedDial;
     }
   }
-  createSpeedDialItems(empruntId: string): MenuItem[] {
-    return [
-      {
-        label: 'Modifier',
-        icon: 'pi pi-pencil',
-        command: () => this.modifier(empruntId)
-      },
+  createSpeedDialItems(empruntId: string, statut: Statut_emp): MenuItem[] {
+    const items: MenuItem[] = [
       {
         label: 'Supprimer',
         icon: 'pi pi-trash',
@@ -174,6 +169,14 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
         command: () => this.sanctionner(empruntId)
       }
     ];
+    if (statut !== Statut_emp.retourne) {
+      items.push({
+        label: 'Modifier',
+        icon: 'pi pi-pencil',
+        command: () => this.modifier(empruntId)
+      });
+    }
+    return items;
   }
 
   getSeverity(statut: number): 'info' | 'success' | 'warn' | 'danger' | 'secondary' | 'contrast' {
@@ -228,7 +231,7 @@ export class ListeEmpruntsComponent implements OnInit, OnDestroy {
           },
           error: (error) => {
             console.error('Error deleting Emprunts:', error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error deliting Emprunts:' });
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Ce Emprunt a un sanction encore active:' });
 
           }
 

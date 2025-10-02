@@ -34,7 +34,7 @@ return this.http.get(`${this.apiUrl}/Notification`,{ responseType: 'text' });
   }
 
   update(id: string, Emp: UpdateEmppruntDTO): Observable<EmppruntDTO> {
-    return this.http.patch<EmppruntDTO>(`${this.apiUrl}/Update/${id}`, Emp);
+    return this.http.put<EmppruntDTO>(`${this.apiUrl}/Update/${id}`, Emp);
   }
 
   delete(id: string): Observable<void> {

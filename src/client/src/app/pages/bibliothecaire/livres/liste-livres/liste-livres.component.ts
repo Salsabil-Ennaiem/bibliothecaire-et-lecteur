@@ -6,7 +6,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { SpeedDialModule } from 'primeng/speeddial';
 import { MenuItem, MessageService } from 'primeng/api';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { LivreService } from '../../../../Services/livre.service';
 import { etat_liv, LivreDTO, Statut_liv } from '../../../../model/livres.model';
 import { ButtonModule } from 'primeng/button';
@@ -15,7 +15,7 @@ import { SelectModule } from 'primeng/select';
 @Component({
   selector: 'app-liste-livres',
   standalone: true,
-  imports: [RouterLink, CommonModule, FormsModule, ButtonModule, InputTextModule,
+  imports: [ CommonModule, FormsModule, ButtonModule, InputTextModule,
     IconFieldModule, InputIconModule, SpeedDialModule, SelectModule],
   templateUrl: './liste-livres.component.html',
   styleUrls: ['./liste-livres.component.css']
@@ -37,7 +37,7 @@ export class ListeLivresComponent {
   @Input() isHosted: boolean = false;
   livres: LivreDTO[] = [];
 
-  constructor(private livreService: LivreService, private router: Router, private messageserv: MessageService) { };
+  constructor(private livreService: LivreService, private route: Router, private messageserv: MessageService) { };
   ngOnInit() {
     this.getBooks();
   }
@@ -119,18 +119,16 @@ export class ListeLivresComponent {
     }
   }
   getSpeedDialItems(livreId: string, statut: Statut_liv): MenuItem[] {
-    const items: MenuItem[] = [
-      {
+    const items: MenuItem[] = [ {
         label: 'Modifier',
         icon: 'pi pi-pencil',
         command: () => this.editLivre(livreId)
-      },
-      {
+      },{
         label: 'Supprimer',
         icon: 'pi pi-trash',
         command: () => this.deleteLivre(livreId)
-      }
-    ];
+      }];
+
 
     if (statut === Statut_liv.disponible) {
       items.push({
@@ -144,15 +142,15 @@ export class ListeLivresComponent {
   }
   Ajouter() {
     console.log(`Navigating to ajouter Livre`);
-    this.router.navigate([`/bibliothecaire/livres/ajouter`]);
+    this.route.navigate([`/bibliothecaire/livres/ajouter`]);
   }
   editLivre(livreId: string) {
     console.log(`Navigating to edit livre ID: ${livreId}`);
-    this.router.navigate([`/bibliothecaire/livres/modifier/${livreId}`]);
+    this.route.navigate([`/bibliothecaire/livres/modifier/${livreId}`]);
   }
   Emprunter(livreId: string) {
     console.log(`Navigating to emprunte livre ID: ${livreId}`);
-    this.router.navigate([`/bibliothecaire/emprunts/ajouter/${livreId}`]);
+    this.route.navigate([`/bibliothecaire/emprunts/ajouter/${livreId}`]);
   }
   deleteLivre(livreId: string) {
     if (confirm('Voulez-vous vraiment supprimer ce livre ?')) {

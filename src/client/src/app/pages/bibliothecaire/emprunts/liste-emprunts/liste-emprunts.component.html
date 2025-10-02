@@ -26,7 +26,7 @@
           <div class="frontcard">
             <!-- Speed Dial -->
             <p-speedDial class="position-absolute top-0 end-0 m-2" (click)="toggleSpeedDial($event, m.id_emp)"
-              [model]="createSpeedDialItems(m.id_emp)" direction="down" showIcon="pi pi-ellipsis-v">
+              [model]="createSpeedDialItems(m.id_emp, m.statut_emp)" direction="down" showIcon="pi pi-ellipsis-v">
             </p-speedDial>
             <div class="badge-top-left">
               <p-badge [value]="Getvalue(m.statut_emp)" [severity]="getSeverity(m.statut_emp)"></p-badge>

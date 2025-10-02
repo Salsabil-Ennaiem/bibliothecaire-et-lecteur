@@ -20,7 +20,13 @@ public class SanctionHandler
         _handlerMember = hundlermember;
         _handlerEmp = handlerEmp;
     }
-
+private void UpdateActiveState(Sanction sanction)
+{
+    if (sanction.date_fin_sanction <= DateTime.Today && sanction.payement == true)
+    {
+        sanction.active = false;
+    }
+}
     public async Task<IEnumerable<SanctionDTO>> GetAllAsync()
     {
         var sanctions = await _sanctionRepository.GetAllAsync();
@@ -35,6 +41,7 @@ public class SanctionHandler
             {
                 emprunt = await _handlerEmp.GetByIdAsync(sanction.id_emp);
             }
+    UpdateActiveState(sanction);
 
             sanctionDtos.Add(new SanctionDTO
             {
@@ -61,13 +68,9 @@ public class SanctionHandler
         {
             throw new Exception("Raison et date fin sont obligatoire ainsi date fin doit > date aujourd'hui ");
         }
-        if (createSanction.id_membre == null)
-        {
-            var emprunt = await _handlerEmp.GetByIdAsync(id) ?? throw new Exception("no id ");
-            if (string.IsNullOrEmpty(emprunt.id_membre))
-                throw new Exception("emprunt.id_membre is null or empty");
-            createSanction.id_membre = emprunt.id_membre;
-        }
+        var emprunt = await _handlerEmp.GetByIdAsync(id) ?? throw new Exception("no id ");
+
+        createSanction.id_membre = emprunt.id_membre;
         createSanction.id_emp = id;
 
         var entity = createSanction.Adapt<Sanction>();
@@ -94,7 +97,7 @@ public class SanctionHandler
         {
             var sanction = await _sanctionRepository.GetByIdAsync(id);
             sanction.payement = true;
-            await _sanctionRepository.UpdateAsync(sanction, id);
+            await _sanctionRepository.UpdateAsync(sanction);
         }
         catch (Exception ex)
         {

@@ -32,7 +32,7 @@ public class EmpruntController : ControllerBase
         var livre = await _empruntHundler.GetByIdAsync(id);
         return Ok(livre);
     }
-    [HttpPatch("Update/{id}")]
+    [HttpPut("Update/{id}")]
     public async Task<IActionResult> Update(string id, [FromBody] UpdateEmppruntDTO emp)
     {
         var updated = await _empruntHundler.UpdateAsync(id,emp);

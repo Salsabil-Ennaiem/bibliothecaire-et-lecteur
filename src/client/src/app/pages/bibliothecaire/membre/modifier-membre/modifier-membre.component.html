@@ -3,7 +3,7 @@
         style="background-color: rgba(195, 242, 191, 0.188); width: 100%; max-width: 800px;">
         <h1 class="text-center fw-bold mb-4">Modifier Membre</h1>
 
-        <form #form="ngForm" (ngSubmit)="onSubmit(form)">
+            <form #form="ngForm" (ngSubmit)="onSubmit(form)" novalidate>
             <div class="row ">
                 <div class="col-6 mb-3">
                     <label class="form-label font-bold mb-2 w-100" for="typeMembre">Type Membre *</label>
@@ -17,23 +17,23 @@
 
                     <label class="form-label font-bold mb-2 w-100" for="telephone">Téléphone</label>
                     <input pInputText id="telephone" class="w-100" pInputText [(ngModel)]="membre.telephone"
-                        name="telephone" />
+                        name="telephone" required />
                 </div>
             </div>
             <div class="row ">
                 <div class="col-6 mb-3">
                     <label class="form-label font-bold mb-2 w-100" for="nom">Nom</label>
-                    <input pInputText id="nom" class="w-100" pInputText [(ngModel)]="membre.nom" name="nom" />
+                    <input pInputText id="nom" class="w-100" pInputText [(ngModel)]="membre.nom" name="nom" required/>
                 </div>
 
                 <div class="col-6 mb-3">
                     <label class="form-label font-bold mb-2 w-100" for="prenom">Prénom</label>
-                    <input pInputText id="prenom" class="w-100" pInputText [(ngModel)]="membre.prenom" name="prenom" />
+                    <input pInputText id="prenom" class="w-100" pInputText [(ngModel)]="membre.prenom" name="prenom" required/>
                 </div>
             </div>
 
             <div class="row ">
-                <div class="col-6 mb-3">
+                <div class="col-12 mb-3">
                     <label class="form-label font-bold mb-2 w-100" for="email">Email *</label>
                     <input pInputText id="email" class="w-100" pInputText type="email" [(ngModel)]="membre.email"
                         name="email" required email />
@@ -43,20 +43,13 @@
                     </small>
                 </div>
 
-                <div class="col-6 mb-3">
-                    <label class="form-label font-bold mb-2 w-100" for="cin_ou_passeport">CIN / Passeport *</label>
-                    <input id="cin_ou_passeport" pInputText class="w-100" [(ngModel)]="membre.cin_ou_passeport"
-                        name="cin_ou_passeport" required />
-                    <small *ngIf="form.submitted && !membre.cin_ou_passeport" class="p-error">CIN / Passeport is
-                        required</small>
-                </div>
             </div>
 
 
             <div class="d-flex justify-content-between mt-4">
                 <button type="button" pButton label="Annuler" icon="pi pi-times" class="p-button-secondary"
                     routerLink="/bibliothecaire/membres"></button>
-                <button type="submit" pButton label="Enregistrer" icon="pi pi-check" class="p-button-success"></button>
+                <button type="submit" pButton label="Enregistrer" icon="pi pi-check"  [disabled]="form.invalid" class="p-button-success"></button>
             </div>
         </form>
     </div>

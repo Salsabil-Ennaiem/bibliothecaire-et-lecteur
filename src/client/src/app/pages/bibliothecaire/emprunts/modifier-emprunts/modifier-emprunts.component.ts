@@ -27,7 +27,6 @@ export class ModifierEmpruntsComponent implements OnInit {
     this.empId = this.route.snapshot.paramMap.get('id') ?? '';
 
     this.selectstatutEmp = [
-      { label: 'En Cours', value: Statut_emp.en_cours },
       { label: 'Perdu', value: Statut_emp.perdu },
       { label: 'Retourne', value: Statut_emp.retourne }
     ];

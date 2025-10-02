@@ -5,7 +5,7 @@
         </div>
 
         <div class="p-5 pt-0">
-            <form #AjouterLiv (ngSubmit)="Ajouter(livre)" novalidate>
+            <form #AjouterLiv="ngForm" (ngSubmit)="Ajouter(AjouterLiv)" novalidate>
                 <div class="row">
                     <!-- Upload couverture image -->
                     <div class="p-field p-col-12 p-md-6">
@@ -68,8 +68,9 @@
                         <!--Langue-->
                         <div class="mb-3">
                             <label for="langue" class="form-label">Langue</label>
-                            <p-select [options]="langues" [(ngModel)]="livre.Langue" optionLabel="label"  optionValue="value" name="Langue"
-                                placeholder="Sélectionnez une langue" class="w-100" inputId="langue">
+                            <p-select [options]="langues" [(ngModel)]="livre.Langue" optionLabel="label"
+                                optionValue="value" name="Langue" placeholder="Sélectionnez une langue" class="w-100"
+                                inputId="langue">
                             </p-select>
                         </div>
                     </div>
@@ -134,9 +135,11 @@
 
                         <!-- Etat Livre -->
                         <div class="mb-3">
-                            <label for="selectEtat_Livre" class="form-label">État du Livre</label>
-                            <p-select [options]="selectEtat_Livre" [(ngModel)]="livre.etat" optionLabel="label"
-                                placeholder="Sélectionnez un état" styleClass="w-100" name="etat"></p-select>
+                            <label for="etat" class="form-label">État du Livre</label>
+                            <p-select [options]="selectEtat_Livre" id="etat" [(ngModel)]="livre.etat"
+                                optionLabel="label" optionValue="value" placeholder="Sélectionnez un état" styleClass="w-100"
+                                name="etat"></p-select>
+
                         </div>
                     </div>
                 </div>
@@ -157,10 +160,11 @@
 
                 <!-- Buttons -->
                 <div class="d-flex justify-content-between mt-4">
-                    <button pButton type="button" label="Annuler" icon="pi pi-times" styleClass="p-button-secondary"
+                    <button pButton type="button" label="Annuler" icon="pi pi-times" severity="secondary"
                         [raised]="true" routerLink="/bibliothecaire/livres"></button>
-                    <button pButton label="Enregistrer" icon="pi pi-check" styleClass="p-button-success" [raised]="true"
-                        type="submit"></button>
+                    <button pButton type="submit" icon="pi pi-check" [raised]="true" label="Enregistrer"
+                        [disabled]="AjouterLiv.invalid"></button>
+
                 </div>
             </form>
         </div>

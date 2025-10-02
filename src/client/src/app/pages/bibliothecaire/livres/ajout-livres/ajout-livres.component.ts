@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { Router, RouterLink } from '@angular/router';
@@ -19,7 +19,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 @Component({
   selector: 'app-ajout-livres',
   imports: [RouterLink, CommonModule, InputIcon, ButtonModule, IconField, InputTextModule,
-     FormsModule, ButtonModule, SelectModule, TextareaModule ,FileUploadModule],
+    FormsModule, ButtonModule, SelectModule, TextareaModule, FileUploadModule],
   templateUrl: './ajout-livres.component.html',
   styleUrl: './ajout-livres.component.css'
 })
@@ -35,7 +35,7 @@ export class AjoutLivresComponent implements OnInit {
     isbn: '',
     inventaire: '',
     date_edition: '',
-    etat: etat_liv.neuf,
+    etat: null,
     Description: ''
   };
   selectEtat_Livre: { label: string; value: etat_liv }[] = [];
@@ -57,21 +57,25 @@ export class AjoutLivresComponent implements OnInit {
     ];
   }
 
-  Ajouter(livre: CreateLivreRequest): void {
-    this.livreService.create(livre).subscribe({
-      next: () => {
-        alert('Emprunt ajouté avec succès');
-        this.messagesev.add({ severity: 'success', summary: 'Succès', detail: 'Livre ajouté' });
-        this.routr.navigate(['/bibliothecaire/livres']);
-      },
-      error: (err) => {
-        console.error('Error adding livre:', err);
-                   this.messagesev.add({ severity: 'error', summary: 'Error', detail: 'Error Ajout Livre:' });
+  Ajouter(form: NgForm): void {
+    if (form.valid) {
+      this.livreService.create(this.livre).subscribe({
+        next: () => {
+          alert('Emprunt ajouté avec succès');
+          this.messagesev.add({ severity: 'success', summary: 'Succès', detail: 'Livre ajouté' });
+          this.routr.navigate(['/bibliothecaire/livres']);
+        },
+        error: (err) => {
+          console.error('Error adding livre:', err);
+          this.messagesev.add({ severity: 'error', summary: 'Error', detail: 'Error Ajout Livre:' });
 
-      }
-    });
+        }
+      });
+    } else {
+      this.messagesev.add({ severity: 'warn', summary: 'Formulaire invalide', detail: 'Veuillez remplir tous les champs requis' });
+    }
   }
-   coverFile: File | null = null;
+  coverFile: File | null = null;
   coverPreview: string | null = null;
 
   onSelectCover(event: any) {
@@ -91,5 +95,5 @@ export class AjoutLivresComponent implements OnInit {
     this.coverPreview = null;
   }
 
-  
+
 }

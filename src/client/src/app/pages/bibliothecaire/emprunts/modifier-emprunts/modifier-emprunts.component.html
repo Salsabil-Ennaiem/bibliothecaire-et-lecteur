@@ -6,9 +6,9 @@
         <form #form="ngForm" (ngSubmit)="onSubmit(form)">
             <div class="row ">
                 <div class="col-12 mb-3">
-                    <label class="form-label font-bold mb-2 w-100" for="typeMembre">Satut Emprunts *</label>
-                    <p-select id="typeMembre" [options]="selectstatutEmp" [(ngModel)]="Emp.statut_emp" class="w-100"
-                        name="typeMembre" required placeholder="Select type membre" [autoDisplayFirst]="false">
+                    <label class="form-label font-bold mb-2 w-100" for="SatutEmprunts">Satut Emprunts *</label>
+                    <p-select id="SatutEmprunts" [options]="selectstatutEmp" [(ngModel)]="Emp.statut_emp" class="w-100"
+                        name="SatutEmprunts" required placeholder="Select Satut Emprunts" [autoDisplayFirst]="false">
                     </p-select>
                 </div>
             </div>

@@ -28,9 +28,13 @@ public class MembreHandler
     }
     public async Task<MembreDto> UpdateAsync(UpdateMembreDto membre, string id)
     {
-
-        var entity = membre.Adapt<Membre>();
-        var Updated = await _MembreRepository.UpdateAsync(entity, id);
+        var Memb = await _MembreRepository.GetByIdAsync(id);
+        if (membre.nom != Memb.nom) Memb.nom = membre.nom;
+        if (membre.prenom != Memb.prenom) Memb.prenom = membre.prenom;
+        if (membre.email != Memb.email) Memb.email = membre.email;
+        if (membre.telephone != Memb.telephone) Memb.telephone = membre.telephone;
+        if (membre.TypeMembre != Memb.TypeMembre) Memb.TypeMembre = membre.TypeMembre;
+        var Updated = await _MembreRepository.UpdateAsync(Memb);
         return Updated.Adapt<MembreDto>();
     }
     public async Task DeleteAsync(string id)
@@ -57,7 +61,7 @@ public class MembreHandler
     public async Task<IEnumerable<MembreDto>> FiltreStautMemb(StatutMemb? statut_Memb)
     {
         var Memb = await GetAllMembAsync();
-                        if(statut_Memb==null) return Memb;
+        if (statut_Memb == null) return Memb;
         return Memb.Where(r => r.Statut == statut_Memb);
     }
 

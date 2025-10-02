@@ -37,7 +37,7 @@
 
 /* Footer */
 .footer {
-  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  background: linear-gradient(135deg, #ffe0a7, #daa1f5);
   color: white;
 }
 
@@ -83,7 +83,7 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-  .back-to-top {
+.back-to-top {
   transition: all 0.3s ease;
   position: fixed;
   bottom: 20px;
@@ -103,7 +103,7 @@
   top: 3px;
   transition: all 0.2s ease;
   z-index: 1;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .slider.dark {
@@ -116,21 +116,20 @@
   .welcome-text {
     display: none !important;
   }
-  
+
   .header-container {
     width: 100% !important;
     border-radius: 0 !important;
   }
-  
+
   .icon-link {
     width: 40px;
     height: 40px;
     font-size: 1.2rem;
   }
-  
+
   .footer-description {
     font-size: 0.9rem;
     padding: 0 15px;
   }
 }
-

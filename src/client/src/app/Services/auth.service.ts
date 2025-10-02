@@ -30,7 +30,7 @@ export class AuthService {
 
 getToken(): string | null {
   const currentUser = this.currentUserSubject.value;
-  console.log('Current token:', currentUser?.token);  
+  //console.log('Current token:', currentUser?.token);  
   return currentUser ? currentUser.token : null;
 }
 

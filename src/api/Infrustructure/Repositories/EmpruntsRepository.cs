@@ -144,6 +144,7 @@ namespace Infrastructure.Repositries
                                 cote_liv = i.cote_liv,
                                 editeur = l.editeur,
                                 id_inv = i.id_inv,
+                                id_membre = m.id_membre,
                                 date_edition = l.date_edition,
                                 titre = l.titre,
                                 date_emp = e.date_emp,
@@ -180,44 +181,25 @@ namespace Infrastructure.Repositries
 
             try
             {
-                // Fetch the tracked entity from the database for update
                 var empEntity = await _dbContext.Emprunts.FindAsync(id);
+                if (empEntity == null) throw new Exception($"Empprunt entity with ID {id} not found");
 
-                if (empEntity == null)
-                {
-                    throw new Exception($"Empprunt entity with ID {id} not found");
-                }
-
-                // Update the tracked entity properties as requested
-                if (updateEmpReq.Statut_emp != Statut_emp.en_cours && empEntity.Statut_emp != Statut_emp.retourne)
+                if (updateEmpReq.Statut_emp != empEntity.Statut_emp && updateEmpReq.Statut_emp != Statut_emp.en_cours && empEntity.Statut_emp != Statut_emp.retourne)
                 {
                     empEntity.Statut_emp = updateEmpReq.Statut_emp;
+                    empEntity.date_effectif = DateTime.UtcNow;
 
-                    if (updateEmpReq.Statut_emp == Statut_emp.retourne)
-                    {
-                        empEntity.date_effectif = DateTime.Now;
-                        var liv = await _dbContext.Inventaires.FindAsync(empEntity.Id_inv);
-                        if (liv == null) throw new Exception("Inventaire non trouvé."); liv.statut = Statut_liv.disponible;
-                        var entity = liv.Adapt<Livres>();
-                        _dbContext.Livres.Update(entity);
-                    }
-                    if (updateEmpReq.Statut_emp == Statut_emp.perdu)
-                    {
-                        empEntity.date_effectif = DateTime.Now;
-                        var liv = await _dbContext.Inventaires.FindAsync(empEntity.Id_inv);
-                        if (liv == null) throw new Exception("Inventaire non trouvé."); liv.statut = Statut_liv.perdu;
-                        var entity = liv.Adapt<Livres>();
-                        _dbContext.Livres.Update(entity);
-                    }
+                    var liv = await _dbContext.Inventaires.FindAsync(empEntity.Id_inv);
+                    if (liv == null) throw new Exception("Inventaire non trouvé.");
+                    liv.statut = updateEmpReq.Statut_emp == Statut_emp.retourne ? Statut_liv.disponible : Statut_liv.perdu;
+                    _dbContext.Inventaires.Update(liv);
                 }
 
                 if (!string.IsNullOrEmpty(updateEmpReq.note))
                 {
                     empEntity.note = updateEmpReq.note;
                 }
-
-                _dbContext.Entry(empEntity).State = EntityState.Modified;
-
+                _dbContext.Update(empEntity);
                 await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -240,10 +222,11 @@ namespace Infrastructure.Repositries
                 var emprunts = await GetEmpByIdAsync(id);
                 if (emprunts.Statut_emp == Statut_emp.retourne)
                 {
-                    var MembreId = emprunts.id_membre;
-                    if (emprunts.Statut_emp != Statut_emp.retourne)
+                    var emp = _dbContext.Sanctions.Where(e => e.id_emp == id && e.active == true);
+
+                    if (emp!=null)
                     {
-                        throw new Exception("Vous n'avez pas le droit de supprimer un emprunt en cours ou perdu");
+                        throw new Exception("Vous n'avez pas le droit de supprimer un emprunt a un sanction active");
                     }
                     _dbContext.Emprunts.Remove(emprunts);
                     await _dbContext.SaveChangesAsync();

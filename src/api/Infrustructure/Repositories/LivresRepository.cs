@@ -165,21 +165,23 @@ namespace Infrastructure.Repositories
             try
             {
                 var liv = await GetByIdAsync(id);
+                
                 if (liv.statut != Statut_liv.emprunte)
                 {
                     var inventaire = await GetInventaireByIdAsync(id);
                     var livre = inventaire.Livre;
 
-                    if (updatelivReq.cote_liv is not null && RechercheCote(updatelivReq.cote_liv) is null)
-                        inventaire.cote_liv = updatelivReq.cote_liv;
-                    else throw new Exception(" Autre LIvre A ce placemnt ");
+                    if (updatelivReq.cote_liv is not null && updatelivReq.cote_liv != liv.cote_liv)
+                    {
+                        if (RechercheCote(updatelivReq.cote_liv) is null) inventaire.cote_liv = updatelivReq.cote_liv;
+                        else throw new Exception(" Autre LIvre A ce placemnt ");
+                    }
 
-                    if (updatelivReq.etat is not null && updatelivReq.etat != etat_liv.neuf)
+                    if (updatelivReq.etat is not null && updatelivReq.etat != etat_liv.neuf && updatelivReq.etat != liv.etat)
                         inventaire.etat = updatelivReq.etat;
 
-                    if (updatelivReq.statut != Statut_liv.emprunte)
+                    if (updatelivReq.statut != Statut_liv.emprunte && updatelivReq.statut != liv.statut)
                         inventaire.statut = updatelivReq.statut;
-
 
                     await _dbContext.SaveChangesAsync();
                     await transaction.CommitAsync();
